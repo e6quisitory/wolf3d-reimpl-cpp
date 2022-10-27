@@ -10,16 +10,13 @@
 #include "camera.h"
 #include "misc.h"
 
-int height = 10;
-int width = 10;
-
 int main() {
 
     // Create world map from txt file
-    map world_map("/Users/exquisitory/Documents/Programming/wolf3d/map.txt");
+    map world_map("map.txt");
 
     // Create player camera
-    camera cam(vec2(5,5), vec2(0,1), 72.0);
+    camera cam(vec2(8.2,8.2), vec2(-0.6,-0.5), 72.0, 1, world_map.width-1, 1, world_map.height-1);
 
     // Create window and renderer
     int image_width = 1280;
@@ -34,6 +31,7 @@ int main() {
 
     // Main SDL window loop
     bool running = true;
+    bool render = true;
     while (running) {
 
         // SDL event handling
@@ -45,50 +43,53 @@ int main() {
             } else if (e.type == SDL_KEYDOWN) {
                 switch(e.key.keysym.sym) {
                     case SDLK_w:
-                        cam.move_y(0.3);
-                        cam.print_location();
+                        render = cam.move_y(0.3);
                         break;
                     case SDLK_s:
-                        cam.move_y(-0.3);
-                        cam.print_location();
+                        render = cam.move_y(-0.3);
                         break;
                     case SDLK_a:
-                        cam.move_x(-0.3);
-                        cam.print_location();
+                        render = cam.move_x(-0.3);
                         break;
                     case SDLK_d:
-                        cam.move_x(0.3);
-                        cam.print_location();
+                        render = cam.move_x(0.3);
                         break;
                     case SDLK_RIGHT:
-                        cam.swivel(-pi/16);
+                        render = cam.swivel(-pi/16);
                         break;
                     case SDLK_LEFT:
-                        cam.swivel(pi/16);
+                        render = cam.swivel(pi/16);
                         break;
                 }
             }
         }
 
-        Uint32* locked_pixels = nullptr;
-        int pitch = image_width*4;
-        SDL_LockTexture( texture, nullptr, reinterpret_cast<void**>(&locked_pixels), &pitch );
+        if (render == true) {
+            Uint32 *locked_pixels = nullptr;
+            int pitch = image_width * 4;
+            SDL_LockTexture(texture, nullptr, reinterpret_cast<void **>(&locked_pixels), &pitch);
 
-        for (int i = 0; i < image_width; ++i) {
-            ray curr_ray = cam.get_ray(static_cast<double>(i)/image_width);
-            double dist = world_map.hit(curr_ray);
-            if (dist != -1) {
-                int render_height = static_cast<int>(500.0/dist);
-                int start_height = (image_height/2 - render_height/2) >= 0 ? (image_height/2 - render_height/2) : 0;
-                int end_height = (image_height/2 + render_height/2) < image_height ? (image_height/2 + render_height/2) : image_height;
-                for (int j = start_height; j < end_height; ++j)
-                    locked_pixels[j*image_width + i] = 0xFFFFFFFF;
+            for (int i = 0; i < image_width; ++i) {
+                ray curr_ray = cam.get_ray(static_cast<double>(i) / image_width);
+                double dist = world_map.hit(curr_ray);
+                if (dist != -1) {
+                    int render_height = static_cast<int>(400 / (dist * std::cos(cam.fov / 2)));
+                    //int render_height = static_cast<int>(300/dist);
+                    int start_height =
+                            (image_height / 2 - render_height / 2) >= 0 ? (image_height / 2 - render_height / 2) : 0;
+                    int end_height = (image_height / 2 + render_height / 2) < image_height ? (image_height / 2 +
+                                                                                              render_height / 2)
+                                                                                           : image_height;
+                    for (int j = start_height; j < end_height; ++j)
+                        locked_pixels[j * image_width + i] = 0xFFFFFFFF;
+                }
             }
-        }
 
-        SDL_UnlockTexture(texture);
-        SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
-        SDL_RenderPresent(sdl_renderer);
+            SDL_UnlockTexture(texture);
+            SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
+            SDL_RenderPresent(sdl_renderer);
+            render = false;
+        }
     }
 
     SDL_DestroyTexture(texture);

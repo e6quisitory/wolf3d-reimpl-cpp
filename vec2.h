@@ -32,6 +32,10 @@ public:
         return *this;
     }
 
+    bool operator == (const vec2& v) {
+        return e[0] == v.e[0] && e[1] == v.e[1] ? true : false;
+    }
+
     double length_squared() const {
         return e[0]*e[0] + e[1]*e[1];
     }

@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+#include "vec2.h"
+#include "ivec2.h"
+#include "misc.h"
+
 class map {
 public:
     map(std::string filename) {
@@ -67,37 +71,42 @@ public:
         }
     }
 
-    double hit(const ray& r) {
-        std::vector<vec2> x_ints, y_ints;
-        x_ints.reserve(width);
-        y_ints.reserve(height);
+    ivec2 get_tile(vec2 pt) const {
+        return ivec2(static_cast<int>(pt.x()), static_cast<int>(pt.y()));
+    }
 
-        for (int x = r.near_x(); (r.x_dir() == 1) ? x < width : x >= 0; x += r.x_dir()) {
-            if (r.y_at(x) >= 0 && r.y_at(x) < height) {
-                vec2 curr_pt(x, r.y_at(x));
-                if ((*this)(static_cast<int>(curr_pt.x()), static_cast<int>(curr_pt.y())) == 1)
-                    x_ints.push_back(curr_pt);
+    bool check_tile(const ipoint2& tile) const {
+        return (*this)(tile.x(), tile.y()) == 1 ? true : false;
+    }
+
+    double hit(const ray& r) const {
+        point2 ray_pt = r.origin;
+        ipoint2 tile_pt = get_tile(r.origin);
+
+        while (within_bounds<ipoint2, int>(tile_pt, 0, width-1, 0, height-1)) {
+            point2 next_x_inter(r.near_x(ray_pt), r.y_at(r.near_x(ray_pt)));
+            point2 next_y_inter(r.x_at(r.near_y(ray_pt)), r.near_y(ray_pt));
+            double x_dist = r.get_ray_dist_dx(abs(next_x_inter.x() - ray_pt.x()));
+            double y_dist = r.get_ray_dist_dy(abs(next_y_inter.y() - ray_pt.y()));
+
+            if (x_dist < y_dist) {
+                tile_pt.x() += r.x_dir();
+                ray_pt = next_x_inter;
+            } else if (y_dist < x_dist) {
+                tile_pt.y() += r.y_dir();
+                ray_pt = next_y_inter;
+            } else {
+                tile_pt.x() += r.x_dir();
+                tile_pt.y() += r.y_dir();
+                ray_pt = point2(tile_pt.x(), tile_pt.y());
             }
-        }
 
-        for (int y = r.near_y(); (r.y_dir() == 1) ? y < height : y >= 0; y += r.y_dir()) {
-            if (r.x_at(y) >= 0 && r.x_at(y) < width) {
-                vec2 curr_pt(r.x_at(y), y);
-                if ((*this)(static_cast<int>(curr_pt.x()), static_cast<int>(curr_pt.y())) == 1)
-                    y_ints.push_back(curr_pt);
+            if (check_tile(tile_pt)) {
+                return r.get_t(ray_pt);
             }
-        }
 
-        if (x_ints.size() == 0 && y_ints.size() == 0)
-            return -1;
-        else {
-            double t = DBL_MAX;
-            for (int i = 0; i < x_ints.size(); ++i)
-                t = r.get_t(x_ints[i]) < t ? r.get_t(x_ints[i]) : t;
-            for (int i = 0; i < y_ints.size(); ++i)
-                t = r.get_t(y_ints[i]) < t ? r.get_t(y_ints[i]) : t;
-            return t;
         }
+        return -1;
     }
 
 public:
