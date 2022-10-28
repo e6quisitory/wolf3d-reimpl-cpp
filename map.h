@@ -88,6 +88,13 @@ public:
         return (*this)(tile.x(), tile.y()) == 1 ? true : false;
     }
 
+    bool within_map(const point2& pt) const {
+        if (within_bounds<point2, double>(pt, 0, width, 0, height))
+            return true;
+        else
+            return false;
+    }
+
     char wall_type(const point2& coord) const {
         // v for vertical wall, h for horizontal wall, c for corner
         if (is_integer(coord.x()) && !is_integer(coord.y()))

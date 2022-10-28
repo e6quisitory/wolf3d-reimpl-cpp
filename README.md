@@ -3,7 +3,9 @@
 
 I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning the game in it's entirety, including enemies, weapons, sound system, etc., would be quite a challenge for me at the moment. I'll see how far I can get. So far, I've been able to get basic raycasting working with shaded walls, a ground and sky. The map is being loaded from a file (`map.txt`):
 
-<img src="https://user-images.githubusercontent.com/25702188/198425519-9e1a3aee-13be-470f-81c3-7d256abf6bf0.gif" width="600" />
+<p align="center">
+<img src="https://user-images.githubusercontent.com/25702188/198508995-3c03cd5e-da78-45b5-a35f-a7d43baa262c.gif" width="600" />
+</p>
 
 ## Build Instructions
 I'm doing this project on a 2020 M1 MacBook Air, 8 GB RAM, running MacOS Ventura.
@@ -23,10 +25,8 @@ And running like so:
 ```
 ## Immediate Goals
 - Textured walls, ground & sky
-- Darken distant walls
-- Prevent player from passing through blocks
+- Darken distant walls (fog effect)
 - Use mouse to look around
-- Support multiple simultaneous keypresses for smoother movement
 
 ## Resources Used
 - [Wolfenstein 3D's map renderer](https://www.youtube.com/watch?v=eOCQfxRQ2pY) (video)
