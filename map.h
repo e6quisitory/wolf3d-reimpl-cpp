@@ -9,6 +9,15 @@
 #include "ivec2.h"
 #include "misc.h"
 
+typedef struct hit_info {
+    hit_info(double d, char wall): dist(d), wall_type(wall) { hit = true;}
+    hit_info(bool hit_occur): hit(hit_occur) {}
+
+    bool hit;
+    double dist;
+    char wall_type;
+} hit_info;
+
 class map {
 public:
     map(std::string filename) {
@@ -79,7 +88,18 @@ public:
         return (*this)(tile.x(), tile.y()) == 1 ? true : false;
     }
 
-    double hit(const ray& r) const {
+    char wall_type(const point2& coord) const {
+        // v for vertical wall, h for horizontal wall, c for corner
+        if (is_integer(coord.x()) && !is_integer(coord.y()))
+            return 'v';
+        else if (!is_integer(coord.x()) && is_integer(coord.y()))
+            return 'h';
+        else
+            return 'c';
+
+    }
+
+    hit_info hit(const ray& r) const {
         point2 ray_pt = r.origin;
         ipoint2 tile_pt = get_tile(r.origin);
 
@@ -102,11 +122,11 @@ public:
             }
 
             if (check_tile(tile_pt)) {
-                return r.get_t(ray_pt);
+                return hit_info(r.get_t(ray_pt), wall_type(ray_pt));
             }
 
         }
-        return -1;
+        return hit_info(false);
     }
 
 public:

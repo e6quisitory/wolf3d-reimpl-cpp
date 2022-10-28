@@ -71,17 +71,37 @@ int main() {
 
             for (int i = 0; i < image_width; ++i) {
                 ray curr_ray = cam.get_ray(static_cast<double>(i) / image_width);
-                double dist = world_map.hit(curr_ray);
-                if (dist != -1) {
-                    int render_height = static_cast<int>(400 / (dist * std::cos(cam.fov / 2)));
-                    //int render_height = static_cast<int>(300/dist);
-                    int start_height =
-                            (image_height / 2 - render_height / 2) >= 0 ? (image_height / 2 - render_height / 2) : 0;
-                    int end_height = (image_height / 2 + render_height / 2) < image_height ? (image_height / 2 +
-                                                                                              render_height / 2)
-                                                                                           : image_height;
-                    for (int j = start_height; j < end_height; ++j)
-                        locked_pixels[j * image_width + i] = 0xFFFFFFFF;
+                hit_info ray_hit = world_map.hit(curr_ray);
+                if (ray_hit.hit == true) {
+
+                    for (int k = 0; k < image_height/2; ++k)
+                        locked_pixels[k * image_width + i] = 0xFF87CEEB;
+
+                    for (int k = image_height/2; k < image_height; ++k)
+                        locked_pixels[k * image_width + i] = 0xFF555555;
+
+                    int render_height = static_cast<int>(400 / (ray_hit.dist*std::cos(cam.fov/2)));
+
+                    int start_height = (image_height/2 - render_height/2);
+                    int end_height = (image_height/2 + render_height/2);
+
+                    if (start_height < 0) start_height = 0;
+                    if (end_height > image_height) end_height = image_height;
+
+                    for (int j = start_height; j < end_height; ++j) {
+                        switch(ray_hit.wall_type) {
+                            case 'v':
+                                locked_pixels[j * image_width + i] = 0xFFDCDCDC;
+                                break;
+                            case 'h':
+                                locked_pixels[j * image_width + i] = 0xFFAAAAAA;
+                                break;
+                            case 'c':
+                                locked_pixels[j * image_width + i] = 0xFFFFFFFF;
+                                break;
+                        }
+                    }
+
                 }
             }
 

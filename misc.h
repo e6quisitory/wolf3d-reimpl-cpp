@@ -21,3 +21,10 @@ bool within_bounds(vec_type tile, limit_type x_lim1, limit_type x_lim2, limit_ty
     else
         return false;
 }
+
+bool is_integer(double d) {
+    if (d - static_cast<int>(d) != 0.0)
+        return false;
+    else
+        return true;
+}
