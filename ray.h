@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vec2.h"
+#include "misc.h"
 #include <cmath>
 
 class ray {
@@ -27,9 +28,6 @@ public:
         return origin.x() + ((y-origin.y())/direction.y())*direction.x();
     }
 
-    double get_t(const vec2& coord) const {
-        return (coord.x() - origin.x())/direction.x();
-    }
 
     int x_dir() const {
         return direction.x() > 0 ? 1 : -1;
@@ -40,7 +38,7 @@ public:
     }
 
     int near_x(const point2& pt) const {
-        if (pt.x() - (int)pt.x() != 0.0) {
+        if (!is_integer(pt.x())) {
             if (x_dir() == 1)
                 return static_cast<int>(ceil(pt.x()));
             else
@@ -51,7 +49,7 @@ public:
     }
 
     int near_y(const point2& pt) const {
-        if (pt.y() - (int)pt.y() != 0) {
+        if (!is_integer(pt.y())) {
             if (y_dir() == 1)
                 return static_cast<int>(ceil(pt.y()));
             else
@@ -62,11 +60,15 @@ public:
     }
 
     double get_ray_dist_dx(double dx) const {
-        return dx*dx_const;
+        return abs(dx)*dx_const;
     }
 
     double get_ray_dist_dy(double dy) const {
-        return dy*dy_const;
+        return abs(dy)*dy_const;
+    }
+
+    double dist_to_pt(const point2& p) const {
+        return (origin - p).length();
     }
 
 public:

@@ -10,12 +10,13 @@
 #include "misc.h"
 
 typedef struct hit_info {
-    hit_info(double d, char wall): dist(d), wall_type(wall) { hit = true;}
+    hit_info(const double& d, const char& wall): dist(d), wall_type(wall) { hit = true; }
     hit_info(bool hit_occur): hit(hit_occur) {}
 
     bool hit;
     double dist;
     char wall_type;
+
 } hit_info;
 
 class map {
@@ -67,10 +68,6 @@ public:
         return tiles[y*width + x];
     }
 
-    int num_cells() const {
-        return width*height;
-    }
-
     void print_map() const {
         std::cout << "Width = " << width << ", Height = " << height << std::endl;
         for (int i = 0; i < height; ++i) {
@@ -85,11 +82,21 @@ public:
     }
 
     bool check_tile(const ipoint2& tile) const {
-        return (*this)(tile.x(), tile.y()) == 1 ? true : false;
+        if (!within_map(tile))
+            return false;
+        else
+            return (*this)(tile.x(), tile.y()) == 1 ? true : false;
     }
 
     bool within_map(const point2& pt) const {
         if (within_bounds<point2, double>(pt, 0, width, 0, height))
+            return true;
+        else
+            return false;
+    }
+
+    bool within_map(const ipoint2& pt) const {
+        if (within_bounds<ipoint2, int>(pt, 0, width-1, 0, height-1))
             return true;
         else
             return false;
@@ -110,12 +117,14 @@ public:
         point2 ray_pt = r.origin;
         ipoint2 tile_pt = get_tile(r.origin);
 
-        while (within_bounds<ipoint2, int>(tile_pt, 0, width-1, 0, height-1)) {
+        while (within_map(tile_pt)) {
+            // Calculate next x and y intersections of ray
             point2 next_x_inter(r.near_x(ray_pt), r.y_at(r.near_x(ray_pt)));
             point2 next_y_inter(r.x_at(r.near_y(ray_pt)), r.near_y(ray_pt));
-            double x_dist = r.get_ray_dist_dx(abs(next_x_inter.x() - ray_pt.x()));
-            double y_dist = r.get_ray_dist_dy(abs(next_y_inter.y() - ray_pt.y()));
+            double x_dist = r.get_ray_dist_dx(next_x_inter.x() - ray_pt.x());
+            double y_dist = r.get_ray_dist_dy(next_y_inter.y() - ray_pt.y());
 
+            // Deduce which tile ray intersects next based on comparison b/w ray distance to each intersection
             if (x_dist < y_dist) {
                 tile_pt.x() += r.x_dir();
                 ray_pt = next_x_inter;
@@ -128,10 +137,10 @@ public:
                 ray_pt = point2(tile_pt.x(), tile_pt.y());
             }
 
+            // Check tile to see if there's a box/wall there on the map
             if (check_tile(tile_pt)) {
-                return hit_info(r.get_t(ray_pt), wall_type(ray_pt));
+                return hit_info(r.dist_to_pt(ray_pt), wall_type(ray_pt));
             }
-
         }
         return hit_info(false);
     }

@@ -20,7 +20,7 @@ int main() {
     map* world_map = new map("map.txt");
 
     // Create player camera
-    camera cam(vec2(8.2,8.2), vec2(-0.6,-0.5), 72.0, world_map);
+    camera cam(vec2(32,8.2), vec2(1,0), 72.0, world_map);
 
     // Create window and renderer
     int image_width = 1280;
@@ -83,26 +83,26 @@ int main() {
             for (int i = 0; i < image_width; ++i) {
                 ray curr_ray = cam.get_ray(static_cast<double>(i) / image_width);
                 hit_info ray_hit = world_map->hit(curr_ray);
+                // Draw sky
+                for (int k = 0; k < image_height/2; ++k)
+                    locked_pixels[k * image_width + i] = 0xFF87CEEB;
+
+                // Dray floor
+                for (int k = image_height/2; k < image_height; ++k)
+                    locked_pixels[k * image_width + i] = 0xFF555555;
+
+                // Draw boxes
                 if (ray_hit.hit == true) {
-                    // Draw sky
-                    for (int k = 0; k < image_height/2; ++k)
-                        locked_pixels[k * image_width + i] = 0xFF87CEEB;
+                    int render_height = static_cast<int>(400 / (ray_hit.dist * std::cos(cam.fov / 2)));
 
-                    // Dray floor
-                    for (int k = image_height/2; k < image_height; ++k)
-                        locked_pixels[k * image_width + i] = 0xFF555555;
-
-                    // Draw boxes
-                    int render_height = static_cast<int>(400 / (ray_hit.dist*std::cos(cam.fov/2)));
-
-                    int start_height = (image_height/2 - render_height/2);
-                    int end_height = (image_height/2 + render_height/2);
+                    int start_height = (image_height / 2 - render_height / 2);
+                    int end_height = (image_height / 2 + render_height / 2);
 
                     if (start_height < 0) start_height = 0;
                     if (end_height > image_height) end_height = image_height;
 
                     for (int j = start_height; j < end_height; ++j) {
-                        switch(ray_hit.wall_type) {
+                        switch (ray_hit.wall_type) {
                             case 'v':
                                 locked_pixels[j * image_width + i] = 0xFFDCDCDC;
                                 break;
@@ -110,12 +110,12 @@ int main() {
                                 locked_pixels[j * image_width + i] = 0xFFAAAAAA;
                                 break;
                             case 'c':
-                                locked_pixels[j * image_width + i] = 0xFFFFFFFF;
+                                locked_pixels[j * image_width + i] = 0xFFAAAAAA;
                                 break;
                         }
                     }
-
                 }
+
             }
 
             SDL_UnlockTexture(texture);

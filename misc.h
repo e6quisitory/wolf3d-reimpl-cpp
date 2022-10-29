@@ -14,8 +14,8 @@ double min(const double& a, const double& b) {
     return a < b ? a : b;
 }
 
-template<class vec_type, class limit_type>
-bool within_bounds(vec_type tile, limit_type x_lim1, limit_type x_lim2, limit_type y_lim1, limit_type y_lim2) {
+template<class point_type, class limit_type>
+bool within_bounds(point_type tile, limit_type x_lim1, limit_type x_lim2, limit_type y_lim1, limit_type y_lim2) {
     if((tile.x() >= x_lim1 && tile.x() <= x_lim2) && (tile.y() >= y_lim1 && tile.y() <= y_lim2))
         return true;
     else
