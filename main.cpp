@@ -89,27 +89,40 @@ int main() {
             for (int i = 0; i < image_width; ++i) {
                 ray curr_ray = cam.get_ray(static_cast<double>(i) / image_width);
                 hit_info ray_hit = world_map->hit(curr_ray);
-                // Draw sky
+
+                // Draw ceiling
                 for (int k = 0; k < image_height/2; ++k)
-                    locked_pixels[k * image_width + i] = 0xFF87CEEB;
+                    locked_pixels[k * image_width + i] = 0xFF323232;
 
-                // Dray floor
+                // Draw floor
                 for (int k = image_height/2; k < image_height; ++k)
-                    locked_pixels[k * image_width + i] = 0xFF555555;
+                    locked_pixels[k * image_width + i] = 0xFF606060;
 
-                // Draw boxes
+                // Draw boxes/walls
                 if (ray_hit.hit == true) {
                     int render_height = static_cast<int>(400 / (ray_hit.dist * std::cos(cam.fov / 2)));
 
+                    // Window start and end pixels for walls to be rendered into
                     int start_height = (image_height / 2 - render_height / 2);
                     int end_height = (image_height / 2 + render_height / 2);
 
+                    // If very close to wall (wall takes up entire screen), reset start and end pixels to be 0 and window size, respectively
                     if (start_height < 0) start_height = 0;
                     if (end_height > image_height) end_height = image_height;
 
+                    // Going vertically down, write pixels from bitmap texture onto screen.
                     for (int j = start_height; j < end_height; ++j) {
+                        // Current horizontal and vertical point on each box, represented as a percent
                         double u = ray_hit.width_percent;
-                        double v = ((j-start_height)/(double)(end_height-start_height));
+                        double v;
+
+                        if (render_height < image_height)
+                            v = (j-start_height)/(double)render_height;
+                        // If very close to wall, below formula must be used to avoid texture getting stretched
+                        else
+                            v = (((render_height-image_height)/2)+j)/(double)render_height;
+
+                        // Calculate bitmap texture file pixel indices
                         int u_i = static_cast<int>(u*(double)bmp_width);
                         int v_i = static_cast<int>(v*(double)bmp_height);
                         locked_pixels[j * image_width + i] = bmp_pixels[v_i*bmp_width + u_i];
@@ -140,10 +153,10 @@ int main() {
         }
     }
 
+    SDL_FreeSurface(bmp);
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(window);
-    SDL_FreeSurface(bmp);
     SDL_Quit();
 
     delete world_map;

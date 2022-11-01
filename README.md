@@ -24,14 +24,17 @@ And running like so:
 ./a.out
 ```
 ## Immediate Goals
-- Textured walls, ground & sky
+- Selectively textured walls
+- Textured ceiling & floor
+- Add inertia to movement (like in modern FPS games)
 - Darken distant walls (fog effect)
+- Implement doors
 - Use mouse to look around
 
 ## Credits
-All textures used are from [this pack](https://opengameart.org/content/big-pack-of-hand-painted-tiling-textures) posted by user drummyfish on [opengameart.org](https://opengameart.org/).
+All textures used are official Wolfenstein 3D textures. I found them [here](https://www.textures-resource.com/pc_computer/wolf3d/texture/1375/).
 
 ## Resources Used
 - [Wolfenstein 3D's map renderer](https://www.youtube.com/watch?v=eOCQfxRQ2pY) (video)
 - [Super Fast Ray Casting in Tiled Worlds using DDA](https://www.youtube.com/watch?v=NbSee-XM7WA) (video)
-- [Make Your Own Raycaster Part 1](https://www.youtube.com/watch?v=gYRrGTC7GtA) (video)
+- [Make Your Own Raycaster Series](https://www.youtube.com/watch?v=gYRrGTC7GtA) (video)
