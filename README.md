@@ -1,10 +1,10 @@
 # Wolfenstein 3D Clone
 (_**Work in Progress**_)
 
-I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning the game in it's entirety, including enemies, weapons, sound system, etc., would be quite a challenge for me at the moment. I'll see how far I can get. So far, I've been able to get basic raycasting working with shaded walls, a ground and sky. The map is being loaded from a file (`map.txt`):
+I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning the game in it's entirety, including enemies, weapons, sound system, etc., would be quite a challenge for me at the moment. I'll see how far I can get. So far, I've been able to get basic raycasting working with textured walls and a colored ceiling & floor. The map is being loaded from a file (`map.txt`):
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/25702188/198508995-3c03cd5e-da78-45b5-a35f-a7d43baa262c.gif" width="600" />
+<img src="https://user-images.githubusercontent.com/25702188/199304002-b5337863-0de8-4922-8d4c-8631af4f4d15.gif" width="600" />
 </p>
 
 ## Build Instructions
@@ -23,6 +23,9 @@ And running like so:
 ```
 ./a.out
 ```
+## Controls
+`w`, `a`, `s`, `d` for moving, `←` and `→` arrow keys for changing looking direction.
+
 ## Immediate Goals
 - Selectively textured walls
 - Textured ceiling & floor
