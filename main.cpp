@@ -33,6 +33,12 @@ int main() {
     // Create texture
     SDL_Texture* texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, image_width, image_height);
 
+    // Create surface out of bitmap texture
+    SDL_Surface* bmp = bmp_to_surface("texture.bmp");
+    int bmp_width = bmp->w;
+    int bmp_height = bmp->h;
+    Uint32* bmp_pixels = static_cast<Uint32*>(bmp->pixels);
+
     // Main SDL window loop
     bool running = true;
     bool render = true;
@@ -102,7 +108,13 @@ int main() {
                     if (end_height > image_height) end_height = image_height;
 
                     for (int j = start_height; j < end_height; ++j) {
-                        switch (ray_hit.wall_type) {
+                        double u = ray_hit.width_percent;
+                        double v = ((j-start_height)/(double)(end_height-start_height));
+                        int u_i = static_cast<int>(u*(double)bmp_width);
+                        int v_i = static_cast<int>(v*(double)bmp_height);
+                        locked_pixels[j * image_width + i] = bmp_pixels[v_i*bmp_width + u_i];
+
+                        /*switch (ray_hit.wall_type) {
                             case 'v':
                                 locked_pixels[j * image_width + i] = 0xFFDCDCDC;
                                 break;
@@ -112,7 +124,8 @@ int main() {
                             case 'c':
                                 locked_pixels[j * image_width + i] = 0xFFAAAAAA;
                                 break;
-                        }
+                        }*/
+
                     }
                 }
 
@@ -130,6 +143,7 @@ int main() {
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(sdl_renderer);
     SDL_DestroyWindow(window);
+    SDL_FreeSurface(bmp);
     SDL_Quit();
 
     delete world_map;

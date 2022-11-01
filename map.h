@@ -10,12 +10,13 @@
 #include "misc.h"
 
 typedef struct hit_info {
-    hit_info(const double& d, const char& wall): dist(d), wall_type(wall) { hit = true; }
+    hit_info(const double& d, const double& w_percent, const char& wall): dist(d), width_percent(w_percent), wall_type(wall) { hit = true; }
     hit_info(bool hit_occur): hit(hit_occur) {}
 
     bool hit;
     double dist;
     char wall_type;
+    double width_percent;
 
 } hit_info;
 
@@ -113,6 +114,15 @@ public:
 
     }
 
+    double point_width_percent(const point2& hitpoint) const {
+        if (is_integer(hitpoint.y()) && !is_integer(hitpoint.x()))
+            return abs(hitpoint.x()-(int)hitpoint.x());
+        else if (!is_integer(hitpoint.y()) && is_integer(hitpoint.x()))
+            return abs(hitpoint.y()-(int)hitpoint.y());
+        else
+            return 0.0;
+    }
+
     hit_info hit(const ray& r) const {
         point2 ray_pt = r.origin;
         ipoint2 tile_pt = get_tile(r.origin);
@@ -139,7 +149,7 @@ public:
 
             // Check tile to see if there's a box/wall there on the map
             if (check_tile(tile_pt)) {
-                return hit_info(r.dist_to_pt(ray_pt), wall_type(ray_pt));
+                return hit_info(r.dist_to_pt(ray_pt), point_width_percent(ray_pt), wall_type(ray_pt));
             }
         }
         return hit_info(false);

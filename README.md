@@ -28,6 +28,9 @@ And running like so:
 - Darken distant walls (fog effect)
 - Use mouse to look around
 
+## Credits
+All textures used are from [this pack](https://opengameart.org/content/big-pack-of-hand-painted-tiling-textures) posted by user drummyfish on [opengameart.org](https://opengameart.org/).
+
 ## Resources Used
 - [Wolfenstein 3D's map renderer](https://www.youtube.com/watch?v=eOCQfxRQ2pY) (video)
 - [Super Fast Ray Casting in Tiled Worlds using DDA](https://www.youtube.com/watch?v=NbSee-XM7WA) (video)
