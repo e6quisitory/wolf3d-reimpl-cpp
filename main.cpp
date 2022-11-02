@@ -17,10 +17,10 @@ using namespace std::chrono_literals;
 int main() {
 
     // Create world map from txt file
-    map* world_map = new map("map.txt");
+    map* world_map = new map("map.csv");
 
     // Create player camera
-    camera cam(vec2(32,8.2), vec2(1,0), 72.0, world_map);
+    camera cam(vec2(5.1,5.1), vec2(1,0), 72, world_map);
 
     // Create window and renderer
     int image_width = 1280;
@@ -33,10 +33,12 @@ int main() {
     // Create texture
     SDL_Texture* texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, image_width, image_height);
 
-    // Create surface out of bitmap texture
-    SDL_Surface* bmp = bmp_to_surface("texture.bmp");
-    int bmp_width = bmp->w;
-    int bmp_height = bmp->h;
+    // Create surface out of bitmap texture sheet
+    SDL_Surface* bmp = bmp_to_surface("texture_sheet.bmp");
+    int num_textures_x = 6;
+    int num_textures_y = 19;
+    int texture_width = 64;
+    int texture_height = 64;
     Uint32* bmp_pixels = static_cast<Uint32*>(bmp->pixels);
 
     // Main SDL window loop
@@ -67,10 +69,12 @@ int main() {
         } else if (state[SDL_SCANCODE_W] && state[SDL_SCANCODE_A]) {
             render = cam.move_y(0.3*0.7071067*speed);
             render = cam.move_x(-0.3*0.7071067*speed);
-        } else if(state[SDL_SCANCODE_W])
+        } else if(state[SDL_SCANCODE_W]) {
             render = cam.move_y(0.3*speed);
-        else if (state[SDL_SCANCODE_S])
+        }
+        else if (state[SDL_SCANCODE_S]) {
             render = cam.move_y(-0.3*speed);
+        }
         else if (state[SDL_SCANCODE_A])
             render = cam.move_x(-0.3*speed);
         else if (state[SDL_SCANCODE_D])
@@ -100,7 +104,7 @@ int main() {
 
                 // Draw boxes/walls
                 if (ray_hit.hit == true) {
-                    int render_height = static_cast<int>(400 / (ray_hit.dist * std::cos(cam.fov / 2)));
+                    int render_height = static_cast<int>(830 / (ray_hit.dist * std::cos(cam.fov / 2)));
 
                     // Window start and end pixels for walls to be rendered into
                     int start_height = (image_height / 2 - render_height / 2);
@@ -123,9 +127,16 @@ int main() {
                             v = (((render_height-image_height)/2)+j)/(double)render_height;
 
                         // Calculate bitmap texture file pixel indices
-                        int u_i = static_cast<int>(u*(double)bmp_width);
-                        int v_i = static_cast<int>(v*(double)bmp_height);
-                        locked_pixels[j * image_width + i] = bmp_pixels[v_i*bmp_width + u_i];
+                        int u_i = static_cast<int>(u*(double)texture_width);
+                        int v_i = static_cast<int>(v*(double)texture_height);
+
+                        int texture_id = ray_hit.texture_id;
+                        int texture_num_x = (texture_id % num_textures_x)-1;
+                        int texture_num_y = (texture_id / num_textures_x);
+                        int texture_start_y = texture_num_y*texture_height;
+                        int texture_start_x = texture_num_x*texture_width;
+
+                        get_pixel_at(locked_pixels, image_width, i, j) = get_pixel_at(bmp_pixels, bmp->w, texture_start_x+u_i, texture_start_y+v_i);
 
                         /*switch (ray_hit.wall_type) {
                             case 'v':

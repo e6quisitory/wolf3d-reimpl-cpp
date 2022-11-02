@@ -10,13 +10,15 @@
 #include "misc.h"
 
 typedef struct hit_info {
-    hit_info(const double& d, const double& w_percent, const char& wall): dist(d), width_percent(w_percent), wall_type(wall) { hit = true; }
+    hit_info(const double& d, const double& w_percent, const char& wall, const int& text_id):
+        dist(d), width_percent(w_percent), wall_type(wall), texture_id(text_id) { hit = true; }
     hit_info(bool hit_occur): hit(hit_occur) {}
 
     bool hit;
     double dist;
     char wall_type;
     double width_percent;
+    int texture_id;
 
 } hit_info;
 
@@ -29,24 +31,47 @@ public:
         height = 0;
         std::vector<int> raw_nums;
 
+        bool num_in_progress = false;
+        std::vector<int> digits;
         while (map_file.is_open()) {
             char c = map_file.get();
-            if (c == '\n') {
-                ++height;
-                continue;
+            bool comma = (c == ',');
+            bool newline = (c == '\r') || (c == '\n');
+
+            if (comma) {
+                num_in_progress = false;
+                if (digits[0] == 0)
+                    raw_nums.push_back(0);
+                else
+                    raw_nums.push_back(digits_vec_to_int(digits));
+                digits.clear();
+            } else if (newline) {
+                if (num_in_progress == true) {
+                    ++height;
+                    num_in_progress = false;
+                    raw_nums.push_back(digits_vec_to_int(digits));
+                    digits.clear();
+                } else
+                    continue;
             } else if (c == EOF) {
                 ++height;
+                num_in_progress = false;
+                raw_nums.push_back(digits_vec_to_int(digits));
+                digits.clear();
                 map_file.close();
-                continue;
-            } else if (height == 0)
-                ++width;
+            } else if (num_in_progress == true) {
+                digits.push_back(c - '0');
 
-            raw_nums.push_back(c - '0');
+            } else {
+                num_in_progress = true;
+                digits.push_back(c - '0');
+                if (height == 0) ++width;
+            }
         }
 
         tiles = new int[width*height];
         for (int i = 0; i < width*height; ++i)
-            tiles[i] = raw_nums[i];
+            tiles[i] = raw_nums[i];  // Flip array so that bottom left of csv file corresponds to (0,0)
     }
 
     ~map() {
@@ -82,11 +107,11 @@ public:
         return ivec2(static_cast<int>(pt.x()), static_cast<int>(pt.y()));
     }
 
-    bool check_tile(const ipoint2& tile) const {
+    int get_texture_id(const ipoint2& tile) const {
         if (!within_map(tile))
             return false;
         else
-            return (*this)(tile.x(), tile.y()) == 1 ? true : false;
+            return (*this)(tile.x(), tile.y());
     }
 
     bool within_map(const point2& pt) const {
@@ -148,8 +173,9 @@ public:
             }
 
             // Check tile to see if there's a box/wall there on the map
-            if (check_tile(tile_pt)) {
-                return hit_info(r.dist_to_pt(ray_pt), point_width_percent(ray_pt), wall_type(ray_pt));
+            int texture_id = get_texture_id(tile_pt);
+            if (texture_id != 0) {
+                return hit_info(r.dist_to_pt(ray_pt), point_width_percent(ray_pt), wall_type(ray_pt), texture_id);
             }
         }
         return hit_info(false);

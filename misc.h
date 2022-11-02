@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 double pi = 3.1415926535897932385;
 
 int nearest_int(const double& a, const int& dir) {
@@ -35,4 +37,16 @@ SDL_Surface* bmp_to_surface(const char* filename) {
     SDL_Surface* bmp = SDL_ConvertSurface(temp, SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888), 0);
     SDL_FreeSurface(temp);
     return bmp;
+}
+
+Uint32& get_pixel_at(Uint32* pixels_array, int width, int x, int y) {
+    return pixels_array[y*width + x];
+}
+
+int digits_vec_to_int(std::vector<int>& arr) {
+    int final_num = 0;
+    for (int i = 0; i < arr.size(); ++i)
+            final_num += arr[i]*pow(10, arr.size()-1-i);
+        return final_num;
+
 }

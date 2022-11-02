@@ -42,7 +42,7 @@ public:
 
 private:
     bool collision(const point2& pt) const {
-        if( world_map->check_tile(world_map->get_tile(vec2(pt.x(), pt.y()))) )
+        if( world_map->get_texture_id(world_map->get_tile(vec2(pt.x(), pt.y()))) != 0)
             return true;
         else
             return false;
