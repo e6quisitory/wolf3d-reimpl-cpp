@@ -70,12 +70,21 @@ public:
         }
 
         tiles = new int[width*height];
-        for (int i = 0; i < width*height; ++i)
-            tiles[i] = raw_nums[i];  // Flip array so that bottom left of csv file corresponds to (0,0)
+        objects_status = new int[width*height];
+        for (int i = 0; i < width*height; ++i) {
+            tiles[i] = raw_nums[i];
+            if (tiles[i] == 99)            // texture ID 99 is for door texture
+                objects_status[i] = 100;   // 100 for door fully closed
+            else
+                objects_status[i] = -1;    // -1 denotes the tile contains no object other than a wall
+        }
     }
+
+    map() {}
 
     ~map() {
         delete[] tiles;
+        delete[] objects_status;
     }
 
     int& operator [] (int index) {   // If operator is called on non-const object, allow modification, hence return by reference.
@@ -181,8 +190,9 @@ public:
         return hit_info(false);
     }
 
-public:
+private:
     int* tiles;
+    int* objects_status;
     int width;
     int height;
 };

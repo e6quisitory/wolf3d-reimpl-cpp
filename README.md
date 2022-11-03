@@ -38,6 +38,7 @@ And running like so:
 All textures used are official Wolfenstein 3D textures. I found them [here](https://www.textures-resource.com/pc_computer/wolf3d/texture/1375/).
 
 ## Resources Used
+- _Game Engine Blackbook - Wolfenstein 3D_ by Fabien Sanglard
 - [Wolfenstein 3D's map renderer](https://www.youtube.com/watch?v=eOCQfxRQ2pY) (video)
 - [Super Fast Ray Casting in Tiled Worlds using DDA](https://www.youtube.com/watch?v=NbSee-XM7WA) (video)
 - [Make Your Own Raycaster Series](https://www.youtube.com/watch?v=gYRrGTC7GtA) (video)

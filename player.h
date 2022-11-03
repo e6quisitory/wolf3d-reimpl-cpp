@@ -3,15 +3,17 @@
 #include "misc.h"
 #include "vec2.h"
 
-class camera {
+class player {
 public:
-    camera(point2 player_location, vec2 view_direction, double FOV, map* world):
+    player(point2 player_location, vec2 view_direction, double FOV, map* const world):
         player_loc(player_location),
         view_dir(view_direction),
         left(rotate2d(view_direction, pi/2)),
         right(rotate2d(view_direction, -pi/2)),
         fov(degrees_to_radians(FOV)),
         world_map(world) {}
+
+    player() {}
 
     ray get_ray(double progress) const {
         vec2 leftmost = rotate2d(view_dir, fov/2);
@@ -61,10 +63,12 @@ private:
     }
 
 public:
+    double fov;
+
+private:
     point2 player_loc;
     vec2 view_dir;
     vec2 left;
     vec2 right;
-    double fov;
     map* world_map;
 };
