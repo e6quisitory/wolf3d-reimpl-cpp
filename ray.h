@@ -6,10 +6,7 @@
 
 class ray {
 public:
-    ray(const vec2& o, const vec2& dir) {
-        origin = o;
-        direction = unit_vector(dir);
-
+    ray(const vec2& o, const vec2& dir, const double& cosine_angle): origin(o), direction(unit_vector(dir)), cosine_of_angle(cosine_angle) {
         dx_const = std::sqrt(1+pow(direction.y()/direction.x(),2));
         dy_const = std::sqrt(1+pow(direction.x()/direction.y(),2));
     }
@@ -74,6 +71,9 @@ public:
 public:
     vec2 origin;
     vec2 direction;
+    double cosine_of_angle;
+
+private:
     double dx_const;
     double dy_const;
 };

@@ -1,24 +1,43 @@
 #pragma once
 
+#include <cmath>
+
 #include "misc.h"
 #include "vec2.h"
 
 class player {
 public:
-    player(point2 player_location, vec2 view_direction, double FOV, map* const world):
+    player(point2 player_location, vec2 view_direction, double FOV, int screen_width_pixels, map* const world):
         player_loc(player_location),
         view_dir(view_direction),
         left(rotate2d(view_direction, pi/2)),
         right(rotate2d(view_direction, -pi/2)),
         fov(degrees_to_radians(FOV)),
-        world_map(world) {}
+        world_map(world) {
+
+        double proj_plane_width = 2*std::tan(fov/2);
+        double segment_len = proj_plane_width/screen_width_pixels;
+
+        // Pre-calculate the angles and the cosines of them, as they do not change
+        angles = new double[screen_width_pixels];
+        cosines = new double[screen_width_pixels];
+        for (int i = 0; i < screen_width_pixels; ++i) {
+            angles[i] = std::atan(-(i*segment_len-(proj_plane_width/2)));
+            cosines[i] = std::cos(angles[i]);
+        }
+
+    }
 
     player() {}
 
-    ray get_ray(double progress) const {
-        vec2 leftmost = rotate2d(view_dir, fov/2);
-        vec2 curr_ray_dir = rotate2d(leftmost, -progress*fov);
-        return ray(player_loc, curr_ray_dir);
+    ~player() {
+        delete[] angles;
+        delete[] cosines;
+    }
+
+    ray get_ray(int segment_num) const {
+        vec2 direction = rotate2d(view_dir, angles[segment_num]);
+        return ray(player_loc, direction, cosines[segment_num]);
     }
 
     bool move_x(double amount) {
@@ -70,5 +89,7 @@ private:
     vec2 view_dir;
     vec2 left;
     vec2 right;
+    double* angles;
+    double* cosines;
     map* world_map;
 };

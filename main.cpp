@@ -17,8 +17,8 @@ using namespace std::chrono_literals;
 
 int main() {
     
-    renderer r("map.csv", vec2(5.1,5.1), vec2(1,0));
-    r.render_game(1280, 720);
+    renderer r(1280, 720, "map.csv", vec2(5.1,5.1), vec2(1,0));
+    r.render_game();
 
     return 0;
 }

@@ -1,41 +1,51 @@
 # Wolfenstein 3D Clone
-(_**Work in Progress**_)
 
-I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning the game in it's entirety, including enemies, weapons, sound system, etc., would be quite a challenge for me at the moment. I'll see how far I can get. So far, I've been able to get basic raycasting working with selectively textured walls and a colored ceiling & floor. The map is being loaded from a file (`map.csv`), ASCII encoded (I edit mine in Excel):
+<p align="center"><b><i>
+(Work in Progress)
+</i></b></p>
 
-<p align="center">
-<img src="https://user-images.githubusercontent.com/25702188/199422478-515fb05b-5025-4ac9-9e2f-fd50e8593e0e.gif" width="600" />
-</p>
+I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game is the goal, including enemies, weapons, sound system, etc. Let's see how far I get. So far, I've implemented the following functionality:
+- Raycasting
+- Selectively textured walls
+- Map loading from a `csv` file
+- Colored floor and ceiling
+- Smooth movement using VSYNC
+
+Here is a short video of what the engine is currently capable of:
+
+<div align="center">
+  <video src="https://user-images.githubusercontent.com/25702188/200101329-d6664c6e-fad7-401a-9252-a31d1fd00072.mp4" width=852/>
+</div>
 
 ## Build Instructions
-I'm doing this project on a 2020 M1 MacBook Air, 8 GB RAM, running MacOS Ventura.
+The game engine is coded completely from scratch. The only dependancy this project has is the windowing and multimedia library, SDL2, to draw pixels onto the screen. Suffice to say, coding a windowing library from scratch is beyond my scope of knoweldge at the moment!
 
-SDL2 must be installed, which I've installed using Homebrew. To make sure that SDL2 get's picked up by the compiler, I've added the following lines in my `~/.zshrc` file:
+I'm doing this project on a 2020 M1 MacBook Air, and have installed SDL2 using Homebrew:
 ```
-export CPATH=/opt/homebrew/include
-export LIBRARY_PATH=/opt/homebrew/lib
+brew install sdl2
 ```
-I'm compiling using g++ like so:
+I'm compiling and running like so:
 ```
-g++ -std=c++17 -lSDL2 main.cpp
+g++ -std=c++17 -lSDL2 main.cpp; ./a.out
 ```
-And running like so:
-```
-./a.out
-```
-## Controls
+## Controls & Map Loading
 `w`, `a`, `s`, `d` for moving, `←` and `→` arrow keys for changing looking direction.
 
+The map file is `map.csv` and is ASCII encoded, not UTF-8 encoded. I find that editing the file is easiest in Excel.
+
+As for how to construct the map, i.e. what the values in the `csv` file mean, please read [this](https://github.com/e6quisitory/wolf3d-clone/commit/3f9f9e308629098a29df2e3ec8103fddd3fc51c0#commitcomment-88618626).
+
 ## Immediate Goals
+- Doors
 - Sprites
+- Darken distant walls (depth effect)
 - Textured ceiling & floor
 - Add inertia to movement (like in modern FPS games)
-- Darken distant walls (fog effect)
-- Implement doors
 - Use mouse to look around
+- If vertical wall (y-axis), use lit texture, if horizontal, use unlit.
 
 ## Credits
-All textures used are official Wolfenstein 3D textures. I found them [here](https://www.textures-resource.com/pc_computer/wolf3d/texture/1375/).
+All textures used are the official Wolfenstein 3D textures that shipped in the game back in 1992. I found them [here](https://www.textures-resource.com/pc_computer/wolf3d/texture/1375/).
 
 ## Resources Used
 - _Game Engine Blackbook - Wolfenstein 3D_ by Fabien Sanglard

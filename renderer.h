@@ -17,9 +17,9 @@ using namespace std::chrono_literals;
 
 class renderer {
 public:
-    renderer(std::string map_file, vec2 spawn_location, vec2 looking_dir) {
+    renderer(int width, int height, std::string map_file, vec2 spawn_location, vec2 looking_dir): screen_width(width), screen_height(height) {
         world_map = new map(map_file);
-        plyr = new player(spawn_location, looking_dir, 72.0, world_map);
+        plyr = new player(spawn_location, looking_dir, 72.0, screen_width, world_map);
     }
 
     ~renderer() {
@@ -27,15 +27,17 @@ public:
         delete world_map;
     }
     
-    void render_game(int screen_width, int screen_height);
+    void render_game();
 
 private:
     map* world_map;
     player* plyr;
+    int screen_width;
+    int screen_height;
     Uint8* screen_pixels;
 };
 
-void renderer::render_game(int screen_width, int screen_height) {
+void renderer::render_game() {
    
     // Create window and renderer
     SDL_Init( SDL_INIT_EVERYTHING );
@@ -104,7 +106,7 @@ void renderer::render_game(int screen_width, int screen_height) {
             SDL_LockTexture(texture, nullptr, reinterpret_cast<void **>(&locked_pixels), &pitch);
 
             for (int i = 0; i < screen_width; ++i) {
-                ray curr_ray = plyr->get_ray(static_cast<double>(i) / screen_width);
+                ray curr_ray = plyr->get_ray(i);
                 hit_info ray_hit = world_map->hit(curr_ray);
 
                 // Draw ceiling
@@ -117,7 +119,7 @@ void renderer::render_game(int screen_width, int screen_height) {
 
                 // Draw boxes/walls
                 if (ray_hit.hit == true) {
-                    int render_height = static_cast<int>(830 / (ray_hit.dist * std::cos(plyr->fov / 2)));
+                    int render_height = static_cast<int>(930 / (ray_hit.dist * curr_ray.cosine_of_angle));
 
                     // Window start and end pixels for walls to be rendered into
                     int start_height = (screen_height / 2 - render_height / 2);

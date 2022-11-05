@@ -40,10 +40,7 @@ public:
 
             if (comma) {
                 num_in_progress = false;
-                if (digits[0] == 0)
-                    raw_nums.push_back(0);
-                else
-                    raw_nums.push_back(digits_vec_to_int(digits));
+                raw_nums.push_back(digits_vec_to_int(digits));
                 digits.clear();
             } else if (newline) {
                 if (num_in_progress == true) {
