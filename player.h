@@ -7,14 +7,22 @@
 
 class player {
 public:
-    player(point2 player_location, vec2 view_direction, double FOV, int screen_width_pixels, map* const world):
+    player(point2 player_location, vec2 view_direction, double FOV, map* const world):
         player_loc(player_location),
         view_dir(view_direction),
         left(rotate2d(view_direction, pi/2)),
         right(rotate2d(view_direction, -pi/2)),
         fov(degrees_to_radians(FOV)),
-        world_map(world) {
+        world_map(world) {}
 
+    player() {}
+
+    ~player() {
+        delete[] angles;
+        delete[] cosines;
+    }
+
+    void calculate_ray_angles(int screen_width_pixels) {
         double proj_plane_width = 2*std::tan(fov/2);
         double segment_len = proj_plane_width/screen_width_pixels;
 
@@ -25,14 +33,6 @@ public:
             angles[i] = std::atan(-(i*segment_len-(proj_plane_width/2)));
             cosines[i] = std::cos(angles[i]);
         }
-
-    }
-
-    player() {}
-
-    ~player() {
-        delete[] angles;
-        delete[] cosines;
     }
 
     ray get_ray(int segment_num) const {

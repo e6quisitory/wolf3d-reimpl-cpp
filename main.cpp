@@ -1,24 +1,27 @@
 #include <iostream>
-#include <cmath>
-#include <vector>
 #include <string>
-#include <SDL2/SDL.h>
-#include <chrono>
-#include <thread>
 
-#include "vec2.h"
-#include "ray.h"
-#include "map.h"
-#include "player.h"
-#include "misc.h"
-#include "renderer.h"
-
-using namespace std::chrono_literals;
+#include "game_engine.h"
 
 int main() {
-    
-    renderer r(1280, 720, "map.csv", vec2(5.1,5.1), vec2(1,0));
-    r.render_game();
+
+    // Create game engine object
+    game_engine ge;
+
+    // Initialize game engine components
+    ge.create_map("map.csv");
+    ge.create_player(vec2(5.1,5.1), vec2(1,0), 72.0);
+    ge.create_updater();
+    ge.create_renderer(1280, 720);
+
+    // Main game loop
+    bool running = true;
+    while (1) {
+        if (ge.check_quit())
+            break;
+        else
+            ge.game_loop();
+    }
 
     return 0;
 }

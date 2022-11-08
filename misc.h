@@ -31,14 +31,6 @@ bool is_integer(double d) {
         return true;
 }
 
-/* Loads bitmap file into an SDL surface with pixel format ARGB8888, and returns pointer to said surface */
-SDL_Surface* bmp_to_surface(const char* filename) {
-    SDL_Surface* temp = SDL_LoadBMP(filename);
-    SDL_Surface* bmp = SDL_ConvertSurface(temp, SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888), 0);
-    SDL_FreeSurface(temp);
-    return bmp;
-}
-
 Uint32& get_pixel_at(Uint32* pixels_array, int width, int x, int y) {
     return pixels_array[y*width + x];
 }
