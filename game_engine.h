@@ -60,16 +60,22 @@ public:
     }
 
     void game_loop() {
-        if (!*render_flag)
-            std::this_thread::sleep_for(10ms);
 
         upd->update_player(render_flag);
 
         if (*render_flag) {
+            r->start_fps_measure();
             r->render_to_backbuffer();
             r->swap_buffers();
-            *render_flag = upd->key_down() ? true : false;
-        }
+            r->update_fps();
+
+            if (!upd->key_down()) {
+                *render_flag = false;
+                r->stop_fps_measure();
+            }
+        } else
+            std::this_thread::sleep_for(10ms);
+
     }
 
 private:

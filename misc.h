@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 double pi = 3.1415926535897932385;
 
@@ -31,14 +32,15 @@ bool is_integer(double d) {
         return true;
 }
 
-Uint32& get_pixel_at(Uint32* pixels_array, int width, int x, int y) {
-    return pixels_array[y*width + x];
-}
-
 int digits_vec_to_int(std::vector<int>& arr) {
     int final_num = 0;
     for (int i = 0; i < arr.size(); ++i)
             final_num += arr[i]*pow(10, arr.size()-1-i);
         return final_num;
 
+}
+
+std::string double_to_string(const double& d, int precision) {
+    std::string initial_str = std::to_string(d);
+    return initial_str.substr(0, initial_str.find(".") + precision + 1);
 }
