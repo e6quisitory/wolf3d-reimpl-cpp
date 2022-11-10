@@ -39,6 +39,7 @@ public:
 
     void create_renderer(int width, int height) {
         assert(world_map != nullptr && plyr != nullptr);
+        assert(width % std::thread::hardware_concurrency() == 0);
         r = new renderer(width, height, world_map, plyr);
         plyr->calculate_ray_angles(r->screen_width);
     }

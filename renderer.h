@@ -6,6 +6,7 @@
 #include <string>
 #include <SDL2/SDL.h>
 #include <chrono>
+#include <thread>
 
 #include "vec2.h"
 #include "ray.h"
@@ -46,8 +47,21 @@ public:
         bmp_pixels = static_cast<Uint32*>(bmp->pixels);
 
         // FPS measurement related vars
-        thirty_frames_measure_in_progress = false;
+        fps_in_progress = false;
         last_fps = new double(60.0);
+
+        // Mulithreading stuff
+        cores = std::thread::hardware_concurrency();
+        threads = new std::thread[cores];
+
+        width_per_thread = screen_width / cores;
+        starting_indices = new int[cores];
+        ending_indices = new int[cores];
+
+        for (int i = 0; i < cores; ++i) {
+            starting_indices[i] = i*width_per_thread;
+            ending_indices[i] = starting_indices[i] + width_per_thread;
+        }
     }
 
     renderer() {}
@@ -56,6 +70,10 @@ public:
         delete[] backbuffer;
         delete[] ceiling_floor;
         delete last_fps;
+        delete[] threads;
+        delete[] starting_indices;
+        delete[] ending_indices;
+
         SDL_FreeSurface(bmp);
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(sdl_renderer);
@@ -68,7 +86,77 @@ public:
         // Draw ceiling and floor
         copy_frame(ceiling_floor, backbuffer);
 
+        // Launch rendering threads to render partial sections of frame
+        for (int i = 0; i < cores; ++i)
+            threads[i] = std::thread(&renderer::render_partial_frame, this, starting_indices[i], ending_indices[i]);
+
+        // Wait for all threads to finish rendering
+        for (int i = 0; i < cores; ++i)
+            threads[i].join();
+
+    }
+
+    void swap_buffers() {
+        Uint32 *locked_pixels = nullptr;
+        int pitch = screen_width * 4;
+        SDL_LockTexture(texture, nullptr, reinterpret_cast<void **>(&locked_pixels), &pitch);
+
+        std::copy_n(backbuffer, screen_width*screen_height, locked_pixels);
+
+        SDL_UnlockTexture(texture);
+        SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(sdl_renderer);
+    }
+
+    void start_fps_measure() {
+        if (fps_in_progress == false) {
+            fps_in_progress = true;
+            num_frames = 0;
+            frame_start_time = SDL_GetTicks();
+        }
+    }
+
+    void stop_fps_measure() {
+        fps_in_progress = false;
+    }
+
+    void update_fps() {
+        if (num_frames < 30) {
+            ++num_frames;
+        }
+        else {
+            Uint32 ms_diff = SDL_GetTicks() - frame_start_time; if (ms_diff == 0) return;
+            *last_fps = num_frames/(ms_diff/1000.0);
+            SDL_SetWindowTitle(window, (std::string("Wolfenstein 3D Clone - FPS ") + double_to_string(*last_fps, 2)).c_str());
+            stop_fps_measure();
+        }
+    }
+
+private:
+    /* Loads bitmap file into an SDL surface with pixel format ARGB8888, and returns pointer to said surface */
+    SDL_Surface* bmp_to_surface(const char* filename) {
+        SDL_Surface* temp = SDL_LoadBMP(filename);
+        SDL_Surface* final = SDL_ConvertSurface(temp, SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888), 0);
+        SDL_FreeSurface(temp);
+        return final;
+    }
+
+    void generate_ceiling_floor(Uint32* const cf) {
         for (int i = 0; i < screen_width; ++i) {
+            for (int k = 0; k < screen_height/2; ++k)
+                cf[k * screen_width + i] = 0xFF323232;
+
+            for (int k = screen_height/2; k < screen_height; ++k)
+                cf[k * screen_width + i] = 0xFF606060;
+        }
+    }
+
+    void copy_frame(Uint32* const src, Uint32* const dest) {
+        std::copy_n(src, screen_width*screen_height, dest);
+    }
+
+    void render_partial_frame(int start, int end) {
+        for (int i = start; i < end; ++i) {
             ray curr_ray = plyr->get_ray(i);
             hit_info ray_hit = world_map->hit(curr_ray);
 
@@ -108,74 +196,7 @@ public:
                     get_pixel_at(backbuffer, screen_width, i, j) = get_pixel_at(bmp_pixels, bmp->w, texture_start_x+u_i, texture_start_y+v_i);
                 }
             }
-
         }
-    }
-
-    void swap_buffers() {
-        Uint32 *locked_pixels = nullptr;
-        int pitch = screen_width * 4;
-        SDL_LockTexture(texture, nullptr, reinterpret_cast<void **>(&locked_pixels), &pitch);
-
-        std::copy_n(backbuffer, screen_width*screen_height, locked_pixels);
-
-        SDL_UnlockTexture(texture);
-        SDL_RenderCopy(sdl_renderer, texture, nullptr, nullptr);
-        SDL_RenderPresent(sdl_renderer);
-    }
-
-    void start_fps_measure() {
-        if (thirty_frames_measure_in_progress == false) {
-            thirty_frames_measure_in_progress = true;
-            thirty_frames_counter = 0;
-            thirty_frames_start_time = SDL_GetTicks();
-            last_frame_time = SDL_GetTicks();
-        }
-    }
-
-    void stop_fps_measure() {
-        thirty_frames_measure_in_progress = false;
-    }
-
-    void update_fps() {
-        Uint32 current_time = SDL_GetTicks();
-        Uint32 frametime = current_time - last_frame_time; if (frametime == 0) return;
-        last_frame_time = current_time;
-
-        *last_fps = 1.0/(frametime/1000.0);
-
-        if (thirty_frames_counter < 30) {
-            ++thirty_frames_counter;
-        }
-        else {
-            Uint32 thirty_frames_time = SDL_GetTicks() - thirty_frames_start_time; if (thirty_frames_time == 0) return;
-            double avg_fps = thirty_frames_counter/(thirty_frames_time/1000.0);
-            SDL_SetWindowTitle(window, (std::string("Wolfenstein 3D Clone - FPS ") + double_to_string(avg_fps, 2)).c_str());
-            stop_fps_measure();
-        }
-    }
-
-private:
-    /* Loads bitmap file into an SDL surface with pixel format ARGB8888, and returns pointer to said surface */
-    SDL_Surface* bmp_to_surface(const char* filename) {
-        SDL_Surface* temp = SDL_LoadBMP(filename);
-        SDL_Surface* final = SDL_ConvertSurface(temp, SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888), 0);
-        SDL_FreeSurface(temp);
-        return final;
-    }
-
-    void generate_ceiling_floor(Uint32* const cf) {
-        for (int i = 0; i < screen_width; ++i) {
-            for (int k = 0; k < screen_height/2; ++k)
-                cf[k * screen_width + i] = 0xFF323232;
-
-            for (int k = screen_height/2; k < screen_height; ++k)
-                cf[k * screen_width + i] = 0xFF606060;
-        }
-    }
-
-    void copy_frame(Uint32* const src, Uint32* const dest) {
-        std::copy_n(src, screen_width*screen_height, dest);
     }
 
     Uint32& get_pixel_at(Uint32* const pixels_array, int width, int x, int y) {
@@ -203,8 +224,13 @@ private:
     int texture_width;
     int texture_height;
 
-    bool thirty_frames_measure_in_progress;
-    Uint32 thirty_frames_start_time;
-    Uint32 last_frame_time;
-    int thirty_frames_counter;
+    bool fps_in_progress;
+    Uint32 frame_start_time;
+    int num_frames;
+
+    int cores;
+    std::thread* threads;
+    int width_per_thread;
+    int* starting_indices;
+    int* ending_indices;
 };

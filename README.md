@@ -10,12 +10,15 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 - Map loading from a `csv` file
 - Colored floor and ceiling
 - Smooth movement using VSYNC
+- Multi-core rendering (for getting high fps on older processors)
 
 Here is a short video of what the engine is currently capable of:
 
 <div align="center">
   <video src="https://user-images.githubusercontent.com/25702188/200101329-d6664c6e-fad7-401a-9252-a31d1fd00072.mp4" width=852/>
 </div>
+
+The comments in the commits are full of detailed explanations on the implementation of parts of the engine, how I encountered and fixed bugs, etc. Worth looking at if you're building something like this yourself.
 
 ## Build Instructions
 The game engine is coded completely from scratch. The only dependancy this project has is the windowing and multimedia library, SDL2, to draw pixels onto the screen. Suffice to say, coding a windowing library from scratch is beyond my scope of knoweldge at the moment!
