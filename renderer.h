@@ -46,7 +46,8 @@ public:
         bmp_pixels = static_cast<Uint32*>(bmp->pixels);
 
         // FPS measurement related vars
-        fps_in_progress = false;
+        thirty_frames_measure_in_progress = false;
+        last_fps = new double(60.0);
     }
 
     renderer() {}
@@ -54,6 +55,7 @@ public:
     ~renderer() {
         delete[] backbuffer;
         delete[] ceiling_floor;
+        delete last_fps;
         SDL_FreeSurface(bmp);
         SDL_DestroyTexture(texture);
         SDL_DestroyRenderer(sdl_renderer);
@@ -123,25 +125,32 @@ public:
     }
 
     void start_fps_measure() {
-        if (fps_in_progress == false) {
-            fps_in_progress = true;
-            num_frames = 0;
-            frame_start_time = SDL_GetTicks();
+        if (thirty_frames_measure_in_progress == false) {
+            thirty_frames_measure_in_progress = true;
+            thirty_frames_counter = 0;
+            thirty_frames_start_time = SDL_GetTicks();
+            last_frame_time = SDL_GetTicks();
         }
     }
 
     void stop_fps_measure() {
-        fps_in_progress = false;
+        thirty_frames_measure_in_progress = false;
     }
 
     void update_fps() {
-        if (num_frames < 60) {
-            ++num_frames;
+        Uint32 current_time = SDL_GetTicks();
+        Uint32 frametime = current_time - last_frame_time; if (frametime == 0) return;
+        last_frame_time = current_time;
+
+        *last_fps = 1.0/(frametime/1000.0);
+
+        if (thirty_frames_counter < 30) {
+            ++thirty_frames_counter;
         }
         else {
-            Uint32 ms_diff = SDL_GetTicks() - frame_start_time; if (ms_diff == 0) return;
-            double fps = num_frames/(ms_diff/1000.0);
-            SDL_SetWindowTitle(window, (std::string("Wolfenstein 3D Clone - FPS ") + double_to_string(fps, 2)).c_str());
+            Uint32 thirty_frames_time = SDL_GetTicks() - thirty_frames_start_time; if (thirty_frames_time == 0) return;
+            double avg_fps = thirty_frames_counter/(thirty_frames_time/1000.0);
+            SDL_SetWindowTitle(window, (std::string("Wolfenstein 3D Clone - FPS ") + double_to_string(avg_fps, 2)).c_str());
             stop_fps_measure();
         }
     }
@@ -176,6 +185,7 @@ private:
 public:
     int screen_width;
     int screen_height;
+    double* last_fps;
 
 private:
     map* world_map;
@@ -193,8 +203,8 @@ private:
     int texture_width;
     int texture_height;
 
-    bool fps_in_progress;
-    Uint32 frame_start_time;
-    int num_frames;
-
+    bool thirty_frames_measure_in_progress;
+    Uint32 thirty_frames_start_time;
+    Uint32 last_frame_time;
+    int thirty_frames_counter;
 };

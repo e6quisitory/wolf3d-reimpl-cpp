@@ -37,15 +37,15 @@ public:
         plyr = new player(spawn_location, looking_dir, FOV, world_map);
     }
 
-    void create_updater() {
-        assert(world_map != nullptr && plyr != nullptr);
-        upd = new updater(world_map, plyr);
-    }
-
     void create_renderer(int width, int height) {
         assert(world_map != nullptr && plyr != nullptr);
         r = new renderer(width, height, world_map, plyr);
         plyr->calculate_ray_angles(r->screen_width);
+    }
+
+    void create_updater() {
+        assert(world_map != nullptr && plyr != nullptr && r != nullptr);
+        upd = new updater(world_map, plyr, r->last_fps);
     }
 
     bool check_quit() {
