@@ -22,6 +22,21 @@ public:
     }
     
     void update_player(bool* const render_flag) {
+
+        if (world_map->doors_opening()) {
+            int counter = 0;
+            for (const int door_index : world_map->doors_currently_opening) {
+                if (world_map->doors_amount_open[door_index] < 100)
+                    world_map->doors_amount_open[door_index] += 2;   // this is not final solution; speed must be fps independant
+                else {
+                    world_map->doors_currently_opening.erase(world_map->doors_currently_opening.begin() + counter);
+                    world_map->set_tile(door_index, 0);
+                }
+
+                ++counter;
+            }
+        }
+
         double mov_speed = 3.645/(*last_fps);
         if (keyboard_state[SDL_SCANCODE_W] && keyboard_state[SDL_SCANCODE_D]) {
             *render_flag = plyr->move_y(0.7071067*mov_speed);
@@ -37,6 +52,8 @@ public:
             *render_flag = plyr->move_x(-mov_speed);
         } else if (keyboard_state[SDL_SCANCODE_D]) {
             *render_flag = plyr->move_x(mov_speed);
+        } else if (keyboard_state[SDL_SCANCODE_SPACE] && !world_map->doors_opening()) {
+            *render_flag = plyr->open_door();
         }
 
         double swvl_speed = 1.9089/(*last_fps);

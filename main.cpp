@@ -10,7 +10,7 @@ int main() {
 
     // Initialize game engine components
     ge.create_map("map.csv");
-    ge.create_player(vec2(5.1,5.1), vec2(1,0), 72.0);
+    ge.create_player(vec2(7.1,8.1), vec2(1,0), 72.0);
     ge.create_renderer(1280, 720);
     ge.create_updater();
 

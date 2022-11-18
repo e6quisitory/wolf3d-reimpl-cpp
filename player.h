@@ -17,21 +17,14 @@ public:
 
     player() {}
 
-    ~player() {
-        delete[] angles;
-        delete[] cosines;
-    }
-
     void calculate_ray_angles(int screen_width_pixels) {
         double proj_plane_width = 2*std::tan(fov/2);
         double segment_len = proj_plane_width/screen_width_pixels;
 
         // Pre-calculate the angles and the cosines of them, as they do not change
-        angles = new double[screen_width_pixels];
-        cosines = new double[screen_width_pixels];
         for (int i = 0; i < screen_width_pixels; ++i) {
-            angles[i] = std::atan(-(i*segment_len-(proj_plane_width/2)));
-            cosines[i] = std::cos(angles[i]);
+            angles.push_back(std::atan(-(i*segment_len-(proj_plane_width/2))));
+            cosines.push_back(std::cos(angles[i]));
         }
     }
 
@@ -59,6 +52,19 @@ public:
 
     void print_location() const {
         std::cout << player_loc << std::endl;
+    }
+
+    bool open_door() {
+        int start = angles.size() / 3;
+        int end = 2*start;
+        for (int i = start; i < end; ++i) {
+            hit_info ray_hit = world_map->hit(get_ray(i));
+            if (ray_hit.texture_id == 99 && ray_hit.dist < 3) {
+                world_map->doors_currently_opening.push_back(ray_hit.arr_index);
+                return true;
+            }
+        }
+        return false;
     }
 
 private:
@@ -89,7 +95,7 @@ private:
     vec2 view_dir;
     vec2 left;
     vec2 right;
-    double* angles;
-    double* cosines;
+    std::vector<double> angles;
+    std::vector<double> cosines;
     map* world_map;
 };

@@ -70,7 +70,7 @@ public:
             r->swap_buffers();
             r->update_fps();
 
-            if (!upd->key_down()) {
+            if (!upd->key_down() && !world_map->doors_opening()) {
                 *render_flag = false;
                 r->stop_fps_measure();
             }

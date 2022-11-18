@@ -10,8 +10,8 @@
 #include "misc.h"
 
 typedef struct hit_info {
-    hit_info(const double& d, const double& w_percent, const char& wall, const int& text_id):
-        dist(d), width_percent(w_percent), wall_type(wall), texture_id(text_id) { hit = true; }
+    hit_info(const double& d, const double& w_percent, const char& wall, const int& text_id, const int& arr_ind):
+        dist(d), width_percent(w_percent), wall_type(wall), texture_id(text_id), arr_index(arr_ind) { hit = true; }
     hit_info(bool hit_occur): hit(hit_occur) {}
 
     bool hit;
@@ -19,6 +19,7 @@ typedef struct hit_info {
     char wall_type;
     double width_percent;
     int texture_id;
+    int arr_index;
 
 } hit_info;
 
@@ -67,13 +68,15 @@ public:
         }
 
         tiles = new int[width*height];
-        objects_status = new int[width*height];
+        doors_amount_open = new int[width*height];
+
         for (int i = 0; i < width*height; ++i) {
             tiles[i] = raw_nums[i];
-            if (tiles[i] == 99)            // texture ID 99 is for door texture
-                objects_status[i] = 100;   // 100 for door fully closed
-            else
-                objects_status[i] = -1;    // -1 denotes the tile contains no object other than a wall
+            if (tiles[i] == 99) {   // 99 is texture ID for a door
+                doors_amount_open[i] = 0;  // 100 is fully open, 0 is fully closed
+            } else {
+                doors_amount_open[i] = -1; // -1 indicates there is no door at that tile
+            }
         }
     }
 
@@ -81,7 +84,7 @@ public:
 
     ~map() {
         delete[] tiles;
-        delete[] objects_status;
+        delete[] doors_amount_open;
     }
 
     int& operator [] (int index) {   // If operator is called on non-const object, allow modification, hence return by reference.
@@ -111,6 +114,10 @@ public:
 
     ivec2 get_tile(vec2 pt) const {
         return ivec2(static_cast<int>(pt.x()), static_cast<int>(pt.y()));
+    }
+
+    int tile_to_index(ivec2 pt) const {
+        return pt.y()*width + pt.x();
     }
 
     int get_texture_id(const ipoint2& tile) const {
@@ -180,16 +187,31 @@ public:
 
             // Check tile to see if there's a box/wall there on the map
             int texture_id = get_texture_id(tile_pt);
-            if (texture_id != 0) {
-                return hit_info(r.dist_to_pt(ray_pt), point_width_percent(ray_pt), wall_type(ray_pt), texture_id);
+
+            if (texture_id == 99 && 100.0*point_width_percent(ray_pt) < doors_amount_open[tile_to_index(tile_pt)])
+                continue;
+             else if (texture_id != 0) {
+                return hit_info(r.dist_to_pt(ray_pt), point_width_percent(ray_pt), wall_type(ray_pt), texture_id,
+                                tile_to_index(tile_pt));
             }
         }
         return hit_info(false);
     }
 
+    bool doors_opening() const {
+        return doors_currently_opening.size() != 0;
+    }
+
+    void set_tile(int tile_index, int new_texture) {
+        tiles[tile_index] = new_texture;
+    }
+
+public:
+    std::vector<int> doors_currently_opening;
+    int* doors_amount_open;
+
 private:
     int* tiles;
-    int* objects_status;
     int width;
     int height;
 };
