@@ -73,6 +73,7 @@ public:
             if (!upd->key_down() && !world_map->doors_opening()) {
                 *render_flag = false;
                 r->stop_fps_measure();
+                plyr->print_location();
             }
         } else
             std::this_thread::sleep_for(10ms);

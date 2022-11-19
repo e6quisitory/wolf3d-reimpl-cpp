@@ -9,6 +9,9 @@ public:
     ray(const vec2& o, const vec2& dir, const double& cosine_angle): origin(o), direction(unit_vector(dir)), cosine_of_angle(cosine_angle) {
         dx_const = std::sqrt(1+pow(direction.y()/direction.x(),2));
         dy_const = std::sqrt(1+pow(direction.x()/direction.y(),2));
+
+        y_step = std::sqrt(dx_const*dx_const - 1);
+        x_step = std::sqrt(dy_const*dy_const - 1);
     }
 
     ray() {};
@@ -26,11 +29,11 @@ public:
     }
 
 
-    int x_dir() const {
+    double x_dir() const {
         return direction.x() > 0 ? 1 : -1;
     }
 
-    int y_dir() const {
+    double y_dir() const {
         return direction.y() > 0 ? 1 : -1;
     }
 
@@ -72,6 +75,8 @@ public:
     vec2 origin;
     vec2 direction;
     double cosine_of_angle;
+    double x_step;
+    double y_step;
 
 private:
     double dx_const;

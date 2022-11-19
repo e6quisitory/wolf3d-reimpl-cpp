@@ -7,6 +7,7 @@
 I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game is the goal, including enemies, weapons, sound system, etc. Let's see how far I get. So far, I've implemented the following functionality:
 - Raycasting
 - Selectively textured walls
+- Doors
 - Map loading from a `csv` file
 - Colored floor and ceiling
 - Smooth movement using VSYNC
@@ -15,7 +16,7 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 Here is a short video of what the engine is currently capable of:
 
 <div align="center">
-  <video src="https://user-images.githubusercontent.com/25702188/200101329-d6664c6e-fad7-401a-9252-a31d1fd00072.mp4" width=852/>
+  <video src="https://user-images.githubusercontent.com/25702188/202841408-11fd8708-4154-4de4-b135-e0c1624d2e10.mp4" width=852/>
 </div>
 
 The comments in the commits are full of detailed explanations on the implementation of parts of the engine, how I encountered and fixed bugs, etc. Worth looking at if you're building something like this yourself.
@@ -32,14 +33,15 @@ I'm compiling and running like so:
 g++ -std=c++17 -lSDL2 main.cpp; ./a.out
 ```
 ## Controls & Map Loading
-`w`, `a`, `s`, `d` for moving, `←` and `→` arrow keys for changing looking direction.
+`w`, `a`, `s`, `d` for moving, `←` and `→` arrow keys for changing looking direction, `spacebar` for opening doors.
 
 The map file is `map.csv` and is ASCII encoded, not UTF-8 encoded. I find that editing the file is easiest in Excel.
 
 As for how to construct the map, i.e. what the values in the `csv` file mean, please read [this](https://github.com/e6quisitory/wolf3d-clone/commit/3f9f9e308629098a29df2e3ec8103fddd3fc51c0#commitcomment-88618626).
 
 ## Immediate Goals
-- Doors
+- Doors automatic close after set time period
+- Fix irregular speed increase after getting close to wall
 - Sprites
 - Darken distant walls (depth effect)
 - Textured ceiling & floor

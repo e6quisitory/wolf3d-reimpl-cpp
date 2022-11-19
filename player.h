@@ -9,7 +9,7 @@ class player {
 public:
     player(point2 player_location, vec2 view_direction, double FOV, map* const world):
         player_loc(player_location),
-        view_dir(view_direction),
+        view_dir(unit_vector(view_direction)),
         left(rotate2d(view_direction, pi/2)),
         right(rotate2d(view_direction, -pi/2)),
         fov(degrees_to_radians(FOV)),
@@ -59,7 +59,9 @@ public:
         int end = 2*start;
         for (int i = start; i < end; ++i) {
             hit_info ray_hit = world_map->hit(get_ray(i));
-            if (ray_hit.texture_id == 99 && ray_hit.dist < 3) {
+            if (world_map->door_currently_opening(ray_hit.arr_index))
+                return true;
+            else if (ray_hit.texture_id == 99 && ray_hit.dist < 3) {
                 world_map->doors_currently_opening.push_back(ray_hit.arr_index);
                 return true;
             }
@@ -69,7 +71,13 @@ public:
 
 private:
     bool collision(const point2& pt) const {
-        if( world_map->get_texture_id(world_map->get_tile(vec2(pt.x(), pt.y()))) != 0)
+        ipoint2 tile = world_map->get_tile(pt);
+        int tile_index = world_map->tile_to_index(tile);
+        int texture_id = world_map->get_texture_id(world_map->get_tile(pt));
+
+        if (texture_id == 99) {
+            return world_map->doors_amount_open[tile_index] < 100;
+        } else if(texture_id != 0)
             return true;
         else
             return false;

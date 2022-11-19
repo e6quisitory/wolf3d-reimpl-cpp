@@ -193,6 +193,12 @@ private:
                     int texture_start_y = texture_num_y*texture_height;
                     int texture_start_x = texture_num_x*texture_width;
 
+                    if (ray_hit.texture_id == 99) {
+                        texture_start_x -= (world_map->doors_amount_open[ray_hit.arr_index]/100.0)*texture_width;
+                        if (world_map->door_currently_opening(ray_hit.arr_index))
+                            ++texture_start_x;
+                    }
+
                     get_pixel_at(backbuffer, screen_width, i, j) = get_pixel_at(bmp_pixels, bmp->w, texture_start_x+u_i, texture_start_y+v_i);
                 }
             }

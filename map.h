@@ -10,18 +10,33 @@
 #include "misc.h"
 
 typedef struct hit_info {
-    hit_info(const double& d, const double& w_percent, const char& wall, const int& text_id, const int& arr_ind):
-        dist(d), width_percent(w_percent), wall_type(wall), texture_id(text_id), arr_index(arr_ind) { hit = true; }
+    hit_info(const double& d, const double& w_percent, const int& text_id, const int& arr_ind):
+        dist(d), width_percent(w_percent), texture_id(text_id), arr_index(arr_ind) { hit = true; }
     hit_info(bool hit_occur): hit(hit_occur) {}
 
     bool hit;
     double dist;
-    char wall_type;
     double width_percent;
     int texture_id;
     int arr_index;
 
 } hit_info;
+
+typedef struct intersection_info {
+    intersection_info(const point2& ray_pt, const ipoint2& tile_pt, const double& wp): pt(ray_pt), tile(tile_pt), width_percent(wp) {
+        // v for vertical wall, h for horizontal wall, c for corner
+        if (is_integer(ray_pt.x()) && !is_integer(ray_pt.y()))
+            wall_type = 'v';
+        else if (!is_integer(ray_pt.x()) && is_integer(ray_pt.y()))
+            wall_type = 'h';
+        else
+            wall_type = 'c';
+    }
+    point2 pt;
+    ipoint2 tile;
+    char wall_type;
+    double width_percent;
+} intersection_info;
 
 class map {
 public:
@@ -141,22 +156,16 @@ public:
             return false;
     }
 
-    char wall_type(const point2& coord) const {
-        // v for vertical wall, h for horizontal wall, c for corner
-        if (is_integer(coord.x()) && !is_integer(coord.y()))
-            return 'v';
-        else if (!is_integer(coord.x()) && is_integer(coord.y()))
-            return 'h';
-        else
-            return 'c';
-
-    }
-
     double point_width_percent(const point2& hitpoint) const {
-        if (is_integer(hitpoint.y()) && !is_integer(hitpoint.x()))
-            return abs(hitpoint.x()-(int)hitpoint.x());
-        else if (!is_integer(hitpoint.y()) && is_integer(hitpoint.x()))
-            return abs(hitpoint.y()-(int)hitpoint.y());
+        bool x_is_int = is_integer(hitpoint.x());
+        bool y_is_int = is_integer(hitpoint.y());
+        double x_dec = hitpoint.x() - int(hitpoint.x());
+        double y_dec = hitpoint.y() - int(hitpoint.y());
+
+        if ((x_is_int || x_dec == 0.5) && !y_is_int)
+            return y_dec;
+        else if ((y_is_int || y_dec == 0.5) && !x_is_int)
+            return x_dec;
         else
             return 0.0;
     }
@@ -164,37 +173,53 @@ public:
     hit_info hit(const ray& r) const {
         point2 ray_pt = r.origin;
         ipoint2 tile_pt = get_tile(r.origin);
+        bool inside_door = get_texture_id(get_tile(r.origin)) == 99;
 
         while (within_map(tile_pt)) {
-            // Calculate next x and y intersections of ray
-            point2 next_x_inter(r.near_x(ray_pt), r.y_at(r.near_x(ray_pt)));
-            point2 next_y_inter(r.x_at(r.near_y(ray_pt)), r.near_y(ray_pt));
-            double x_dist = r.get_ray_dist_dx(next_x_inter.x() - ray_pt.x());
-            double y_dist = r.get_ray_dist_dy(next_y_inter.y() - ray_pt.y());
+            intersection_info curr = next_intersection(r, ray_pt, tile_pt);
+            ray_pt = curr.pt;
+            tile_pt = curr.tile;
 
-            // Deduce which tile ray intersects next based on comparison b/w ray distance to each intersection
-            if (x_dist < y_dist) {
-                tile_pt.x() += r.x_dir();
-                ray_pt = next_x_inter;
-            } else if (y_dist < x_dist) {
-                tile_pt.y() += r.y_dir();
-                ray_pt = next_y_inter;
-            } else {
-                tile_pt.x() += r.x_dir();
-                tile_pt.y() += r.y_dir();
-                ray_pt = point2(tile_pt.x(), tile_pt.y());
-            }
-
-            // Check tile to see if there's a box/wall there on the map
             int texture_id = get_texture_id(tile_pt);
 
-            if (texture_id == 99 && 100.0*point_width_percent(ray_pt) < doors_amount_open[tile_to_index(tile_pt)])
-                continue;
-             else if (texture_id != 0) {
-                return hit_info(r.dist_to_pt(ray_pt), point_width_percent(ray_pt), wall_type(ray_pt), texture_id,
-                                tile_to_index(tile_pt));
+            if (texture_id == 99) {
+                intersection_info next = next_intersection(r, ray_pt, tile_pt);
+                bool pass_through = ray_passthrough_door(center_door_pt(r, curr), curr.tile);
+
+                bool vh = curr.wall_type == 'v' && next.wall_type == 'h';
+                bool hv = curr.wall_type == 'h' && next.wall_type == 'v';
+                bool vh_side = r.direction.x() > 0 ? (next.width_percent < 0.5 || pass_through) : (next.width_percent > 0.5 || pass_through);
+                bool hv_side = r.direction.y() > 0 ? (next.width_percent < 0.5 || pass_through) : (next.width_percent > 0.5 || pass_through);
+
+                if ((vh && vh_side) || (hv && hv_side)) {
+                    texture_id = 101;
+                    ray_pt = next.pt;
+                    tile_pt = next.tile;
+                } else if (pass_through)
+                    continue;
+                else
+                    ray_pt = center_door_pt(r, curr);
+
+            } else if (inside_door) {
+                ipoint2 standing_tile = get_tile(r.origin);
+
+                bool x_close = abs(curr.tile.x()-standing_tile.x()) == 1;
+                bool y_close = abs(curr.tile.y()-standing_tile.y()) == 1;
+                bool x_same = curr.tile.x() == standing_tile.x();
+                bool y_same = curr.tile.y() == standing_tile.y();
+                bool close = (x_close && y_same) || (y_close && x_same);
+
+                if (close && texture_id != 0)
+                    texture_id = 101;
             }
+
+            if (texture_id != 0) {
+                return hit_info(r.dist_to_pt(ray_pt), point_width_percent(ray_pt), texture_id,
+                                tile_to_index(tile_pt));
+            } else
+                continue;
         }
+
         return hit_info(false);
     }
 
@@ -205,6 +230,49 @@ public:
     void set_tile(int tile_index, int new_texture) {
         tiles[tile_index] = new_texture;
     }
+
+    bool ray_passthrough_door(const point2& pt, const ipoint2& tile) const {
+        return 100.0*point_width_percent(pt) < doors_amount_open[tile_to_index(tile)];
+    }
+
+    bool door_currently_opening(int index_num) {
+        for (int door_index : doors_currently_opening) {
+            if (door_index == index_num) return true;
+        }
+        return false;
+    }
+
+    point2 center_door_pt(const ray& r, intersection_info curr) const {
+        if (curr.wall_type == 'v') {
+            curr.pt.x() += r.x_dir()/2;
+            curr.pt.y() += r.y_dir()*(r.y_step/2);
+        } else {
+            curr.pt.y() += r.y_dir()/2;
+            curr.pt.x() += r.x_dir()*(r.x_step/2);
+        }
+        return curr.pt;
+    }
+
+private:
+    intersection_info next_intersection(const ray& r, const point2& curr_pt, const ipoint2& curr_tile) const {
+        point2 next_x_inter(r.near_x(curr_pt), r.y_at(r.near_x(curr_pt)));
+        point2 next_y_inter(r.x_at(r.near_y(curr_pt)), r.near_y(curr_pt));
+        double x_dist = r.get_ray_dist_dx(next_x_inter.x() - curr_pt.x());
+        double y_dist = r.get_ray_dist_dy(next_y_inter.y() - curr_pt.y());
+
+        if (x_dist < y_dist)
+            return intersection_info(next_x_inter, ipoint2(curr_tile.x() + r.x_dir(), curr_tile.y()),
+                                     point_width_percent(next_x_inter));
+        else if (y_dist < x_dist)
+            return intersection_info(next_y_inter, ipoint2(curr_tile.x(), curr_tile.y() + r.y_dir()),
+                                     point_width_percent(next_y_inter));
+        else {
+            ipoint2 next_tile = ipoint2(curr_tile.x() + r.x_dir(), curr_tile.y() + r.y_dir());
+            point2 next_pt = point2(next_tile.x(), next_tile.y());
+            return intersection_info(next_pt, next_tile, point_width_percent(next_pt));
+        }
+    }
+
 
 public:
     std::vector<int> doors_currently_opening;
