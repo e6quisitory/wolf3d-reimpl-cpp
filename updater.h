@@ -56,8 +56,32 @@ public:
                 if (world_map->doors_amount_open[door_index] < 100)
                     world_map->doors_amount_open[door_index] += 2;   // this is not final solution; speed must be fps independant
                 else {
+                    world_map->doors_currently_open.push_back(door_index);
+                    world_map->doors_timers[door_index] = 100;
                     world_map->doors_currently_opening.erase(world_map->doors_currently_opening.begin() + counter);
                     //world_map->set_tile(door_index, 0);
+                }
+
+                ++counter;
+            }
+        }
+
+        if (world_map->any_doors_open()) {
+            int counter = 0;
+            for (const int door_index : world_map->doors_currently_open) {
+
+                int& door_timer = world_map->doors_timers[door_index];
+                int& door_amount_open = world_map->doors_amount_open[door_index];
+
+                if (!world_map->inside_door) {
+                    if (door_timer > 0) {  // decrement timer if time is not up yet
+                        door_timer -= 1;
+                    } else if (door_timer == 0 && door_amount_open > 0) {  // if time is up, start moving door to closed again
+                        door_amount_open -= 2;
+                    } else {
+                        door_timer = -1;
+                        world_map->doors_currently_open.erase(world_map->doors_currently_open.begin() + counter);
+                    }
                 }
 
                 ++counter;

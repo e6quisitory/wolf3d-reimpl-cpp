@@ -85,14 +85,10 @@ private:
 
     bool move_if_valid(const point2& proposed_loc) {
         if (world_map->within_map(proposed_loc)) {
-            if (collision(proposed_loc))
-                return false;
-            else {
+            if (!collision(proposed_loc))
                 player_loc = proposed_loc;
-                return true;
-            }
-        } else
-            return false;
+        }
+        return true;
     }
 
 public:

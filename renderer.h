@@ -195,7 +195,7 @@ private:
 
                     if (ray_hit.texture_id == 99) {
                         texture_start_x -= (world_map->doors_amount_open[ray_hit.arr_index]/100.0)*texture_width;
-                        if (world_map->door_currently_opening(ray_hit.arr_index))
+                        if (world_map->door_currently_opening(ray_hit.arr_index) || world_map->doors_timers[ray_hit.arr_index] != -1)
                             ++texture_start_x;
                     }
 

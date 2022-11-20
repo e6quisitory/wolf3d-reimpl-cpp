@@ -70,7 +70,7 @@ public:
             r->swap_buffers();
             r->update_fps();
 
-            if (!upd->key_down() && !world_map->doors_opening()) {
+            if (!upd->key_down() && !world_map->doors_opening() && !world_map->any_doors_open()) {
                 *render_flag = false;
                 r->stop_fps_measure();
                 plyr->print_location();

@@ -84,6 +84,7 @@ public:
 
         tiles = new int[width*height];
         doors_amount_open = new int[width*height];
+        doors_timers = new int[width*height];
 
         for (int i = 0; i < width*height; ++i) {
             tiles[i] = raw_nums[i];
@@ -92,7 +93,10 @@ public:
             } else {
                 doors_amount_open[i] = -1; // -1 indicates there is no door at that tile
             }
+            doors_timers[i] = -1;
         }
+
+        inside_door = false;
     }
 
     map() {}
@@ -100,6 +104,7 @@ public:
     ~map() {
         delete[] tiles;
         delete[] doors_amount_open;
+        delete[] doors_timers;
     }
 
     int& operator [] (int index) {   // If operator is called on non-const object, allow modification, hence return by reference.
@@ -137,14 +142,16 @@ public:
 
     int get_texture_id(const ipoint2& tile) const {
         if (!within_map(tile))
-            return false;
+            return 0;
         else
             return (*this)(tile.x(), tile.y());
     }
 
-    bool within_map(const point2& pt) const {
-        if (within_bounds<point2, double>(pt, 0, width, 0, height))
+    bool within_map(const point2& pt) {
+        if (within_bounds<point2, double>(pt, 0, width, 0, height)) {
+            inside_door = get_texture_id(get_tile(pt)) == 99;
             return true;
+        }
         else
             return false;
     }
@@ -173,7 +180,6 @@ public:
     hit_info hit(const ray& r) const {
         point2 ray_pt = r.origin;
         ipoint2 tile_pt = get_tile(r.origin);
-        bool inside_door = get_texture_id(get_tile(r.origin)) == 99;
 
         while (within_map(tile_pt)) {
             intersection_info curr = next_intersection(r, ray_pt, tile_pt);
@@ -191,13 +197,13 @@ public:
                 bool vh_side = r.direction.x() > 0 ? (next.width_percent < 0.5 || pass_through) : (next.width_percent > 0.5 || pass_through);
                 bool hv_side = r.direction.y() > 0 ? (next.width_percent < 0.5 || pass_through) : (next.width_percent > 0.5 || pass_through);
 
-                if ((vh && vh_side) || (hv && hv_side)) {
+                if ((vh && vh_side) || (hv && hv_side)) {   // if ray hits sidewall
                     texture_id = 101;
                     ray_pt = next.pt;
                     tile_pt = next.tile;
-                } else if (pass_through)
+                } else if (pass_through)    // if not vh or hv, then must be vv or hh, i.e. the ray doesn't hit sidewall
                     continue;
-                else
+                else                        // if not hitting sidewall (blocked by door or hh/vv) then center the point to middle
                     ray_pt = center_door_pt(r, curr);
 
             } else if (inside_door) {
@@ -225,6 +231,10 @@ public:
 
     bool doors_opening() const {
         return doors_currently_opening.size() != 0;
+    }
+
+    bool any_doors_open() const {
+        return doors_currently_open.size() != 0;
     }
 
     void set_tile(int tile_index, int new_texture) {
@@ -276,7 +286,10 @@ private:
 
 public:
     std::vector<int> doors_currently_opening;
+    std::vector<int> doors_currently_open;
     int* doors_amount_open;
+    int* doors_timers;
+    bool inside_door;
 
 private:
     int* tiles;

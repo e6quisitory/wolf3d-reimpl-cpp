@@ -7,7 +7,7 @@
 I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game is the goal, including enemies, weapons, sound system, etc. Let's see how far I get. So far, I've implemented the following functionality:
 - Raycasting
 - Selectively textured walls
-- Doors
+- Doors w/ automatic closing
 - Map loading from a `csv` file
 - Colored floor and ceiling
 - Smooth movement using VSYNC
@@ -40,8 +40,6 @@ The map file is `map.csv` and is ASCII encoded, not UTF-8 encoded. I find that e
 As for how to construct the map, i.e. what the values in the `csv` file mean, please read [this](https://github.com/e6quisitory/wolf3d-clone/commit/3f9f9e308629098a29df2e3ec8103fddd3fc51c0#commitcomment-88618626).
 
 ## Immediate Goals
-- Doors automatic close after set time period
-- Fix irregular speed increase after getting close to wall
 - Sprites
 - Darken distant walls (depth effect)
 - Textured ceiling & floor
