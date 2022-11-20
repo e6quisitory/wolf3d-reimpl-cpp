@@ -69,11 +69,10 @@ public:
         if (world_map->any_doors_open()) {
             int counter = 0;
             for (const int door_index : world_map->doors_currently_open) {
+                if (world_map->inside_door_index != door_index) {
+                    int& door_timer = world_map->doors_timers[door_index];
+                    int& door_amount_open = world_map->doors_amount_open[door_index];
 
-                int& door_timer = world_map->doors_timers[door_index];
-                int& door_amount_open = world_map->doors_amount_open[door_index];
-
-                if (!world_map->inside_door) {
                     if (door_timer > 0) {  // decrement timer if time is not up yet
                         door_timer -= 1;
                     } else if (door_timer == 0 && door_amount_open > 0) {  // if time is up, start moving door to closed again
@@ -83,7 +82,6 @@ public:
                         world_map->doors_currently_open.erase(world_map->doors_currently_open.begin() + counter);
                     }
                 }
-
                 ++counter;
             }
         }

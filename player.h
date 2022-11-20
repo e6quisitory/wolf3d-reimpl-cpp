@@ -59,14 +59,18 @@ public:
         int end = 2*start;
         for (int i = start; i < end; ++i) {
             hit_info ray_hit = world_map->hit(get_ray(i));
-            if (world_map->door_currently_opening(ray_hit.arr_index))
+            if (world_map->door_currently_opening(ray_hit.arr_index) || world_map->door_is_open(ray_hit.arr_index))
                 return true;
-            else if (ray_hit.texture_id == 99 && ray_hit.dist < 3) {
+            else if (ray_hit.texture_id == 99 && ray_hit.dist < 4) {
                 world_map->doors_currently_opening.push_back(ray_hit.arr_index);
                 return true;
             }
         }
-        return false;
+        return true;
+    }
+
+    bool inside_door(int door_index) {
+        return world_map->tile_to_index(world_map->get_tile(player_loc)) == door_index;
     }
 
 private:
@@ -76,7 +80,7 @@ private:
         int texture_id = world_map->get_texture_id(world_map->get_tile(pt));
 
         if (texture_id == 99) {
-            return world_map->doors_amount_open[tile_index] < 100;
+            return world_map->doors_amount_open[tile_index] < 50;
         } else if(texture_id != 0)
             return true;
         else
@@ -84,8 +88,9 @@ private:
     }
 
     bool move_if_valid(const point2& proposed_loc) {
-        if (world_map->within_map(proposed_loc)) {
-            if (!collision(proposed_loc))
+        if (world_map->within_map(proposed_loc, true)) {
+            vec2 mov_dir = unit_vector(proposed_loc-player_loc);
+            if (!collision(proposed_loc + 0.2*mov_dir))
                 player_loc = proposed_loc;
         }
         return true;

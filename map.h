@@ -96,7 +96,7 @@ public:
             doors_timers[i] = -1;
         }
 
-        inside_door = false;
+        inside_door_index = -1;
     }
 
     map() {}
@@ -136,8 +136,16 @@ public:
         return ivec2(static_cast<int>(pt.x()), static_cast<int>(pt.y()));
     }
 
-    int tile_to_index(ivec2 pt) const {
-        return pt.y()*width + pt.x();
+    int tile_to_index(const ivec2& tl) const {
+        return tl.y()*width + tl.x();
+    }
+
+    int pt_to_index(const vec2& pt) const {
+        return tile_to_index(get_tile(pt));
+    }
+
+    bool pt_is_door(const point2& pt) const {
+        return get_texture_id(get_tile(pt)) == 99;
     }
 
     int get_texture_id(const ipoint2& tile) const {
@@ -147,20 +155,15 @@ public:
             return (*this)(tile.x(), tile.y());
     }
 
-    bool within_map(const point2& pt) {
-        if (within_bounds<point2, double>(pt, 0, width, 0, height)) {
-            inside_door = get_texture_id(get_tile(pt)) == 99;
-            return true;
-        }
-        else
-            return false;
+    bool within_map(const point2& pt, bool calc_door_index = false) {
+        if (calc_door_index)
+            inside_door_index = pt_is_door(pt) ? pt_to_index(pt) : -1;
+
+        return within_bounds<point2, double>(pt, 0, width, 0, height);
     }
 
     bool within_map(const ipoint2& pt) const {
-        if (within_bounds<ipoint2, int>(pt, 0, width-1, 0, height-1))
-            return true;
-        else
-            return false;
+        return within_bounds<ipoint2, int>(pt, 0, width-1, 0, height-1);
     }
 
     double point_width_percent(const point2& hitpoint) const {
@@ -206,7 +209,7 @@ public:
                 else                        // if not hitting sidewall (blocked by door or hh/vv) then center the point to middle
                     ray_pt = center_door_pt(r, curr);
 
-            } else if (inside_door) {
+            } else if (inside_door_index != -1) {
                 ipoint2 standing_tile = get_tile(r.origin);
 
                 bool x_close = abs(curr.tile.x()-standing_tile.x()) == 1;
@@ -245,11 +248,12 @@ public:
         return 100.0*point_width_percent(pt) < doors_amount_open[tile_to_index(tile)];
     }
 
-    bool door_currently_opening(int index_num) {
-        for (int door_index : doors_currently_opening) {
-            if (door_index == index_num) return true;
-        }
-        return false;
+    bool door_currently_opening(const int& index_num) const {
+        return in_vec(doors_currently_opening, index_num);
+    }
+
+    bool door_is_open(const int& index_num) const {
+        return in_vec(doors_currently_open, index_num);
     }
 
     point2 center_door_pt(const ray& r, intersection_info curr) const {
@@ -289,7 +293,7 @@ public:
     std::vector<int> doors_currently_open;
     int* doors_amount_open;
     int* doors_timers;
-    bool inside_door;
+    int inside_door_index;
 
 private:
     int* tiles;

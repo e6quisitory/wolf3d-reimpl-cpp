@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 
 double pi = 3.1415926535897932385;
 
@@ -43,4 +44,8 @@ int digits_vec_to_int(std::vector<int>& arr) {
 std::string double_to_string(const double& d, int precision) {
     std::string initial_str = std::to_string(d);
     return initial_str.substr(0, initial_str.find(".") + precision + 1);
+}
+
+bool in_vec(const std::vector<int>& vec, const int& num) {
+    return (std::find(vec.begin(), vec.end(), num) != vec.end());
 }
