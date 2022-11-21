@@ -34,11 +34,14 @@ bool is_integer(double d) {
 }
 
 int digits_vec_to_int(std::vector<int>& arr) {
-    int final_num = 0;
-    for (int i = 0; i < arr.size(); ++i)
+    if (arr.size() == 0)  // If digits array is empty, that means a field in the csv file was left blank, indicating an empty block (i.e. 0 in the map array)
+        return 0;
+    else {
+        int final_num = 0;
+        for (int i = 0; i < arr.size(); ++i)
             final_num += arr[i]*pow(10, arr.size()-1-i);
         return final_num;
-
+    }
 }
 
 std::string double_to_string(const double& d, int precision) {

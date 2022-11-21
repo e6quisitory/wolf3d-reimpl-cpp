@@ -74,7 +74,6 @@ public:
                 map_file.close();
             } else if (num_in_progress == true) {
                 digits.push_back(c - '0');
-
             } else {
                 num_in_progress = true;
                 digits.push_back(c - '0');
