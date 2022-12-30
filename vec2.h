@@ -1,4 +1,6 @@
 #pragma once
+
+#include <iostream>
 #include <cmath>
 
 class vec2 {
@@ -32,6 +34,12 @@ public:
         return *this;
     }
 
+    vec2& operator *= (const double& d) {
+        e[0] *= d;
+        e[1] *= d;
+        return *this;
+    }
+
     bool operator == (const vec2& v) {
         return e[0] == v.e[0] && e[1] == v.e[1] ? true : false;
     }
@@ -42,6 +50,10 @@ public:
 
     double length() const {
         return std::sqrt(length_squared());
+    }
+
+    vec2 rotate(double radians) const {
+        return vec2(e[0]*std::cos(radians)-e[1]*std::sin(radians), e[0]*std::sin(radians)+e[1]*std::cos(radians));
     }
 
 public:
@@ -80,8 +92,4 @@ inline vec2 operator / (const vec2& v, const double t) {
 
 vec2 unit_vector(const vec2& v) {
     return v / v.length();
-}
-
-vec2 rotate2d(const vec2& v, double radians) {
-    return vec2(v.x()*std::cos(radians)-v.y()*std::sin(radians), v.x()*std::sin(radians)+v.y()*std::cos(radians));
 }

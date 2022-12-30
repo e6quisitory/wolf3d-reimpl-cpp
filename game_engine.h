@@ -1,52 +1,52 @@
 #pragma once
 
-#include <SDL2/SDL.h>
-#include <string>
 #include <thread>
 #include <chrono>
 
-#include "vec2.h"
-#include "ray.h"
-#include "map.h"
-#include "player.h"
-#include "misc.h"
+#include "game_data.h"
+#include "input_manager.h"
+#include "player_manager.h"
+#include "map_manager.h"
+#include "multimedia_manager.h"
+#include "door_manager.h"
 #include "renderer.h"
-#include "updater.h"
 
 using namespace std::chrono_literals;
 
 class game_engine {
 public:
-    game_engine(): world_map(nullptr), plyr(nullptr), r(nullptr), upd(nullptr) {
-        render_flag = new bool(true);
+    void init() {
+        // Allocate game data object (shared across managers & renderer)
+        GameData = new game_data;
+
+        // Initialize managers
+        MultimediaManager.init(GameData);
+        MultimediaManager.create_window_renderer(1280, 720);
+        MultimediaManager.load_wall_textures("wall_textures.bmp", 6);
+
+        PlayerManager.init(GameData);
+
+        MapManager.init(GameData);
+        MapManager.load_map("map.csv");
+
+        DoorManager.init(GameData);
+
+        InputManager.init(GameData);
+
+        // Initialize Renderer
+        Renderer.init(GameData);
+
+        // Set player location & view direction
+        PlayerManager.set_player(point2(5.86,11.1), vec2(1,0));
     }
 
-    ~game_engine() {
-        delete world_map;
-        delete plyr;
-        delete r;
-        delete upd;
-        delete render_flag;
-    }
+    void exit() {
+        // Exit managers
+        MapManager.exit();
+        MultimediaManager.exit();
 
-    void create_map(std::string map_file) {
-        world_map = new map(map_file);
-    }
-
-    void create_player(vec2 spawn_location, vec2 looking_dir, double FOV) {
-        plyr = new player(spawn_location, looking_dir, FOV, world_map);
-    }
-
-    void create_renderer(int width, int height) {
-        assert(world_map != nullptr && plyr != nullptr);
-        assert(width % std::thread::hardware_concurrency() == 0);
-        r = new renderer(width, height, world_map, plyr);
-        plyr->calculate_ray_angles(r->screen_width);
-    }
-
-    void create_updater() {
-        assert(world_map != nullptr && plyr != nullptr && r != nullptr);
-        upd = new updater(world_map, plyr, r->last_fps);
+        // Delete game_data object
+        delete GameData;
     }
 
     bool check_quit() {
@@ -61,29 +61,30 @@ public:
     }
 
     void game_loop() {
+        static bool running = true;
 
-        upd->update_player(render_flag);
-
-        if (*render_flag) {
-            r->start_fps_measure();
-            r->render_to_backbuffer();
-            r->swap_buffers();
-            r->update_fps();
-
-            if (!upd->key_down() && !world_map->doors_opening() && !world_map->any_doors_open()) {
-                *render_flag = false;
-                r->stop_fps_measure();
-                plyr->print_location();
-            }
+        if (running) {
+            PlayerManager.update();
+            Renderer.render_frame();
         } else
-            std::this_thread::sleep_for(10ms);
+            std::this_thread::sleep_for(40ms);
 
+        running = false;
+
+        running |= InputManager.poll_inputs();
+        running |= DoorManager.update();
     }
 
+
 private:
-    map* world_map;
-    player* plyr;
-    renderer* r;
-    updater* upd;
-    bool* render_flag;
+
+    game_data* GameData;
+
+    multimedia_manager MultimediaManager;
+    player_manager PlayerManager;
+    map_manager MapManager;
+    door_manager DoorManager;
+    input_manager InputManager;
+
+    renderer Renderer;
 };

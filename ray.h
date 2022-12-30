@@ -1,17 +1,17 @@
 #pragma once
 
 #include "vec2.h"
-#include "misc.h"
+#include "global.h"
 #include <cmath>
 
 class ray {
 public:
-    ray(const vec2& o, const vec2& dir, const double& cosine_angle): origin(o), direction(unit_vector(dir)), cosine_of_angle(cosine_angle) {
-        dx_const = std::sqrt(1+pow(direction.y()/direction.x(),2));
-        dy_const = std::sqrt(1+pow(direction.x()/direction.y(),2));
+    ray(const vec2& o, const vec2& dir): origin(o), direction(unit_vector(dir)) {
+        dx_const = std::sqrt(1+pow(direction.y()/direction.x(),2));  // Change in length along ray upon change in x of 1 unit
+        dy_const = std::sqrt(1+pow(direction.x()/direction.y(),2));  // Change in length along ray upon change in y of 1 unit
 
-        y_step = std::sqrt(dx_const*dx_const - 1);
-        x_step = std::sqrt(dy_const*dy_const - 1);
+        y_step = std::sqrt(dx_const*dx_const - 1);  // Amount y changes for change of 1 unit in x
+        x_step = std::sqrt(dy_const*dy_const - 1);  // Amount x changes for change of 1 unit in y
     }
 
     ray() {};
@@ -20,6 +20,37 @@ public:
         return origin + t*direction;
     }
 
+    X_DIR x_dir() const {
+        return direction.x() > 0 ? EAST : WEST;
+    }
+
+    ivec2 x_dir_vec() const {
+        return ivec2(x_dir(), 0);
+    }
+
+    Y_DIR y_dir() const {
+        return direction.y() > 0 ? NORTH : SOUTH;
+    }
+
+    ivec2 y_dir_vec() const {
+        return ivec2(0, y_dir());
+    }
+
+    point2 next_x_intersection(const point2& pt) const {
+        int next_x = near_x(pt);
+        return point2(next_x, y_at(next_x));
+    }
+
+    point2 next_y_intersection(const point2& pt) const {
+        int next_y = near_y(pt);
+        return point2(x_at(next_y), next_y);
+    }
+
+    double dist_to_pt(const point2& p) const {
+        return get_ray_dist_dx(p.x()-origin.x());
+    }
+
+private:
     double y_at(double x) const {
         return origin.y() + ((x-origin.x())/direction.x())*direction.y();
     }
@@ -28,18 +59,9 @@ public:
         return origin.x() + ((y-origin.y())/direction.y())*direction.x();
     }
 
-
-    double x_dir() const {
-        return direction.x() > 0 ? 1 : -1;
-    }
-
-    double y_dir() const {
-        return direction.y() > 0 ? 1 : -1;
-    }
-
     int near_x(const point2& pt) const {
         if (!is_integer(pt.x())) {
-            if (x_dir() == 1)
+            if (x_dir() == EAST)
                 return static_cast<int>(ceil(pt.x()));
             else
                 return static_cast<int>(floor(pt.x()));
@@ -50,7 +72,7 @@ public:
 
     int near_y(const point2& pt) const {
         if (!is_integer(pt.y())) {
-            if (y_dir() == 1)
+            if (y_dir() == NORTH)
                 return static_cast<int>(ceil(pt.y()));
             else
                 return static_cast<int>(floor(pt.y()));
@@ -67,14 +89,9 @@ public:
         return abs(dy)*dy_const;
     }
 
-    double dist_to_pt(const point2& p) const {
-        return (origin - p).length();
-    }
-
 public:
     vec2 origin;
     vec2 direction;
-    double cosine_of_angle;
     double x_step;
     double y_step;
 
