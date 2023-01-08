@@ -26,10 +26,10 @@ intersection next_intersection(const intersection& curr_inter) {
     double dist_next_y = curr_inter.Ray.dist_to_pt(next_y);
 
     if (dist_next_x < dist_next_y)
-        return intersection(curr_inter.Ray, next_x, curr_inter.iPoint + curr_inter.Ray.x_dir_vec());
+        return intersection(curr_inter.Ray, next_x, curr_inter.iPoint + curr_inter.Ray.x_dir_vec);
     else if (dist_next_y < dist_next_x)
-        return intersection(curr_inter.Ray, next_y, curr_inter.iPoint + curr_inter.Ray.y_dir_vec());
+        return intersection(curr_inter.Ray, next_y, curr_inter.iPoint + curr_inter.Ray.y_dir_vec);
     else
-        return intersection(curr_inter.Ray, curr_inter.Point + curr_inter.Ray.direction, curr_inter.iPoint + curr_inter.Ray.x_dir_vec() + curr_inter.Ray.y_dir_vec());
+        return intersection(curr_inter.Ray, curr_inter.Point + curr_inter.Ray.direction, curr_inter.iPoint + curr_inter.Ray.x_dir_vec + curr_inter.Ray.y_dir_vec);
 }
 

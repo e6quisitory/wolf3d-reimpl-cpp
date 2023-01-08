@@ -1,8 +1,27 @@
+/*
+ * game_data.h:
+ *
+ * Definition of game_data struct, which contains all of the static "behind the scenes" data of the game world at any point in time.
+ * This data, stored in memory, is accessed and modified by the various managers.
+ * Ultimately, the game_data struct is passed into the renderer.
+ * The renderer turns this data representation of the game world into a graphical representation of it.
+ *
+ */
+
 #pragma once
+
+#include <vector>
+#include <map>
 
 #include "vec2.h"
 #include "ivec2.h"
 #include "tile.h"
+
+/*
+================================
+ Inputs
+================================
+*/
 
 enum COMMAND_TYPE {
     MOVEMENT,
@@ -11,9 +30,8 @@ enum COMMAND_TYPE {
     WEAPON
 };
 
-// North = player view direction, South = back of player, East = right of player, West = left of player
 enum COMMAND {
-    NONE = 0,
+    NONE,
     MOVE_NORTH,
     MOVE_SOUTH,
     MOVE_EAST,
@@ -29,22 +47,27 @@ enum COMMAND {
 };
 
 struct inputs {
-    COMMAND get_command(COMMAND_TYPE _command_type) {
-        return curr_commands[_command_type];
-    }
-
-    void set_command(COMMAND_TYPE _command_type, COMMAND _command) {
-        curr_commands[_command_type] = _command;
-    }
-
-    COMMAND curr_commands[NUM_COMMANDS];  // [MOVEMENT, LOOKING, DOOR, WEAPON]
+    static const int NUM_COMMAND_TYPES = 4;
+    std::map<COMMAND_TYPE, COMMAND> curr_commands;
 };
+
+/*
+================================
+ Player
+================================
+*/
 
 struct player {
     point2 location;
     vec2 view_dir;
     vec2 east;
 };
+
+/*
+================================
+ Map
+================================
+*/
 
 struct map {
     tile* operator [] (int index) const {
@@ -76,8 +99,14 @@ struct map {
     int height;
     int num_tiles;
 
-    int active_doors;
+    std::map<door*, door*> active_doors;
 };
+
+/*
+================================
+ Multimedia (game assets)
+================================
+*/
 
 struct multimedia {
     SDL_Texture* get_texture(int texture_id) const {
@@ -88,14 +117,31 @@ struct multimedia {
         textures[texture_id-1] = texture;
     }
 
+    texture_pair get_texture_pair(int texture_id) const {
+        static int no_lighting_list[10] = {31,32,41,42,43,44,107,108,109,110};
+        for (int i = 0; i < 10; ++i) {
+            if (texture_id == no_lighting_list[i]) {
+                SDL_Texture* t = get_texture(texture_id);
+                return texture_pair(t,t);
+            }
+        }
+        return texture_pair(get_texture(texture_id), get_texture(texture_id+1));
+    }
+
     SDL_Window* sdl_window;
     SDL_Renderer* sdl_renderer;
-    SDL_Texture* textures[110];  // perhaps make this 110 value flexible?
+    SDL_Texture* textures[110];
 
     int screen_width;
     int screen_height;
     int refresh_rate;
 };
+
+/*
+================================
+ Final game data container
+================================
+*/
 
 typedef struct game_data {
 

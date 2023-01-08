@@ -1,9 +1,10 @@
 #pragma once
 
 #include <string>
+#include <cassert>
 #include <SDL2/SDL.h>
 
-#include "constants.h"
+#include "global.h"
 #include "game_data.h"
 
 class multimedia_manager {
@@ -42,7 +43,7 @@ public:
         SDL_SetHint( SDL_HINT_RENDER_VSYNC, "1" );
     }
 
-    void load_wall_textures(const char* filename, int texture_sheet_pitch) const {
+    void load_wall_texture_pairs(const char* filename, int texture_sheet_pitch) const {
         // First load texture sheet BMP file into an SDL_Surface
         SDL_Surface* texture_sheet = bmp_to_surface(filename);
 

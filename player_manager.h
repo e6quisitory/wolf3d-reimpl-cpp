@@ -1,6 +1,5 @@
 #pragma once
 
-#include "constants.h"
 #include "game_data.h"
 #include "input_manager.h"
 #include "global.h"
@@ -14,13 +13,20 @@ public:
     }
 
     void set_player(point2 location, vec2 view_dir) {
+        // If spawn is set for a perfect grid corner (i.e. x and y vals are both integers), there is some weird clipping that happens when you first move
+        // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
+        // avoid the bug
+        for (int i = 0; i < 2; ++i)
+            if (is_integer(location[i]))
+                location[i] += 0.01;
+
         GameData->Player.location = location;
         GameData->Player.view_dir = view_dir;
     }
 
     void update() const {
 
-        switch(GameData->Inputs.get_command(MOVEMENT)) {
+        switch(GameData->Inputs.curr_commands[MOVEMENT]) {
             case MOVE_EAST: move_x(EAST, FULL); break;
             case MOVE_WEST: move_x(WEST, FULL); break;
             case MOVE_NORTH: move_y(NORTH, FULL); break;
@@ -39,12 +45,12 @@ public:
                                  break;
         }
 
-        switch(GameData->Inputs.get_command(LOOKING)) {
+        switch(GameData->Inputs.curr_commands[LOOKING]) {
             case LOOK_RIGHT: swivel(CLOCKWISE); break;
             case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
         }
 
-        if (GameData->Inputs.get_command(DOORS) == OPEN_DOOR)
+        if (GameData->Inputs.curr_commands[DOORS] == OPEN_DOOR)
             open_door();
     }
 
@@ -109,7 +115,7 @@ private:
                 if (curr_tile->type() == DOOR) {
                     door* curr_door = static_cast<door*>(curr_tile);
                     switch (curr_door->status) {
-                        case CLOSED:  ++GameData->Map.active_doors;
+                        case CLOSED:  GameData->Map.active_doors.insert({curr_door, curr_door});
                         case CLOSING: curr_door->status = OPENING;
                     }
                 } else

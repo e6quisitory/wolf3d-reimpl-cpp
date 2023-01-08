@@ -1,5 +1,0 @@
-#pragma once
-
-#define PI 3.1415926535897932385
-#define TEXTURE_PITCH 64
-#define NUM_COMMANDS 4

@@ -22,7 +22,7 @@ public:
         // Initialize managers
         MultimediaManager.init(GameData);
         MultimediaManager.create_window_renderer(1280, 720);
-        MultimediaManager.load_wall_textures("wall_textures.bmp", 6);
+        MultimediaManager.load_wall_texture_pairs("wall_textures.bmp", 6);
 
         PlayerManager.init(GameData);
 
@@ -37,7 +37,7 @@ public:
         Renderer.init(GameData);
 
         // Set player location & view direction
-        PlayerManager.set_player(point2(5.86,11.1), vec2(1,0));
+        PlayerManager.set_player(point2(6,11), vec2(1,0));
     }
 
     void exit() {
@@ -67,7 +67,7 @@ public:
             PlayerManager.update();
             Renderer.render_frame();
         } else
-            std::this_thread::sleep_for(40ms);
+            SDL_Delay(40);
 
         running = false;
 

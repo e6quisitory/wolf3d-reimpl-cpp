@@ -22,7 +22,7 @@ Here is a short video of what the engine is currently capable of:
 The comments in the commits are full of detailed explanations on the implementation of parts of the engine, how I encountered and fixed bugs, etc. Worth looking at if you're building something like this yourself.
 
 ## Build Instructions
-The game engine is coded completely from scratch. The only dependancy this project has is the windowing and multimedia library, SDL2, to draw pixels onto the screen. Suffice to say, coding a windowing library from scratch is beyond my scope of knoweldge at the moment!
+The game engine is coded completely from scratch. The only dependancy this project has is the windowing and multimedia library, SDL2, to draw pixels onto the screen as well as to do the texture scaling on the GPU. Suffice to say, coding a multimedia library from scratch is beyond my scope of knoweldge at the moment! So I'm using SDL2.
 
 I'm doing this project on a 2020 M1 MacBook Air, and have installed SDL2 using Homebrew:
 ```
@@ -30,7 +30,7 @@ brew install sdl2
 ```
 I'm compiling and running like so:
 ```
-g++ -std=c++17 -lSDL2 main.cpp; ./a.out
+g++ -std=c++17 main.cpp -lSDL2; ./a.out
 ```
 ## Controls & Map Loading
 `w`, `a`, `s`, `d` for moving, `←` and `→` arrow keys for changing looking direction, `spacebar` for opening doors.
@@ -41,6 +41,7 @@ As for how to construct the map, i.e. what the values in the `csv` file mean, pl
 
 ## Immediate Goals
 - Use mouse to look around, w/ inertia in movement
+- A clean system of managing and accessing game assets 
 - Sprites rendering
 - Weapons
 - Enemy AI & character animation
@@ -48,6 +49,11 @@ As for how to construct the map, i.e. what the values in the `csv` file mean, pl
 ## Later Goals
 - Darken distant walls (shadow/depth effect)
 - Textured ceiling & floor
+- Add joystick support
+- Port to browser using Webassembly
+- Networked multiplayer _(aspirational)_
+- Proper map editor _(aspirational)_
+- Port to iOS?
 
 ## Credits
 All textures used are the official Wolfenstein 3D textures that shipped in the game back in 1992. I found them [here](https://www.textures-resource.com/pc_computer/wolf3d/texture/1375/).

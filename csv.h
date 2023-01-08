@@ -24,8 +24,14 @@ struct csv_data {
     int height;              // Height of grid
 };
 
+void push_digit(bool& num_in_progress, csv_data& csvData, std::vector<int>& temp_digits) {
+    num_in_progress = false;
+    csvData.data.push_back(digits_vec_to_int(temp_digits));
+    temp_digits.clear();
+}
+
 csv_data parse_csv(std::string filename) {
-    csv_data csv_d;
+    csv_data csvData;
 
     std::ifstream map_file(filename);
 
@@ -36,33 +42,28 @@ csv_data parse_csv(std::string filename) {
         char c = map_file.get();
         bool comma = (c == ',');
         bool newline = (c == '\r') || (c == '\n');
+        bool eof = c == EOF;
 
         if (comma) {
-            num_in_progress = false;
-            csv_d.data.push_back(digits_vec_to_int(temp_digits));
-            temp_digits.clear();
+            push_digit(num_in_progress, csvData, temp_digits);
         } else if (newline) {
             if (num_in_progress == true) {
-                ++csv_d.height;
-                num_in_progress = false;
-                csv_d.data.push_back(digits_vec_to_int(temp_digits));
-                temp_digits.clear();
+                ++csvData.height;
+                push_digit(num_in_progress, csvData, temp_digits);
             } else
                 continue;
-        } else if (c == EOF) {
-            ++csv_d.height;
-            num_in_progress = false;
-            csv_d.data.push_back(digits_vec_to_int(temp_digits));
-            temp_digits.clear();
+        } else if (eof) {
+            ++csvData.height;
+            push_digit(num_in_progress, csvData, temp_digits);
             map_file.close();
         } else if (num_in_progress == true) {
             temp_digits.push_back(c - '0');
         } else {
             num_in_progress = true;
             temp_digits.push_back(c - '0');
-            if (csv_d.height == 0) ++csv_d.width;
+            if (csvData.height == 0) ++csvData.width;
         }
     }
 
-    return csv_d;
+    return csvData;
 };

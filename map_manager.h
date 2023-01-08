@@ -3,6 +3,7 @@
 #include <string>
 #include "game_data.h"
 #include "csv.h"
+#include "global.h"
 
 class map_manager {
 public:
@@ -10,10 +11,8 @@ public:
     void init(game_data* gm_dat) {
         GameData = gm_dat;
 
-        door_gate_lit = GameData->Multimedia.get_texture(99);
-        door_gate_unlit = GameData->Multimedia.get_texture(100);
-        door_sidewall_lit = GameData->Multimedia.get_texture(101);
-        door_sidewall_unlit = GameData->Multimedia.get_texture(102);
+        gate_texture = GameData->Multimedia.get_texture_pair(99);
+        gate_sidewall_texture = GameData->Multimedia.get_texture_pair(101);
     }
 
     void exit() const {
@@ -39,34 +38,15 @@ public:
             if (texture_id == 0)
                 GameData->Map.tiles[tile_index] = new empty();
             else if (texture_id == 99) {
-                GameData->Map.tiles[tile_index] = new door(door_gate_lit, door_gate_unlit, door_sidewall_lit, door_sidewall_unlit);
-            } else {
-                SDL_Texture* wall_texture_lit = GameData->Multimedia.get_texture(texture_id);
-                if (!has_lighting(texture_id))
-                    GameData->Map.tiles[tile_index] = new wall(wall_texture_lit, wall_texture_lit, door_sidewall_lit, door_sidewall_unlit);
-                else {
-                    SDL_Texture* wall_texture_unlit = GameData->Multimedia.get_texture(texture_id+1);
-                    GameData->Map.tiles[tile_index] = new wall(wall_texture_lit, wall_texture_unlit, door_sidewall_lit, door_sidewall_unlit);
-                }
-            }
+                GameData->Map.tiles[tile_index] = new door(gate_texture, gate_sidewall_texture);
+            } else
+                GameData->Map.tiles[tile_index] = new wall(GameData->Multimedia.get_texture_pair(texture_id), gate_sidewall_texture);
         }
-
     }
 
 private:
     game_data* GameData;
 
-    SDL_Texture* door_gate_lit;
-    SDL_Texture* door_gate_unlit;
-    SDL_Texture* door_sidewall_lit;
-    SDL_Texture* door_sidewall_unlit;
-
-    int no_lighting_list[10] = {31,32,41,42,43,44,107,108,109,110};
-    bool has_lighting(int texture_id) const {
-        for (int i = 0; i < 10; ++i)
-            if (no_lighting_list[i] == texture_id)
-                return false;
-
-        return true;
-    }
+    texture_pair gate_texture;
+    texture_pair gate_sidewall_texture;
 };

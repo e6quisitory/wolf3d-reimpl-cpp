@@ -36,11 +36,13 @@ public:
             while (GameData->Map.within_map<ipoint2>(curr_inter.iPoint)) {
                 TILE_TYPE prev_tile_type = GameData->Map(curr_inter.iPoint)->type();
                 curr_inter = next_intersection(curr_inter);
-                texture_slice hit = GameData->Map(curr_inter.iPoint)->hit(curr_inter, prev_tile_type);
+                texture_hit_info hit = GameData->Map(curr_inter.iPoint)->hit(curr_inter, prev_tile_type);
+
                 if (hit.hit == true) {
-                    int render_height = static_cast<int>(1.3*GameData->Multimedia.screen_height / (hit.distance * casting_ray_angles[i].second));
                     SDL_Rect src_rect = hit.rect;
-                    SDL_Rect draw_rect = {i, GameData->Multimedia.screen_height/2 - render_height/2, 1, render_height};
+                    int render_height = get_render_height(hit.distance, casting_ray_angles[i].second);
+                    SDL_Rect draw_rect = {i, GameData->Multimedia.screen_height/2 - render_height/2, 1,
+                                          render_height};
                     SDL_RenderCopy(GameData->Multimedia.sdl_renderer, hit.texture, &src_rect, &draw_rect);
                     break;
                 } else
@@ -60,6 +62,11 @@ private:
 
         SDL_SetRenderDrawColor( GameData->Multimedia.sdl_renderer, 96, 96, 96, 0 );
         SDL_RenderFillRect(GameData->Multimedia.sdl_renderer, &floor );
+    }
+
+    int get_render_height(const double& hit_dist, const double& angle_cosine) {
+        static double coeff = 1.3*GameData->Multimedia.screen_width / (16.0/9.0);  // must account for screen aspect ratio
+        return static_cast<int>(coeff/(hit_dist*angle_cosine));
     }
 
 private:
