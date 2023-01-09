@@ -41,22 +41,41 @@ public:
 
         // Iterate over the width of the screen, casting out a ray for each vertical column of pixels
         for (int i = 0; i < GameData->Multimedia.screen_width; ++i) {
+            // Get ray with origin of player location and direction corresponding to the current vertical column of pixels
             ray curr_ray = get_ray(i);
             intersection curr_inter(curr_ray, curr_ray.origin);
 
+            // Go from intersection to intersection on the grid
             while (GameData->Map.within_map<ipoint2>(curr_inter.iPoint)) {
+                // Keep track of previous tile type to pass into tile->ray_hit function (for door sidewall rendering)
                 TILE_TYPE prev_tile_type = GameData->Map.get_tile(curr_inter.iPoint)->type();
-                curr_inter = next_intersection(curr_inter);
-                texture_hit_info hit = GameData->Map.get_tile(curr_inter.iPoint)->ray_hit(curr_inter, prev_tile_type);
 
-                if (hit.hit == true) {
-                    SDL_Rect src_rect = hit.rect;
-                    int render_height = get_render_height(hit.distance, casting_ray_angles[i].second);
-                    SDL_Rect draw_rect = {i, GameData->Multimedia.screen_height/2 - render_height/2, 1,
-                                          render_height};
-                    SDL_RenderCopy(GameData->Multimedia.sdl_renderer, hit.texture, &src_rect, &draw_rect);
+                // Calculate next intersection of curr_ray with map grid
+                curr_inter = next_intersection(curr_inter);
+
+                // See if tile that is hit is opaque (non-empty)
+                ray_tile_hit_info tile_hit = GameData->Map.get_tile(curr_inter.iPoint)->ray_hit(curr_inter, prev_tile_type);
+
+                // If non-empty, then we must render out a column of pixels on the screen, with the texture + SDL_Rect given by the tile
+                if (tile_hit.hit == true) {
+
+                    // Rect given by the tile for the texture
+                    SDL_Rect texture_rect = tile_hit.texture_rect;
+
+                    // How high we render the column of pixels on the screen depends on how far away the intersection is from the player + the cosine of the ray angle
+                    int render_height = get_render_height(tile_hit.distance, casting_ray_angles[i].second);
+
+                    // With calculated render height, we specify the section of the screen we'd like to render the column of pixels into
+                    SDL_Rect screen_rect = {i, GameData->Multimedia.screen_height / 2 - render_height / 2, 1, render_height};
+
+                    // SDL renders out the portion of the texture given by the tile into the portion of the screen specified by us.
+                    // Crucially, this function handles the texture scaling for us, and it does those calculations on the GPU.
+                    SDL_RenderCopy(GameData->Multimedia.sdl_renderer, tile_hit.texture, &texture_rect, &screen_rect);
+
+                    // Since we've hit a non-empty block, we can break out of the loop
                     break;
                 } else
+                    // If the tile hit is empty (or ray intersects part of door that is currently open), then pass through and go on to next intersection
                     continue;
             }
         }
@@ -76,11 +95,12 @@ private:
         SDL_RenderFillRect(GameData->Multimedia.sdl_renderer, &floor );
     }
 
-    // Returns ray corresponding to the vertical column of pixel index (0 is leftmost column of pixels)
+    // Returns ray corresponding to a vertical column of pixels (0 is leftmost column of pixels)
     ray get_ray(const int& ray_num) {
         return ray(GameData->Player.location, GameData->Player.view_dir.rotate(casting_ray_angles[ray_num].first));
     }
 
+    // Given hit distance and ray angle cosine, calculate how high the column of pixels to render should be
     int get_render_height(const double& hit_dist, const double& angle_cosine) {
         static double coeff = 1.3*GameData->Multimedia.screen_width / (16.0/9.0);  // must account for screen aspect ratio
         return static_cast<int>(coeff/(hit_dist*angle_cosine));
@@ -89,7 +109,6 @@ private:
 private:
     game_data* GameData;
 
-    std::vector<std::pair<double, double>> casting_ray_angles;  // First element in each pair is the angle, second is the cosine of it
-
     double fov = 72.0;
+    std::vector<std::pair<double, double>> casting_ray_angles;  // First element in each pair is the angle, second is the cosine of it
 };

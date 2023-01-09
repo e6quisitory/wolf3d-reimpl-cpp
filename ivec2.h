@@ -1,3 +1,10 @@
+/*
+ * ivec2.h:
+ *
+ * 2D vector with integer numbers.
+ *
+ */
+
 #pragma once
 
 #include "vec2.h"

@@ -1,3 +1,10 @@
+/*
+ * vec2.h:
+ *
+ * 2D vector with rational (floating-point / double) numbers.
+ *
+ */
+
 #pragma once
 
 #include <iostream>

@@ -16,7 +16,7 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 Here is a short video of what the engine is currently capable of:
 
 <div align="center">
-  <video src="https://user-images.githubusercontent.com/25702188/202889868-aaf94b6c-2f61-49ab-953b-47d9a08fc103.mp4" width=852/>
+  <video src="https://user-images.githubusercontent.com/25702188/211391994-abf2d2df-4ea7-4be0-91c9-4591c9b027fa.mp4" width=852/>
 </div>
 
 The comments in the commits are full of detailed explanations on the implementation of parts of the engine, how I encountered and fixed bugs, etc. Worth looking at if you're building something like this yourself.

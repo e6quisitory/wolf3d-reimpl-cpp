@@ -1,3 +1,17 @@
+/*
+ * tile.h:
+ *
+ * Tile objects constructed using OOP concepts (inheritance, polymorphism).
+ *
+ * Goal is that when the raycaster "hits" a tile, the tile *itself* spits out:
+ *
+ *     (i)  whether it is empty of not
+ *     (ii) if not empty, then the texture + portion of it that the ray hits
+ *
+ *  In addition to a ray-tile intersection, we can also calculate player-tile intersections, so that player doesn't pass through non-empty blocks.
+ *
+ */
+
 #pragma once
 
 #include <SDL2/SDL.h>
@@ -6,29 +20,54 @@
 #include "dda.h"
 #include "global.h"
 
+
+/*
+================================
+ Types of tiles
+================================
+*/
+
 enum TILE_TYPE {
     EMPTY,
     WALL,
     DOOR
 };
 
-struct texture_hit_info {
-    texture_hit_info(bool h): hit(h) {}
-    texture_hit_info(SDL_Texture* t, SDL_Rect r, double _distance): hit(true), texture(t), rect(r), distance(_distance) {}
+/*
+=======================================================
+ Struct that ray-tile intersection function spits out
+=======================================================
+*/
 
-    bool hit;
-    SDL_Texture* texture;
-    SDL_Rect rect;
-    double distance;
+struct ray_tile_hit_info {
+    ray_tile_hit_info(bool h): hit(h) {}
+    ray_tile_hit_info(SDL_Texture* t, SDL_Rect r, double _distance): hit(true), texture(t), texture_rect(r), distance(_distance) {}
+
+    bool hit;                // Indicates if tile hit is non-empty
+    SDL_Texture* texture;    // If non-empty, then the texture of the tile hit
+    SDL_Rect texture_rect;   // The portion of the texture that the ray intersected with
+    double distance;         // Distance of intersection from player location
 };
+
+/*
+================================
+ Tile base classc (abstract)
+================================
+*/
 
 class tile {
 public:
-    virtual ~tile() {}   // Virtual destructor
+    // Virtual destructor
+    virtual ~tile() {}
 
+    // Spits out tile's type
     virtual TILE_TYPE type() const = 0;
-    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;  // Ray-tile intersection
-    virtual bool player_hit() const = 0;  // Player-tile intersection
+
+    // Ray-tile intersection function
+    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;
+
+    // Player-tile intersection function
+    virtual bool player_hit() const = 0;
 
 protected:
     enum WALL_TYPE {
@@ -37,6 +76,7 @@ protected:
         CORNER
     };
 
+    // Given a point on a line on the map grid, calculates the wall type (horizontal or vertical) + the width percent
     struct wall_hit_info {
         wall_hit_info(point2 pt) {
             bool x_is_int = is_integer(pt.x());
@@ -57,16 +97,26 @@ protected:
         }
 
         WALL_TYPE WallType;
-        double width_percent;
+        double width_percent;  // Say you hit point (1.45, 2); then the width_percent would be 0.45; if (3, 7.39), width_percent = 0.39
     };
 
-    SDL_Texture* do_texture_lighting(const texture_pair& _texture_pair, const wall_hit_info& _wall_desc) const {
-        if (_wall_desc.WallType == VERTICAL)
+    using gate_hit_info = wall_hit_info;
+
+    // Given a texture pair and a wall description, returns the lit or unlit version of the texture.
+    // If vertical wall is hit, we use lit texture, if horizontal wall, then unlit texture.
+    SDL_Texture* do_texture_lighting(const texture_pair& _texture_pair, const wall_hit_info& _wall_hit_info) const {
+        if (_wall_hit_info.WallType == VERTICAL)
             return _texture_pair.first;
         else
             return _texture_pair.second;
     }
 };
+
+/*
+================================
+ Empty tile
+================================
+*/
 
 class empty : public tile {
 public:
@@ -76,8 +126,8 @@ public:
         return EMPTY;
     }
 
-    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
-        return texture_hit_info(false);
+    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+        return ray_tile_hit_info(false);
     }
 
     virtual bool player_hit() const override {
@@ -85,20 +135,26 @@ public:
     }
 };
 
+/*
+================================
+ Basic textured wall tile
+================================
+*/
+
 class wall : public tile {
 public:
-    wall(texture_pair _texture, texture_pair _sidewall_texture): texture(_texture), sidewall_texture(_sidewall_texture) {}
+    wall(texture_pair _texture, texture_pair _sidewall_texture): texture(_texture), gate_sidewall_texture(_sidewall_texture) {}
 
     virtual TILE_TYPE type() const override {
         return WALL;
     }
 
-    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
         wall_hit_info WallDescription(curr_inter.Point);
-        SDL_Rect rect = {static_cast<int>(WallDescription.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels
+        SDL_Rect rect = {static_cast<int>(WallDescription.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
         double distance = curr_inter.dist();
 
-        return texture_hit_info(do_texture_lighting(prev_tile_type == DOOR ? sidewall_texture : texture, WallDescription), rect, distance);
+        return ray_tile_hit_info(do_texture_lighting(prev_tile_type == DOOR ? gate_sidewall_texture : texture, WallDescription), rect, distance);
     }
 
     virtual bool player_hit() const override {
@@ -107,8 +163,16 @@ public:
 
 private:
     texture_pair texture;
-    texture_pair sidewall_texture;
+    // To render door sidewall, we see if the type of the *previous* tile that was hit was a door.
+    // If so, then simply swap this wall's texture with the door sidewall texture.
+    texture_pair gate_sidewall_texture;
 };
+
+/*
+================================
+ Door tile
+================================
+*/
 
 enum DOOR_STATUS {
     CLOSED,
@@ -119,7 +183,8 @@ enum DOOR_STATUS {
 
 class door : public tile {
 public:
-    door(texture_pair _gate_texture, texture_pair _sidewall_texture): gate_texture(_gate_texture), sidewall_texture(_sidewall_texture) {
+    door(texture_pair _gate_texture, texture_pair _sidewall_texture): gate_texture(_gate_texture), gate_sidewall_texture(_sidewall_texture) {
+        // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
         status = CLOSED;
         position = 1.0;
         timer = 1.0;
@@ -129,32 +194,46 @@ public:
         return DOOR;
     }
 
-    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+
+        // Get wall description for point on edge of tile
         wall_hit_info curr_wall_desc(curr_inter.Point);
 
+        // Center this point
         point2 centered_pt = center_point(curr_inter, curr_wall_desc);
-        bool ray_intersects_gate = ipoint2(centered_pt) == curr_inter.iPoint;
 
-        if (ray_intersects_gate) {
-            wall_hit_info middle_hit_desc(centered_pt);
-            if (ray_blocked_by_gate(middle_hit_desc)) {
-                double gate_width_percent = 1 - (position - middle_hit_desc.width_percent);
-                SDL_Rect gate_slice_rect = {static_cast<int>(gate_width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
+        // First check if incoming actually intersects with middle of tile (the gate)
+        if (ipoint2(centered_pt) == curr_inter.iPoint) {
+
+            // Get width percent of middle point in the tile
+            gate_hit_info _gate_hit_info = gate_hit_info(centered_pt);
+
+            // If ray does intersect gate, now check if the gate *blocks* the ray
+            if (_gate_hit_info.width_percent < position) {
+
+                // If ray is blocked by gate, then output the proper gate texture and rect
+                double gate_texture_width_percent = 1 - (position - _gate_hit_info.width_percent);
+                SDL_Rect gate_texture_rect = {static_cast<int>(gate_texture_width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
                 double center_pt_dist = curr_inter.Ray.dist_to_pt(centered_pt);
-                return texture_hit_info(do_texture_lighting(gate_texture, middle_hit_desc), gate_slice_rect,
-                                        center_pt_dist);
-            } else
-                return texture_hit_info(false);
+
+                return ray_tile_hit_info(do_texture_lighting(gate_texture, _gate_hit_info), gate_texture_rect, center_pt_dist);
+
+            } else {
+                // If gate doesn't block the ray, let ray pass through
+                return ray_tile_hit_info(false);
+            }
         } else
-            return texture_hit_info(false);
+            // If ray doesn't even intersect the middle of the tile, then let ray pass through
+            return ray_tile_hit_info(false);
+
     }
 
     virtual bool player_hit() const override {
-        return position <= 0.2 ? false : true;
+        return position <= 0.2 ? false : true;  // Allow player to pass through door if door is at least 80% open
     }
 
-
 private:
+    // Takes intersection on the edge of a tile/block and centers it
     point2 center_point(const intersection& curr_inter, const wall_hit_info& curr_wall_desc) const {
         point2 centered_pt = curr_inter.Point;
 
@@ -165,20 +244,15 @@ private:
             centered_pt.y() += static_cast<double>(curr_inter.Ray.y_dir) / 2;
             centered_pt.x() += static_cast<double>(curr_inter.Ray.x_dir)*(curr_inter.Ray.x_step/2);
         }
-
         return centered_pt;
-    }
-
-    bool ray_blocked_by_gate(const wall_hit_info& middle_wall_desc) const {
-        return middle_wall_desc.width_percent < position;
     }
 
 public:
     DOOR_STATUS status;
-    double position;  // 1 is fully closed, 0 is fully open
-    double timer;     // 1 is full-time left, 0 is no time left
+    double position;    // 1 is fully closed, 0 is fully open
+    double timer;       // 1 is full-time left, 0 is no time left
 
 private:
     texture_pair gate_texture;
-    texture_pair sidewall_texture;
+    texture_pair gate_sidewall_texture;
 };
