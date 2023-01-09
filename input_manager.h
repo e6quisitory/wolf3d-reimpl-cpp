@@ -1,3 +1,11 @@
+/*
+ * input_manager.h:
+ *
+ * Scans inputs from keyboard and sets GameData->Inputs.curr_commands.
+ * I.e. converts raw inputs into commands, which are then read by other managers (player_manager, etc.)
+ *
+ */
+
 #pragma once
 
 #include <algorithm>
@@ -8,7 +16,6 @@
 class input_manager {
 public:
     void init(game_data* gm_dat) {
-        // Get game_data object
         GameData = gm_dat;
 
         // Initialize current commands std::map in GameData->Inputs
@@ -62,6 +69,7 @@ public:
     }
 
 private:
+    // Returns true of there is currently any kind of valid input that has been parsed
     bool any_input() {
         for (auto const& [cmd_type, cmd] : GameData->Inputs.curr_commands)
             if (cmd != NONE)
@@ -72,6 +80,5 @@ private:
 
 private:
     game_data* GameData;
-
     const Uint8* keyboard_state;
 };

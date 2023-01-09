@@ -1,3 +1,10 @@
+/*
+ * map_manager.h:
+ *
+ * Parses map.csv file and loads it into memory, with tiles and textures.
+ *
+ */
+
 #pragma once
 
 #include <string>
@@ -26,11 +33,11 @@ public:
         csv_data CsvData = parse_csv(map_file);
 
         // Store width, height, num_tiles from parser results
-        GameData->Map.width = CsvData.width;
-        GameData->Map.height = CsvData.height;
-        GameData->Map.num_tiles = CsvData.width * CsvData.height;
+        GameData->Map.width = CsvData.columns;
+        GameData->Map.height = CsvData.rows;
+        GameData->Map.num_tiles = CsvData.columns * CsvData.rows;
 
-        // Fill map with corresponding tiles
+        // Allocate and fill map with corresponding tiles
         GameData->Map.tiles = new tile*[GameData->Map.num_tiles];
         for (int tile_index = 0; tile_index < GameData->Map.num_tiles; ++tile_index) {
             int texture_id = CsvData.data[tile_index];

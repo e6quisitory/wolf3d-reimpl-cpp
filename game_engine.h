@@ -1,3 +1,12 @@
+/*
+ * game_engine.h:
+ *
+ * The top level block that houses the main game_data object, the various managers, and the renderer.
+ * Initializes and exits the managers, as well as contains the main game_loop to be continuously executed
+ * in the main function (in main.cpp).
+ *
+ */
+
 #pragma once
 
 #include <thread>
@@ -11,8 +20,6 @@
 #include "door_manager.h"
 #include "renderer.h"
 
-using namespace std::chrono_literals;
-
 class game_engine {
 public:
     void init() {
@@ -21,7 +28,7 @@ public:
 
         // Initialize managers
         MultimediaManager.init(GameData);
-        MultimediaManager.create_window_renderer(1280, 720);
+        MultimediaManager.create_window_and_renderer(1280, 720);
         MultimediaManager.load_wall_texture_pairs("wall_textures.bmp", 6);
 
         PlayerManager.init(GameData);
@@ -37,11 +44,11 @@ public:
         Renderer.init(GameData);
 
         // Set player location & view direction
-        PlayerManager.set_player(point2(6,11), vec2(1,0));
+        PlayerManager.set_player(point2(6,11), vec2(1,-1));
     }
 
     void exit() {
-        // Exit managers
+        // Exit managers (that have memory clean-up to do)
         MapManager.exit();
         MultimediaManager.exit();
 
@@ -49,6 +56,7 @@ public:
         delete GameData;
     }
 
+    // Checks to see if user wants to close window; returns true if so
     bool check_quit() {
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
@@ -60,6 +68,7 @@ public:
         return false;
     }
 
+    // Main game loop continuously executed in the main function
     void game_loop() {
         static bool running = true;
 
@@ -67,10 +76,9 @@ public:
             PlayerManager.update();
             Renderer.render_frame();
         } else
-            SDL_Delay(40);
+            SDL_Delay(40);  // If there are no new changes that prompt rendering, wait 40ms then check again (to save CPU)
 
         running = false;
-
         running |= InputManager.poll_inputs();
         running |= DoorManager.update();
     }

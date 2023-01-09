@@ -1,10 +1,10 @@
 /*
  * game_data.h:
  *
- * Definition of game_data struct, which contains all of the static "behind the scenes" data of the game world at any point in time.
+ * Houses game_data struct, which contains all of the static, "behind the scenes" data of the game world at any point in time.
  * This data, stored in memory, is accessed and modified by the various managers.
  * Ultimately, the game_data struct is passed into the renderer.
- * The renderer turns this data representation of the game world into a graphical representation of it.
+ * The renderer turns this data representation of the game world into a graphical representation, to be outputted to the screen.
  *
  */
 
@@ -47,7 +47,7 @@ enum COMMAND {
 };
 
 struct inputs {
-    static const int NUM_COMMAND_TYPES = 4;
+    const int NUM_COMMAND_TYPES = 4;
     std::map<COMMAND_TYPE, COMMAND> curr_commands;
 };
 

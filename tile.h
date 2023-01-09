@@ -27,8 +27,8 @@ public:
     virtual ~tile() {}   // Virtual destructor
 
     virtual TILE_TYPE type() const = 0;
-    virtual texture_hit_info hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;  // Ray-tile intersection
-    virtual bool hit() const = 0;  // Player-tile intersection
+    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;  // Ray-tile intersection
+    virtual bool player_hit() const = 0;  // Player-tile intersection
 
 protected:
     enum WALL_TYPE {
@@ -76,11 +76,11 @@ public:
         return EMPTY;
     }
 
-    virtual texture_hit_info hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
         return texture_hit_info(false);
     }
 
-    virtual bool hit() const override {
+    virtual bool player_hit() const override {
         return false;
     }
 };
@@ -93,7 +93,7 @@ public:
         return WALL;
     }
 
-    virtual texture_hit_info hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
         wall_hit_info WallDescription(curr_inter.Point);
         SDL_Rect rect = {static_cast<int>(WallDescription.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels
         double distance = curr_inter.dist();
@@ -101,7 +101,7 @@ public:
         return texture_hit_info(do_texture_lighting(prev_tile_type == DOOR ? sidewall_texture : texture, WallDescription), rect, distance);
     }
 
-    virtual bool hit() const override {
+    virtual bool player_hit() const override {
         return true;
     }
 
@@ -129,7 +129,7 @@ public:
         return DOOR;
     }
 
-    virtual texture_hit_info hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual texture_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
         wall_hit_info curr_wall_desc(curr_inter.Point);
 
         point2 centered_pt = center_point(curr_inter, curr_wall_desc);
@@ -149,7 +149,7 @@ public:
             return texture_hit_info(false);
     }
 
-    virtual bool hit() const override {
+    virtual bool player_hit() const override {
         return position <= 0.2 ? false : true;
     }
 

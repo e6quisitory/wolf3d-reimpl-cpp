@@ -5,7 +5,6 @@
  *
  */
 
-
 #pragma once
 
 /*
@@ -24,15 +23,21 @@ int NUM_WALL_TEXTURES = 110;
 ================================
 */
 
-enum X_DIR {
+// NOTE: These directions are all relative to the *player*, not the map grid. I.e. the player's view_dir is *always* NORTH.
+
+enum HORIZONTAL_DIR {
     EAST = 1,
     WEST = -1
 };
 
-enum Y_DIR {
+using X_DIR = HORIZONTAL_DIR;
+
+enum VERTICAL_DIR {
     NORTH = 1,
     SOUTH = -1
 };
+
+using Y_DIR = VERTICAL_DIR;
 
 enum SWIVEL_DIR {
     COUNTER_CLOCKWISE = 1,

@@ -1,3 +1,10 @@
+/*
+ * renderer.h:
+ *
+ * Uses game_data struct to turn the game world from a data representation into a graphical representation, to be outputted to the screen.
+ *
+ */
+
 #pragma once
 
 #include <cmath>
@@ -17,7 +24,6 @@ public:
         // Pre-calculate the ray angles and their cosines, as they do not change
         double proj_plane_width = 2*std::tan(degrees_to_radians(fov/2));
         double segment_len = proj_plane_width / GameData->Multimedia.screen_width;
-
         casting_ray_angles.reserve(GameData->Multimedia.screen_width);
         for (int i = 0; i < GameData->Multimedia.screen_width; ++i) {
             double angle = std::atan(-(i*segment_len-(proj_plane_width/2)));
@@ -25,10 +31,15 @@ public:
         }
     }
 
+    // Renders a single frame and outputs it to the window/screen
     void render_frame() {
+        // Clear screen
         SDL_RenderClear(GameData->Multimedia.sdl_renderer);
+
+        // Draw ceiling and floor (simple solid colors)
         draw_ceiling_floor();
 
+        // Iterate over the width of the screen, casting out a ray for each vertical column of pixels
         for (int i = 0; i < GameData->Multimedia.screen_width; ++i) {
             ray curr_ray = get_ray(i);
             intersection curr_inter(curr_ray, curr_ray.origin);
@@ -36,7 +47,7 @@ public:
             while (GameData->Map.within_map<ipoint2>(curr_inter.iPoint)) {
                 TILE_TYPE prev_tile_type = GameData->Map.get_tile(curr_inter.iPoint)->type();
                 curr_inter = next_intersection(curr_inter);
-                texture_hit_info hit = GameData->Map.get_tile(curr_inter.iPoint)->hit(curr_inter, prev_tile_type);
+                texture_hit_info hit = GameData->Map.get_tile(curr_inter.iPoint)->ray_hit(curr_inter, prev_tile_type);
 
                 if (hit.hit == true) {
                     SDL_Rect src_rect = hit.rect;
@@ -49,6 +60,7 @@ public:
                     continue;
             }
         }
+        // Refresh SDL renderer (so that new rendered frame shows up)
         SDL_RenderPresent(GameData->Multimedia.sdl_renderer);
     }
 
@@ -64,7 +76,8 @@ private:
         SDL_RenderFillRect(GameData->Multimedia.sdl_renderer, &floor );
     }
 
-    ray get_ray(int ray_num) {
+    // Returns ray corresponding to the vertical column of pixel index (0 is leftmost column of pixels)
+    ray get_ray(const int& ray_num) {
         return ray(GameData->Player.location, GameData->Player.view_dir.rotate(casting_ray_angles[ray_num].first));
     }
 

@@ -1,3 +1,10 @@
+/*
+ * multimedia_manager.h:
+ *
+ * Manages SDL2 (init, quit, window, renderer) as well as loads game assets (texture/sprite BMP sheets) into GameData->Multimedia.
+ *
+ */
+
 #pragma once
 
 #include <string>
@@ -34,7 +41,7 @@ public:
         SDL_Quit();
     }
 
-    void create_window_renderer(int screen_width, int screen_height) const {
+    void create_window_and_renderer(int screen_width, int screen_height) const {
         assert(screen_width % 2 == 0 && screen_height % 2 == 0);
         GameData->Multimedia.screen_width = screen_width;
         GameData->Multimedia.screen_height = screen_height;
@@ -43,6 +50,7 @@ public:
         SDL_SetHint( SDL_HINT_RENDER_VSYNC, "1" );
     }
 
+    // Loads wall textures (pair of lit + unlit texture) into GameData->Multimedia
     void load_wall_texture_pairs(const char* filename, int texture_sheet_pitch) const {
         // First load texture sheet BMP file into an SDL_Surface
         SDL_Surface* texture_sheet = bmp_to_surface(filename);
@@ -56,6 +64,7 @@ public:
     }
 
 private:
+    // Converts a BMP file into an SDL_Surface*
     SDL_Surface* bmp_to_surface(const char* filename) const {
         SDL_Surface* temp = SDL_LoadBMP(filename);
         SDL_Surface* final = SDL_ConvertSurface(temp, SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888), 0);
@@ -63,6 +72,7 @@ private:
         return final;
     }
 
+    // Extracts a single texture from a texture sheet passed in as an SDL_Surface*
     SDL_Texture* extract_texture(SDL_Surface* texture_sheet, const int& texture_sheet_pitch, int texture_id) const {
         int topleft_x = ( (texture_id-1) % texture_sheet_pitch ) * TEXTURE_PITCH;
         int topleft_y = ( (texture_id-1) / texture_sheet_pitch ) * TEXTURE_PITCH;
