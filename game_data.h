@@ -78,12 +78,8 @@ struct map {
         return tiles[y*width + x];
     }
 
-    tile* operator () (ipoint2 ipt) const {
+    tile* get_tile(const ipoint2& ipt) const {
         return (*this)(ipt.x(), ipt.y());
-    }
-
-    tile* get_tile(const ipoint2& ipt) {
-        return (*this)(ipt);
     }
 
     template<class point_type>
@@ -92,6 +88,14 @@ struct map {
             return true;
         else
             return false;
+    }
+
+    void add_active_door(door* const _door) {
+        active_doors.insert({_door, _door});
+    }
+
+    void remove_active_door(door* const _door) {
+        active_doors.erase(_door);
     }
 
     tile** tiles;  // Tiles need to be stored as pointers for polymorphism to work

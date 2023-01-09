@@ -96,7 +96,7 @@ public:
     virtual texture_hit_info hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
         wall_hit_info WallDescription(curr_inter.Point);
         SDL_Rect rect = {static_cast<int>(WallDescription.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels
-        double distance = curr_inter.Ray.dist_to_pt(curr_inter.Point);
+        double distance = curr_inter.dist();
 
         return texture_hit_info(do_texture_lighting(prev_tile_type == DOOR ? sidewall_texture : texture, WallDescription), rect, distance);
     }

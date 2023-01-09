@@ -24,7 +24,7 @@ public:
 
         if (no_active_doors || (one_active_door && inside_door())) return false;
 
-        for (auto const& [__door, _door] : GameData->Map.active_doors) {
+        for (auto const& [door, _door] : GameData->Map.active_doors) {
             switch (_door->status) {
                 case OPEN:
                     if (!inside_door(_door)) {
@@ -37,21 +37,18 @@ public:
         }
 
         // If any doors are done closing, they must be erased from GameData->Map.active_doors;
-        if (to_erase.first == true) {
-            GameData->Map.active_doors.erase(to_erase.second);
-            to_erase.first = false;
-        }
+        erase_active_door_if_any();
 
         return true;
     }
 
 private:
     void move_door(door* const _door) {
-        double proposed_position = _door->position;
+        double proposed_position;
 
         switch (_door->status) {
-            case CLOSING: proposed_position += movement_increment; break;
-            case OPENING: proposed_position -= movement_increment; break;
+            case CLOSING: proposed_position = _door->position + movement_increment; break;
+            case OPENING: proposed_position = _door->position - movement_increment; break;
         }
 
         if (proposed_position <= 0.0) {
@@ -60,7 +57,7 @@ private:
         } else if (proposed_position >= 1.0) {
             _door->position = 1.0;
             _door->status = CLOSED;
-            to_erase = {true, _door};
+            set_active_door_for_erasing(_door);
         } else
             _door->position = proposed_position;
     }
@@ -76,11 +73,23 @@ private:
     }
 
     bool inside_door(door* const _door) {
-        return GameData->Map(GameData->Player.location) == _door ? true : false;
+        return GameData->Map.get_tile(GameData->Player.location) == _door ? true : false;
     }
 
     bool inside_door() {
-        return GameData->Map(GameData->Player.location)->type() == DOOR;
+        return GameData->Map.get_tile(GameData->Player.location)->type() == DOOR;
+    }
+
+private:
+    void set_active_door_for_erasing(door* const _door) {
+        to_erase = {true, _door};
+    }
+
+    void erase_active_door_if_any() {
+        if (to_erase.first == true) {
+            GameData->Map.remove_active_door(to_erase.second);
+            to_erase.first = false;
+        }
     }
 
 private:

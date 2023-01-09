@@ -93,7 +93,7 @@ private:
     }
 
     void move_if_valid(const point2& proposed_loc) const {
-        tile* proposed_tile = GameData->Map(proposed_loc);  // not readable, change to something like "get_tile()"
+        tile* proposed_tile = GameData->Map.get_tile(proposed_loc);  // not readable, change to something like "get_tile()"
         if (!proposed_tile->hit())
             GameData->Player.location = proposed_loc;
     }
@@ -115,7 +115,7 @@ private:
                 if (curr_tile->type() == DOOR) {
                     door* curr_door = static_cast<door*>(curr_tile);
                     switch (curr_door->status) {
-                        case CLOSED:  GameData->Map.active_doors.insert({curr_door, curr_door});
+                        case CLOSED:  GameData->Map.add_active_door(curr_door);
                         case CLOSING: curr_door->status = OPENING;
                     }
                 } else

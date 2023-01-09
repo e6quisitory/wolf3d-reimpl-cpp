@@ -30,13 +30,13 @@ public:
         draw_ceiling_floor();
 
         for (int i = 0; i < GameData->Multimedia.screen_width; ++i) {
-            ray curr_ray = ray(GameData->Player.location, GameData->Player.view_dir.rotate(casting_ray_angles[i].first));
+            ray curr_ray = get_ray(i);
             intersection curr_inter(curr_ray, curr_ray.origin);
 
             while (GameData->Map.within_map<ipoint2>(curr_inter.iPoint)) {
-                TILE_TYPE prev_tile_type = GameData->Map(curr_inter.iPoint)->type();
+                TILE_TYPE prev_tile_type = GameData->Map.get_tile(curr_inter.iPoint)->type();
                 curr_inter = next_intersection(curr_inter);
-                texture_hit_info hit = GameData->Map(curr_inter.iPoint)->hit(curr_inter, prev_tile_type);
+                texture_hit_info hit = GameData->Map.get_tile(curr_inter.iPoint)->hit(curr_inter, prev_tile_type);
 
                 if (hit.hit == true) {
                     SDL_Rect src_rect = hit.rect;
@@ -62,6 +62,10 @@ private:
 
         SDL_SetRenderDrawColor( GameData->Multimedia.sdl_renderer, 96, 96, 96, 0 );
         SDL_RenderFillRect(GameData->Multimedia.sdl_renderer, &floor );
+    }
+
+    ray get_ray(int ray_num) {
+        return ray(GameData->Player.location, GameData->Player.view_dir.rotate(casting_ray_angles[ray_num].first));
     }
 
     int get_render_height(const double& hit_dist, const double& angle_cosine) {
