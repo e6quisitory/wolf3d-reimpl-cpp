@@ -19,7 +19,7 @@ public:
 
         // Set movement and swivel speeds based on display refresh rate (assumed that fps = refresh rate)
         movement_coeff = 3.645/GameData->Multimedia.refresh_rate;
-        swivel_amount = 1.9089/GameData->Multimedia.refresh_rate;
+        swivel_amount = 0.1/GameData->Multimedia.refresh_rate;
     }
 
     // Set spawn location and view direction of player
@@ -102,7 +102,7 @@ private:
     }
 
     void swivel(SWIVEL_DIR _swivel_dir) const {
-        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*_swivel_dir);
+        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*_swivel_dir*abs(GameData->Inputs.mouse_xrel)/2);
         GameData->Player.east = GameData->Player.view_dir.rotate(-PI/2);
     }
 

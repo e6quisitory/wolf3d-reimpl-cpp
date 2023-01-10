@@ -49,6 +49,7 @@ enum COMMAND {
 struct inputs {
     const int NUM_COMMAND_TYPES = 4;
     std::map<COMMAND_TYPE, COMMAND> curr_commands;
+    int mouse_xrel;
 };
 
 /*

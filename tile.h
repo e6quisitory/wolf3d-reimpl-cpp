@@ -20,7 +20,6 @@
 #include "dda.h"
 #include "global.h"
 
-
 /*
 ================================
  Types of tiles
@@ -51,7 +50,7 @@ struct ray_tile_hit_info {
 
 /*
 ================================
- Tile base classc (abstract)
+ Tile base class (abstract)
 ================================
 */
 

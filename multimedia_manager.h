@@ -48,6 +48,9 @@ public:
         GameData->Multimedia.sdl_window = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_SHOWN);
         GameData->Multimedia.sdl_renderer = SDL_CreateRenderer(GameData->Multimedia.sdl_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // VSYNC is important
         SDL_SetHint( SDL_HINT_RENDER_VSYNC, "1" );
+        //SDL_SetWindowMouseGrab(GameData->Multimedia.sdl_window, SDL_TRUE);
+        //SDL_ShowCursor(SDL_DISABLE);
+        SDL_SetRelativeMouseMode(SDL_TRUE);
     }
 
     // Loads wall textures (pair of lit + unlit texture) into GameData->Multimedia

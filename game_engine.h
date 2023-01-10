@@ -57,13 +57,23 @@ public:
     }
 
     // Checks to see if user wants to close window; returns true if so
-    bool check_quit() {
+    bool check_quit_and_mouselock() {
         SDL_Event e;
         while(SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 return true;
+            }
+            /*} else if (e.type == SDL_KEYDOWN) {             // Can X out of window or press Escape key to exit game
+                switch (e.key.keysym.scancode) {
+                    case SDL_SCANCODE_ESCAPE: return true;
+                    case SDL_SCANCODE_GRAVE:                // Pressing tilde key (below escape key) will toggle mouse locking to window
+                        bool cursor_shown = SDL_ShowCursor(SDL_QUERY);
+                        SDL_SetWindowMouseGrab(GameData->Multimedia.sdl_window, cursor_shown ? SDL_TRUE : SDL_FALSE);
+                        SDL_ShowCursor(cursor_shown ? SDL_DISABLE : SDL_ENABLE);
+                        return false;
+                }
             } else
-                return false;
+                return false;*/
         }
         return false;
     }
@@ -83,9 +93,7 @@ public:
         running |= DoorManager.update();
     }
 
-
 private:
-
     game_data* GameData;
 
     multimedia_manager MultimediaManager;

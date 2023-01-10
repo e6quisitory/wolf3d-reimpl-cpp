@@ -22,6 +22,9 @@ public:
         for (int cmd_type = 0; cmd_type < GameData->Inputs.NUM_COMMAND_TYPES; ++cmd_type)
             GameData->Inputs.curr_commands.insert({static_cast<COMMAND_TYPE>(cmd_type), NONE});
 
+        // Initialize previous mouse x location
+        prev_mouse_x = get_mouse_x();
+
         // Save local copy of keyboard_state pointer
         keyboard_state = SDL_GetKeyboardState(nullptr);
     }
@@ -39,9 +42,6 @@ public:
         bool door  = keyboard_state[SDL_SCANCODE_SPACE];
         bool fire =  keyboard_state[SDL_SCANCODE_LSHIFT];
 
-        bool look_right = keyboard_state[SDL_SCANCODE_RIGHT];
-        bool look_left  = keyboard_state[SDL_SCANCODE_LEFT];
-
         // Set MOVEMENT command
         if      (up_right)   GameData->Inputs.curr_commands[MOVEMENT] = MOVE_NORTHEAST;
         else if (up_left)    GameData->Inputs.curr_commands[MOVEMENT] = MOVE_NORTHWEST;
@@ -54,12 +54,18 @@ public:
         else                 GameData->Inputs.curr_commands[MOVEMENT] = NONE;
 
         // Set LOOKING command
-        if ((look_left && look_right) || (!look_left && !look_right))
-            GameData->Inputs.curr_commands[LOOKING] = NONE;
-        else if (look_right)
+        int& xrel = GameData->Inputs.mouse_xrel;
+        SDL_Event m;
+        SDL_PollEvent(&m);
+        if (m.type == SDL_MOUSEMOTION)
+            xrel = m.motion.xrel;
+
+        if (xrel > 0)
             GameData->Inputs.curr_commands[LOOKING] = LOOK_RIGHT;
-        else
+        else if (xrel < 0)
             GameData->Inputs.curr_commands[LOOKING] = LOOK_LEFT;
+        else
+            GameData->Inputs.curr_commands[LOOKING] = NONE;
 
         // Set DOOR and WEAPON commands
         GameData->Inputs.curr_commands[DOORS] = door ? OPEN_DOOR : NONE;
@@ -69,6 +75,12 @@ public:
     }
 
 private:
+    int get_mouse_x() {
+        int x;
+        SDL_GetMouseState(&x, nullptr);
+        return x;
+    }
+
     // Returns true of there is currently any kind of valid input that has been parsed
     bool any_input() {
         for (auto const& [cmd_type, cmd] : GameData->Inputs.curr_commands)
@@ -81,4 +93,5 @@ private:
 private:
     game_data* GameData;
     const Uint8* keyboard_state;
+    int prev_mouse_x;
 };
