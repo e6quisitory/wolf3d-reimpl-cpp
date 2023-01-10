@@ -60,7 +60,7 @@ struct inputs {
     }
 
     std::map<COMMAND_TYPE, COMMAND> curr_commands;
-    int mouse_xrel;
+    int mouse_abs_xrel;
 };
 
 /*
@@ -143,13 +143,6 @@ struct multimedia {
             }
         }
         return texture_pair(get_texture(texture_id), get_texture(texture_id+1));
-    }
-
-    // Doesn't work for some reason lol
-    void toggle_mouse_window_lock() const {
-        bool cursor_shown = SDL_ShowCursor(SDL_QUERY);
-        SDL_SetWindowMouseGrab(sdl_window, cursor_shown ? SDL_TRUE : SDL_FALSE);
-        SDL_ShowCursor(cursor_shown ? SDL_DISABLE : SDL_ENABLE);
     }
 
     SDL_Window* sdl_window;

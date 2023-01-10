@@ -19,7 +19,7 @@ public:
 
         // Set movement and swivel speeds based on display refresh rate (assumed that fps = refresh rate)
         movement_coeff = 3.645/GameData->Multimedia.refresh_rate;
-        swivel_amount = 0.1/GameData->Multimedia.refresh_rate;
+        swivel_amount = 0.075/GameData->Multimedia.refresh_rate;
     }
 
     // Set spawn location and view direction of player
@@ -38,11 +38,6 @@ public:
     // Scans current input commands for movement, looking around, and door opening.
     // Then, changes player attributes (and/or opens door) as necessary.
     void update() const {
-        switch(GameData->Inputs.curr_commands[LOOKING]) {
-            case LOOK_RIGHT: swivel(CLOCKWISE); break;
-            case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
-        }
-
         switch(GameData->Inputs.curr_commands[MOVEMENT]) {
             case MOVE_EAST:
                 move_horizontal(EAST, FULL); break;
@@ -68,6 +63,11 @@ public:
                 move_vertical(SOUTH, HALF);
                 move_horizontal(WEST, HALF);
                 break;
+        }
+
+        switch(GameData->Inputs.curr_commands[LOOKING]) {
+            case LOOK_RIGHT: swivel(CLOCKWISE); break;
+            case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
         }
 
         if (GameData->Inputs.curr_commands[DOORS] == OPEN_DOOR)
@@ -102,21 +102,31 @@ private:
     }
 
     void swivel(SWIVEL_DIR _swivel_dir) const {
-
         static int prev_xrel = 0;
         static int cutoff_counter = 0;
 
-        int curr_xrel = GameData->Inputs.mouse_xrel;
+        int curr_xrel = GameData->Inputs.mouse_abs_xrel;
+
+        /*
+         * This cutoff counter method is used to prevent the player from spinning.
+         * Works decently well, and produces mouse movement with an adequate amount of
+         * smoothness but also enough tightness.
+         * The only downside so far is that when the player mov_dir and mouse dir are
+         * opposite in direction to each other (rel. to x-axis), it leads to jitteryness.
+         * It is most apparent when using a low DPI mouse / trackpad.
+         * I think I'll have to solve this by taking the dot product of both vectors and using
+         * the result to boost the mouse xrel amount somehow.
+         */
 
         if (curr_xrel == prev_xrel && GameData->Inputs.get_xrel() == 0)
             ++cutoff_counter;
 
-        if (cutoff_counter >= 5) {             // Once it reaches cutoff counter, need to gradually ramp it down. Too jerky rn.
-            GameData->Inputs.mouse_xrel = 0;
+        if (cutoff_counter >= 5) {
             cutoff_counter = 0;
+            GameData->Inputs.mouse_abs_xrel = 0;
         }
 
-        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*_swivel_dir*abs(GameData->Inputs.mouse_xrel));
+        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*_swivel_dir*GameData->Inputs.mouse_abs_xrel);
         GameData->Player.east = GameData->Player.view_dir.rotate(-PI/2);
 
         prev_xrel = curr_xrel;

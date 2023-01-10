@@ -12,6 +12,7 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 - Map loading from a `csv` file
 - Colored floor and ceiling
 - Smooth movement using VSYNC
+- Mouse to look around
 
 Here is a short video of what the engine is currently capable of:
 
@@ -33,14 +34,13 @@ I'm compiling and running like so:
 g++ -std=c++17 main.cpp -lSDL2; ./a.out
 ```
 ## Controls & Map Loading
-`w`, `a`, `s`, `d` for moving, `←` and `→` arrow keys for changing looking direction, `spacebar` for opening doors.
+`w`, `a`, `s`, `d` to move, mouse to look around, `spacebar` for opening doors, `Esc` to exit game.
 
 The map file is `map.csv` and is ASCII encoded, not UTF-8 encoded. I find that editing the file is easiest in Excel.
 
 As for how to construct the map, i.e. what the values in the `csv` file mean, please read [this](https://github.com/e6quisitory/wolf3d-clone/commit/3f9f9e308629098a29df2e3ec8103fddd3fc51c0#commitcomment-88618626).
 
 ## Immediate Goals
-- Use mouse to look around, w/ inertia in movement
 - A clean system of managing and accessing game assets 
 - Sprites rendering
 - Weapons

@@ -24,7 +24,7 @@ public:
             GameData->Inputs.curr_commands.insert({static_cast<COMMAND_TYPE>(cmd_type), NONE});
 
         // Mouse not moving at start
-        GameData->Inputs.mouse_xrel = 0;
+        GameData->Inputs.mouse_abs_xrel = 0;
 
         // Save local copy of keyboard_state pointer
         keyboard_state = SDL_GetKeyboardState(nullptr);
@@ -32,25 +32,26 @@ public:
 
     void poll_inputs() {
 
-        // Mouse movement
+        // Mouse movement (for player to look side to side)
         SDL_Event e;
-        if (SDL_PollEvent(&e)){
+        while (SDL_PollEvent(&e)){
             int curr_xrel = e.motion.xrel;
             if (e.type == SDL_MOUSEMOTION) {
-                GameData->Inputs.mouse_xrel = curr_xrel;
                 if (curr_xrel > 0)
                     GameData->Inputs.curr_commands[LOOKING] = LOOK_RIGHT;
                 else if (curr_xrel < 0)
                     GameData->Inputs.curr_commands[LOOKING] = LOOK_LEFT;
                 else
                     GameData->Inputs.curr_commands[LOOKING] = NONE;
+
+                GameData->Inputs.mouse_abs_xrel = abs(curr_xrel);
             }
         }
 
-        // Then scan keyboard to set movement command (events are not fast enough for this)
+        // Escape key to exit game
         if (keyboard_state[SDL_SCANCODE_ESCAPE]) GameData->quit_flag = true;
-        if (keyboard_state[SDL_SCANCODE_GRAVE])  GameData->Multimedia.toggle_mouse_window_lock();
 
+        // Movement (to move player in the game world)
         bool up =         keyboard_state[SDL_SCANCODE_W];
         bool back =       keyboard_state[SDL_SCANCODE_S];
         bool right =      keyboard_state[SDL_SCANCODE_D];
@@ -60,9 +61,6 @@ public:
         bool back_right = back && right;
         bool back_left =  back && left;
 
-        bool door = keyboard_state[SDL_SCANCODE_SPACE];
-
-        // Set MOVEMENT command
         if      (up_right)   GameData->Inputs.curr_commands[MOVEMENT] = MOVE_NORTHEAST;
         else if (up_left)    GameData->Inputs.curr_commands[MOVEMENT] = MOVE_NORTHWEST;
         else if (back_right) GameData->Inputs.curr_commands[MOVEMENT] = MOVE_SOUTHEAST;
@@ -74,6 +72,7 @@ public:
         else                 GameData->Inputs.curr_commands[MOVEMENT] = NONE;
 
         // Set DOOR command
+        bool door = keyboard_state[SDL_SCANCODE_SPACE];
         GameData->Inputs.curr_commands[DOORS] = door ? OPEN_DOOR : NONE;
     }
 
