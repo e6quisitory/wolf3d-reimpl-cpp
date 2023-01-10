@@ -17,6 +17,9 @@ public:
     void init(game_data* gm_dat) {
         GameData = gm_dat;
 
+        // No doors active at beginning
+        GameData->Map.any_active_doors = false;
+
         // Set door movement and timer speeds based on fps / display refresh rate
         movement_increment = GameData->Multimedia.refresh_rate / 3000.0;
         timer_increment = GameData->Multimedia.refresh_rate / 6000.0;
@@ -25,16 +28,16 @@ public:
         active_door_to_erase.first = false;
     }
 
-    bool update() {
+    void update() {
         // Check if doors even need updating; if not, then player is idle, so better not waste CPU for nothing
         bool no_active_doors = GameData->Map.active_doors.empty();
         bool one_active_door = GameData->Map.active_doors.size() == 1;
 
         if (no_active_doors)
-            return false;
+            GameData->Map.any_active_doors = false;
         else if (one_active_door && inside_door()) {
             reset_timer(GameData->Map.active_doors.begin()->first);
-            return false;
+            GameData->Map.any_active_doors = false;
         } else {
             // Cycle through list (std::map) of active doors
             for (auto const& [door, _door] : GameData->Map.active_doors) {
@@ -55,7 +58,7 @@ public:
             // If any door is done closing, it must be erased from GameData->Map.active_doors;
             erase_active_door_if_any();
 
-            return true;
+            GameData->Map.any_active_doors = true;
         }
     }
 

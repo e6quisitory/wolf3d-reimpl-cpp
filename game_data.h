@@ -27,7 +27,6 @@ enum COMMAND_TYPE {
     MOVEMENT,
     LOOKING,
     DOORS,
-    WEAPON
 };
 
 enum COMMAND {
@@ -42,12 +41,24 @@ enum COMMAND {
     MOVE_SOUTHWEST,
     LOOK_RIGHT,
     LOOK_LEFT,
-    OPEN_DOOR,
-    FIRE_WEAPON,
+    OPEN_DOOR
 };
 
 struct inputs {
-    const int NUM_COMMAND_TYPES = 4;
+    bool any_inputs() {
+        for (int cmd_type = 0; cmd_type < NUM_COMMAND_TYPES; ++cmd_type)
+            if (curr_commands[static_cast<COMMAND_TYPE>(cmd_type)] != NONE)
+                return true;
+        return false;
+    }
+
+    // kinda inelegant to put this here...
+    int get_xrel() {
+        int x;
+        SDL_GetRelativeMouseState(&x, nullptr);
+        return x;
+    }
+
     std::map<COMMAND_TYPE, COMMAND> curr_commands;
     int mouse_xrel;
 };
@@ -105,6 +116,7 @@ struct map {
     int num_tiles;
 
     std::map<door*, door*> active_doors;
+    bool any_active_doors;
 };
 
 /*
@@ -133,6 +145,13 @@ struct multimedia {
         return texture_pair(get_texture(texture_id), get_texture(texture_id+1));
     }
 
+    // Doesn't work for some reason lol
+    void toggle_mouse_window_lock() const {
+        bool cursor_shown = SDL_ShowCursor(SDL_QUERY);
+        SDL_SetWindowMouseGrab(sdl_window, cursor_shown ? SDL_TRUE : SDL_FALSE);
+        SDL_ShowCursor(cursor_shown ? SDL_DISABLE : SDL_ENABLE);
+    }
+
     SDL_Window* sdl_window;
     SDL_Renderer* sdl_renderer;
     SDL_Texture* textures[110];
@@ -148,11 +167,15 @@ struct multimedia {
 ================================
 */
 
-typedef struct game_data {
+struct game_data {
+
+    game_data(): quit_flag(false) {}
 
     inputs Inputs;
     player Player;
     map Map;
     multimedia Multimedia;
 
-} game_date;
+    bool quit_flag;
+
+};

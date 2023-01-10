@@ -56,46 +56,27 @@ public:
         delete GameData;
     }
 
-    // Checks to see if user wants to close window; returns true if so
-    bool check_quit_and_mouselock() {
-        SDL_Event e;
-        while(SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-                return true;
-            }
-            /*} else if (e.type == SDL_KEYDOWN) {             // Can X out of window or press Escape key to exit game
-                switch (e.key.keysym.scancode) {
-                    case SDL_SCANCODE_ESCAPE: return true;
-                    case SDL_SCANCODE_GRAVE:                // Pressing tilde key (below escape key) will toggle mouse locking to window
-                        bool cursor_shown = SDL_ShowCursor(SDL_QUERY);
-                        SDL_SetWindowMouseGrab(GameData->Multimedia.sdl_window, cursor_shown ? SDL_TRUE : SDL_FALSE);
-                        SDL_ShowCursor(cursor_shown ? SDL_DISABLE : SDL_ENABLE);
-                        return false;
-                }
-            } else
-                return false;*/
-        }
-        return false;
-    }
-
     // Main game loop continuously executed in the main function
     void game_loop() {
         static bool running = true;
-
         if (running) {
+            InputManager.poll_inputs();
             PlayerManager.update();
+            DoorManager.update();
             Renderer.render_frame();
         } else
-            SDL_Delay(40);  // If there are no new changes that prompt rendering, wait 40ms then check again (to save CPU)
+            SDL_Delay(40);
 
-        running = false;
-        running |= InputManager.poll_inputs();
-        running |= DoorManager.update();
+        /* Need to re-add checking of whether new rendering needs to happen or not. Rn it's just wasting CPU at idle. */
+        /* The line below doesn't work. */
+
+        //running = GameData->Inputs.any_inputs() || GameData->Map.any_active_doors;
     }
 
-private:
+public:
     game_data* GameData;
 
+private:
     multimedia_manager MultimediaManager;
     player_manager PlayerManager;
     map_manager MapManager;

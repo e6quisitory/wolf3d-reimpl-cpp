@@ -38,6 +38,11 @@ public:
     // Scans current input commands for movement, looking around, and door opening.
     // Then, changes player attributes (and/or opens door) as necessary.
     void update() const {
+        switch(GameData->Inputs.curr_commands[LOOKING]) {
+            case LOOK_RIGHT: swivel(CLOCKWISE); break;
+            case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
+        }
+
         switch(GameData->Inputs.curr_commands[MOVEMENT]) {
             case MOVE_EAST:
                 move_horizontal(EAST, FULL); break;
@@ -63,11 +68,6 @@ public:
                 move_vertical(SOUTH, HALF);
                 move_horizontal(WEST, HALF);
                 break;
-        }
-
-        switch(GameData->Inputs.curr_commands[LOOKING]) {
-            case LOOK_RIGHT: swivel(CLOCKWISE); break;
-            case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
         }
 
         if (GameData->Inputs.curr_commands[DOORS] == OPEN_DOOR)
@@ -102,8 +102,24 @@ private:
     }
 
     void swivel(SWIVEL_DIR _swivel_dir) const {
-        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*_swivel_dir*abs(GameData->Inputs.mouse_xrel)/2);
+
+        static int prev_xrel = 0;
+        static int cutoff_counter = 0;
+
+        int curr_xrel = GameData->Inputs.mouse_xrel;
+
+        if (curr_xrel == prev_xrel && GameData->Inputs.get_xrel() == 0)
+            ++cutoff_counter;
+
+        if (cutoff_counter >= 5) {             // Once it reaches cutoff counter, need to gradually ramp it down. Too jerky rn.
+            GameData->Inputs.mouse_xrel = 0;
+            cutoff_counter = 0;
+        }
+
+        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*_swivel_dir*abs(GameData->Inputs.mouse_xrel));
         GameData->Player.east = GameData->Player.view_dir.rotate(-PI/2);
+
+        prev_xrel = curr_xrel;
     }
 
     // Moves player to a proposed location (passed in) only if player will not hit a non-empty block at that location
@@ -128,7 +144,7 @@ private:
             if (curr_inter.dist() > 4.0)
                 break;
             else {
-                tile* curr_tile = GameData->Map.get_tile(curr_inter.iPoint);
+                tile* curr_tile = GameData->Map.get_tile(curr_inter.Point);
                 if (curr_tile->type() == DOOR) {
                     door* curr_door = static_cast<door*>(curr_tile);
                     switch (curr_door->status) {
