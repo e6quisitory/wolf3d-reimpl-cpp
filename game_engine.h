@@ -26,6 +26,9 @@ public:
         // Allocate game data object (shared across managers & renderer)
         GameData = new game_data;
 
+        // Initialize quit flag to false so that engine can start
+        GameData->quit_flag = false;
+
         // Initialize managers
         MultimediaManager.init(GameData);
         MultimediaManager.create_window_and_renderer(1280, 720);
@@ -59,18 +62,17 @@ public:
     // Main game loop continuously executed in the main function
     void game_loop() {
         static bool running = true;
+
         if (running) {
-            InputManager.poll_inputs();
             PlayerManager.update();
-            DoorManager.update();
             Renderer.render_frame();
         } else
             SDL_Delay(40);
 
-        /* Need to re-add checking of whether new rendering needs to happen or not. Rn it's just wasting CPU at idle. */
-        /* The line below doesn't work. */
+        InputManager.poll_inputs();
+        DoorManager.update();
 
-        //running = GameData->Inputs.any_inputs() || GameData->Map.any_active_doors;
+        running = GameData->Inputs.any_active_inputs() || GameData->Map.any_doors_awaiting_rendering;
     }
 
 public:

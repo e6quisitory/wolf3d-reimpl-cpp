@@ -45,18 +45,11 @@ enum COMMAND {
 };
 
 struct inputs {
-    bool any_inputs() {
+    bool any_active_inputs() {
         for (int cmd_type = 0; cmd_type < NUM_COMMAND_TYPES; ++cmd_type)
             if (curr_commands[static_cast<COMMAND_TYPE>(cmd_type)] != NONE)
                 return true;
         return false;
-    }
-
-    // kinda inelegant to put this here...
-    int get_xrel() {
-        int x;
-        SDL_GetRelativeMouseState(&x, nullptr);
-        return x;
     }
 
     std::map<COMMAND_TYPE, COMMAND> curr_commands;
@@ -116,7 +109,7 @@ struct map {
     int num_tiles;
 
     std::map<door*, door*> active_doors;
-    bool any_active_doors;
+    bool any_doors_awaiting_rendering;
 };
 
 /*
@@ -161,8 +154,6 @@ struct multimedia {
 */
 
 struct game_data {
-
-    game_data(): quit_flag(false) {}
 
     inputs Inputs;
     player Player;

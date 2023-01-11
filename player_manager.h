@@ -102,39 +102,13 @@ private:
     }
 
     void swivel(SWIVEL_DIR _swivel_dir) const {
-        static int prev_xrel = 0;
-        static int cutoff_counter = 0;
-
-        int curr_xrel = GameData->Inputs.mouse_abs_xrel;
-
-        /*
-         * This cutoff counter method is used to prevent the player from spinning.
-         * Works decently well, and produces mouse movement with an adequate amount of
-         * smoothness but also enough tightness.
-         * The only downside so far is that when the player mov_dir and mouse dir are
-         * opposite in direction to each other (rel. to x-axis), it leads to jitteryness.
-         * It is most apparent when using a low DPI mouse / trackpad.
-         * I think I'll have to solve this by taking the dot product of both vectors and using
-         * the result to boost the mouse xrel amount somehow.
-         */
-
-        if (curr_xrel == prev_xrel && GameData->Inputs.get_xrel() == 0)
-            ++cutoff_counter;
-
-        if (cutoff_counter >= 5) {
-            cutoff_counter = 0;
-            GameData->Inputs.mouse_abs_xrel = 0;
-        }
-
-        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*_swivel_dir*GameData->Inputs.mouse_abs_xrel);
+        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*GameData->Inputs.mouse_abs_xrel*_swivel_dir);
         GameData->Player.east = GameData->Player.view_dir.rotate(-PI/2);
-
-        prev_xrel = curr_xrel;
     }
 
     // Moves player to a proposed location (passed in) only if player will not hit a non-empty block at that location
     void move_if_valid(const point2& proposed_loc) const {
-        tile* proposed_tile = GameData->Map.get_tile(proposed_loc);  // not readable, change to something like "get_tile()"
+        tile* proposed_tile = GameData->Map.get_tile(proposed_loc);
         if (!proposed_tile->player_hit())
             GameData->Player.location = proposed_loc;
     }

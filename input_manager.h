@@ -32,7 +32,12 @@ public:
 
     void poll_inputs() {
 
-        // Mouse movement (for player to look side to side)
+        /*
+        ====================================================
+         Mouse movement (for player to look side to side)
+        ====================================================
+        */
+
         SDL_Event e;
         while (SDL_PollEvent(&e)){
             int curr_xrel = e.motion.xrel;
@@ -41,14 +46,34 @@ public:
                     GameData->Inputs.curr_commands[LOOKING] = LOOK_RIGHT;
                 else if (curr_xrel < 0)
                     GameData->Inputs.curr_commands[LOOKING] = LOOK_LEFT;
-                else
-                    GameData->Inputs.curr_commands[LOOKING] = NONE;
 
                 GameData->Inputs.mouse_abs_xrel = abs(curr_xrel);
             }
         }
 
-        // Escape key to exit game
+        // Detect when mouse is now moving anymore and reset xrel and looking command (to prevent player spin)
+        static int prev_xrel = 0;
+        static int cutoff_counter = 0;
+
+        int curr_xrel = GameData->Inputs.mouse_abs_xrel;
+
+        if (curr_xrel == prev_xrel && get_xrel() == 0)
+            ++cutoff_counter;
+
+        if (cutoff_counter >= 5) {
+            cutoff_counter = 0;
+            GameData->Inputs.mouse_abs_xrel = 0;
+            GameData->Inputs.curr_commands[LOOKING] = NONE;
+        }
+
+        prev_xrel = curr_xrel;
+
+        /*
+        ===========================
+         Escape key to exit game
+        ===========================
+        */
+
         if (keyboard_state[SDL_SCANCODE_ESCAPE]) GameData->quit_flag = true;
 
         // Movement (to move player in the game world)
@@ -71,9 +96,21 @@ public:
         else if (right)      GameData->Inputs.curr_commands[MOVEMENT] = MOVE_EAST;
         else                 GameData->Inputs.curr_commands[MOVEMENT] = NONE;
 
-        // Set DOOR command
-        bool door = keyboard_state[SDL_SCANCODE_SPACE];
-        GameData->Inputs.curr_commands[DOORS] = door ? OPEN_DOOR : NONE;
+        /*
+        ===========================
+         Spacebar to open door
+        ===========================
+        */
+
+        GameData->Inputs.curr_commands[DOORS] = keyboard_state[SDL_SCANCODE_SPACE] ? OPEN_DOOR : NONE;
+    }
+
+private:
+    // Returns current relative x position of mouse (an alternative way to get it aside from using SDL_Events)
+    int get_xrel() {
+        int x;
+        SDL_GetRelativeMouseState(&x, nullptr);
+        return x;
     }
 
 private:
