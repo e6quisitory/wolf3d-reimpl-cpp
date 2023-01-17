@@ -18,8 +18,8 @@
 
 class renderer {
 public:
-    void init(game_data* gm_dat) {
-        GameData = gm_dat;
+    void init(game_data* _game_data) {
+        GameData = _game_data;
 
         // Pre-calculate the ray angles and their cosines, as they do not change
         double proj_plane_width = 2*std::tan(degrees_to_radians(fov/2));

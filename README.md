@@ -31,10 +31,10 @@ brew install sdl2
 ```
 I'm compiling and running like so:
 ```
-g++ -std=c++17 main.cpp -lSDL2; ./a.out
+g++ -std=c++17 main.cpp -o wolf3d-clone -lSDL2 -Wno-switch; ./wolf3d-clone
 ```
 ## Controls & Map Loading
-`w`, `a`, `s`, `d` to move, mouse to look around, `spacebar` for opening doors, `Esc` to exit game.
+`W`, `A`, `S`, `D` to move, mouse to look around, `spacebar` for opening doors, `Esc` to exit game.
 
 The map file is `map.csv` and is ASCII encoded, not UTF-8 encoded. I find that editing the file is easiest in Excel.
 

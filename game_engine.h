@@ -10,10 +10,8 @@
 #pragma once
 
 #include <thread>
-#include <chrono>
 
-#include "game_data.h"
-#include "input_manager.h"
+#include "input_parser.h"
 #include "player_manager.h"
 #include "map_manager.h"
 #include "multimedia_manager.h"
@@ -23,27 +21,22 @@
 class game_engine {
 public:
     void init() {
+        // Allocate new Inputs objects (to pass to some managers)
+        Inputs = new inputs;
+        Inputs->quit_flag = false;
+
         // Allocate game data object (shared across managers & renderer)
         GameData = new game_data;
 
-        // Initialize quit flag to false so that engine can start
-        GameData->quit_flag = false;
-
-        // Initialize managers
+        // Initialize managers & InputParser
         MultimediaManager.init(GameData);
         MultimediaManager.create_window_and_renderer(1280, 720);
         MultimediaManager.load_wall_texture_pairs("wall_textures.bmp", 6);
-
-        PlayerManager.init(GameData);
-
+        PlayerManager.init(Inputs, GameData);
         MapManager.init(GameData);
         MapManager.load_map("map.csv");
-
         DoorManager.init(GameData);
-
-        InputManager.init(GameData);
-
-        // Initialize Renderer
+        InputParser.init(Inputs);
         Renderer.init(GameData);
 
         // Set player location & view direction
@@ -55,7 +48,7 @@ public:
         MapManager.exit();
         MultimediaManager.exit();
 
-        // Delete game_data object
+        delete Inputs;
         delete GameData;
     }
 
@@ -69,21 +62,23 @@ public:
         } else
             SDL_Delay(40);
 
-        InputManager.poll_inputs();
+        InputParser.parse_inputs();
         DoorManager.update();
 
-        running = GameData->Inputs.any_active_inputs() || GameData->Map.any_doors_awaiting_rendering;
+        running = Inputs->any_active_inputs() || GameData->Map.any_doors_awaiting_rendering;
     }
 
 public:
-    game_data* GameData;
+    inputs* Inputs;
 
 private:
+    game_data* GameData;
+
     multimedia_manager MultimediaManager;
     player_manager PlayerManager;
     map_manager MapManager;
     door_manager DoorManager;
-    input_manager InputManager;
+    input_parser InputParser;
 
     renderer Renderer;
 };

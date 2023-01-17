@@ -15,8 +15,8 @@
 class map_manager {
 public:
 
-    void init(game_data* gm_dat) {
-        GameData = gm_dat;
+    void init(game_data* _game_data) {
+        GameData = _game_data;
 
         gate_texture = GameData->Multimedia.get_texture_pair(99);
         gate_sidewall_texture = GameData->Multimedia.get_texture_pair(101);

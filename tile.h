@@ -184,13 +184,23 @@ enum DOOR_STATUS {
     CLOSING
 };
 
+enum DOOR_POSITION {
+    OPEN_POSITION = 0,
+    CLOSED_POSITION = 1
+};
+
+enum TIMER_VALUE {
+    NO_TIME_LEFT = 0,
+    FULL_TIME_LEFT = 1
+};
+
 class door : public tile {
 public:
     door(texture_pair _gate_texture, texture_pair _sidewall_texture): gate_texture(_gate_texture), gate_sidewall_texture(_sidewall_texture) {
         // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
         status = CLOSED;
-        position = 1.0;
-        timer = 1.0;
+        position = CLOSED_POSITION;
+        timer = FULL_TIME_LEFT;
     }
 
     virtual TILE_TYPE type() const override {
@@ -252,8 +262,8 @@ private:
 
 public:
     DOOR_STATUS status;
-    double position;    // 1 is fully closed, 0 is fully open
-    double timer;       // 1 is full-time left, 0 is no time left
+    double position;
+    double timer;
 
 private:
     texture_pair gate_texture;

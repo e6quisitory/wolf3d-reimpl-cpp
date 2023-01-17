@@ -9,13 +9,14 @@
 #pragma once
 
 #include "game_data.h"
-#include "input_manager.h"
+#include "inputs.h"
 #include "global.h"
 
 class player_manager {
 public:
-    void init(game_data* gm_dat) {
-        GameData = gm_dat;
+    void init(inputs* _inputs, game_data* _game_data) {
+        Inputs = _inputs;
+        GameData = _game_data;
 
         // Set movement and swivel speeds based on display refresh rate (assumed that fps = refresh rate)
         movement_coeff = 3.645/GameData->Multimedia.refresh_rate;
@@ -38,7 +39,12 @@ public:
     // Scans current input commands for movement, looking around, and door opening.
     // Then, changes player attributes (and/or opens door) as necessary.
     void update() const {
-        switch(GameData->Inputs.curr_commands[MOVEMENT]) {
+        switch(Inputs->curr_commands[LOOKING]) {
+            case LOOK_RIGHT: swivel(CLOCKWISE); break;
+            case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
+        }
+
+        switch(Inputs->curr_commands[MOVEMENT]) {
             case MOVE_EAST:
                 move_horizontal(EAST, FULL); break;
             case MOVE_WEST:
@@ -65,12 +71,7 @@ public:
                 break;
         }
 
-        switch(GameData->Inputs.curr_commands[LOOKING]) {
-            case LOOK_RIGHT: swivel(CLOCKWISE); break;
-            case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
-        }
-
-        if (GameData->Inputs.curr_commands[DOORS] == OPEN_DOOR)
+        if (Inputs->curr_commands[DOORS] == OPEN_DOOR)
             open_door();
     }
 
@@ -102,7 +103,7 @@ private:
     }
 
     void swivel(SWIVEL_DIR _swivel_dir) const {
-        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*GameData->Inputs.mouse_abs_xrel*_swivel_dir);
+        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*Inputs->mouse_abs_xrel*_swivel_dir);
         GameData->Player.east = GameData->Player.view_dir.rotate(-PI/2);
     }
 
@@ -142,6 +143,7 @@ private:
     }
 
 private:
+    inputs* Inputs;
     game_data* GameData;
 
     double movement_coeff;

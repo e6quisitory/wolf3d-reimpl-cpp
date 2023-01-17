@@ -16,8 +16,8 @@
 
 class multimedia_manager {
 public:
-    void init(game_data* gm_dat) {
-        GameData = gm_dat;
+    void init(game_data* _game_data) {
+        GameData = _game_data;
 
         // Initialize SDL globally
         SDL_Init(SDL_INIT_EVERYTHING);

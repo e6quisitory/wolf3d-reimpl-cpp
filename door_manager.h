@@ -14,8 +14,8 @@
 class door_manager {
 public:
 
-    void init(game_data* gm_dat) {
-        GameData = gm_dat;
+    void init(game_data* _game_data) {
+        GameData = _game_data;
 
         // No doors active at beginning
         GameData->Map.any_doors_awaiting_rendering = false;
@@ -73,11 +73,11 @@ private:
             case OPENING: proposed_position = _door->position - movement_increment; break;
         }
 
-        if (proposed_position <= 0.0) {
-            _door->position = 0.0;
+        if (proposed_position <= OPEN_POSITION) {
+            _door->position = OPEN_POSITION;
             _door->status = OPEN;
-        } else if (proposed_position >= 1.0) {
-            _door->position = 1.0;
+        } else if (proposed_position >= CLOSED_POSITION) {
+            _door->position = CLOSED_POSITION;
             _door->status = CLOSED;
             set_active_door_for_erasing(_door);
         } else
@@ -87,17 +87,17 @@ private:
     // If door is currently open, updates (decrements) timer
     // If timer ticks to 0, sets door status to closing and resets timer
     void decrement_timer(door* const _door) const {
-        double proposed_timerval = _door->timer - timer_increment;
+        double proposed_timer_value = _door->timer - timer_increment;
 
-        if (proposed_timerval <= 0.0) {
+        if (proposed_timer_value <= NO_TIME_LEFT) {
             _door->status = CLOSING;
             reset_timer(_door);
         } else
-            _door->timer = proposed_timerval;
+            _door->timer = proposed_timer_value;
     }
 
     void reset_timer(door* const _door) const {
-        _door->timer = 1.0;
+        _door->timer = FULL_TIME_LEFT;
     }
 
     // Returns true if player is currently inside door passed in as argument

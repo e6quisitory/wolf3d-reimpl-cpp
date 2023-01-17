@@ -16,7 +16,6 @@
 const double PI = 3.1415926535897932385;
 const int TEXTURE_PITCH = 64;
 const int NUM_WALL_TEXTURES = 110;
-const int NUM_COMMAND_TYPES = 3;
 
 /*
 ================================

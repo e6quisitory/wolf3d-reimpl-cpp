@@ -7,7 +7,7 @@ int main() {
     game_engine GameEngine;
     GameEngine.init();
 
-    while (GameEngine.GameData->quit_flag == false)
+    while (GameEngine.Inputs->quit_flag == false)
         GameEngine.game_loop();
 
     GameEngine.exit();
