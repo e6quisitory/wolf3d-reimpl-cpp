@@ -18,7 +18,7 @@ struct intersection {
     intersection(ray _r, point2 _pt): Ray(_r), Point(_pt), iPoint(_pt) {}
     intersection() {}
 
-    double dist() const {
+    double dist_to_inter() const {
         return Ray.dist_to_pt(Point);
     }
 

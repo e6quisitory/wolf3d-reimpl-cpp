@@ -125,7 +125,7 @@ private:
 
         while (GameData->Map.within_map<ipoint2>(curr_inter.iPoint)) {
             curr_inter = next_intersection(curr_inter);
-            if (curr_inter.dist() > 4.0)
+            if (curr_inter.dist_to_inter() > 4.0)
                 break;
             else {
                 tile* curr_tile = GameData->Map.get_tile(curr_inter.Point);

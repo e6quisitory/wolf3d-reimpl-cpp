@@ -149,11 +149,15 @@ public:
     }
 
     virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
-        wall_hit_info WallDescription(curr_inter.Point);
-        SDL_Rect rect = {static_cast<int>(WallDescription.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
-        double distance = curr_inter.dist();
+        wall_hit_info _wall_hit_info(curr_inter.Point);
+        SDL_Rect rect = {static_cast<int>(_wall_hit_info.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
+        double distance = curr_inter.dist_to_inter();
 
-        return ray_tile_hit_info(do_texture_lighting(prev_tile_type == DOOR ? gate_sidewall_texture : texture, WallDescription), rect, distance);
+        if (prev_tile_type == DOOR)
+            return ray_tile_hit_info(do_texture_lighting(gate_sidewall_texture,_wall_hit_info), rect, distance);
+        else
+            return ray_tile_hit_info(do_texture_lighting(texture, _wall_hit_info), rect, distance);
+
     }
 
     virtual bool player_hit() const override {
@@ -196,22 +200,22 @@ public:
     virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
 
         // Get wall description for point on edge of tile
-        wall_hit_info curr_wall_desc(curr_inter.Point);
+        wall_hit_info _wall_hit_info(curr_inter.Point);
 
         // Center this point
-        point2 centered_pt = center_point(curr_inter, curr_wall_desc);
+        point2 centered_pt = center_point(curr_inter, _wall_hit_info);
 
-        // First check if incoming actually intersects with middle of tile (the gate)
+        // First check if incoming ray actually intersects with middle of tile (the gate)
         if (ipoint2(centered_pt) == curr_inter.iPoint) {
 
             // Get width percent of middle point in the tile
             gate_hit_info _gate_hit_info = gate_hit_info(centered_pt);
 
-            // If ray does intersect gate, now check if the gate *blocks* the ray
+            // Ray does intersect gate, but now check if the gate *blocks* the ray
             if (_gate_hit_info.width_percent < position) {
 
                 // If ray is blocked by gate, then output the proper gate texture and rect
-                double gate_texture_width_percent = 1 - (position - _gate_hit_info.width_percent);
+                double gate_texture_width_percent = position - _gate_hit_info.width_percent;
                 SDL_Rect gate_texture_rect = {static_cast<int>(gate_texture_width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
                 double center_pt_dist = curr_inter.Ray.dist_to_pt(centered_pt);
 

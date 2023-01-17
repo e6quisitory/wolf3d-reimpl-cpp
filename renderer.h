@@ -102,7 +102,7 @@ private:
 
     // Given hit distance and ray angle cosine, calculate how high the column of pixels to render should be
     int get_render_height(const double& hit_dist, const double& angle_cosine) {
-        static double coeff = 1.3*GameData->Multimedia.screen_width / (16.0/9.0);  // must account for screen aspect ratio
+        static double coeff = 1.3*GameData->Multimedia.screen_width / ((16.0/9.0) * (fov/72.0));  // must account for screen aspect ratio
         return static_cast<int>(coeff/(hit_dist*angle_cosine));
     }
 
