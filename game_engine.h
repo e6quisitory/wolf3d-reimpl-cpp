@@ -33,6 +33,7 @@ public:
         MultimediaManager.create_window_and_renderer(1280, 720);
         MultimediaManager.load_textures(WALLS, "wall_textures.bmp", 6, 110);
         MultimediaManager.load_textures(GUARD, "guard.bmp", 8, 51);
+        MultimediaManager.load_textures(OBJECTS, "objects.bmp", 5, 50);
         PlayerManager.init(Inputs, GameData);
         MapManager.init(GameData);
         MapManager.load_map("map.csv");

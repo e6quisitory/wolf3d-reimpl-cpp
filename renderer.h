@@ -33,55 +33,46 @@ public:
 
     // Renders a single frame and outputs it to the window/screen
     void render_frame() {
-        vec2& view_dir = GameData->Player.view_dir;
         
-        // Clear screen
         SDL_RenderClear(GameData->Multimedia.sdl_renderer);
 
-        // Draw ceiling and floor (simple solid colors)
         draw_ceiling_floor();
 
-        // Iterate over the width of the screen, casting out a ray for each vertical column of pixels
         for (int i = 0; i < GameData->Multimedia.screen_width; ++i) {
-            // Get ray with origin of player location and direction corresponding to the current vertical column of pixels
             ray curr_ray = get_ray(i);
             intersection curr_inter(curr_ray, curr_ray.origin);
 
-            // Go from intersection to intersection on the grid
             while (GameData->Map.within_map<ipoint2>(curr_inter.iPoint)) {
-                // Keep track of previous tile type to pass into tile->ray_hit function (for door sidewall rendering)
                 TILE_TYPE prev_tile_type = GameData->Map.get_tile(curr_inter.iPoint)->type();
-
-                // Calculate next intersection of curr_ray with map grid
                 curr_inter = next_intersection(curr_inter);
-
-                // See if tile that is hit is opaque (non-empty)
                 ray_tile_hit_info tile_hit = GameData->Map.get_tile(curr_inter.iPoint)->ray_tile_hit(curr_inter, prev_tile_type);
 
-                // If non-empty, then we must render out a column of pixels on the screen, with the texture + SDL_Rect given by the tile
                 if (tile_hit.hit == true) {
-
-                    // Rect given by the tile for the texture
                     SDL_Rect texture_rect = tile_hit.texture_rect;
-
-                    // How high we render the column of pixels on the screen depends on how far away the intersection is from the player + the cosine of the ray angle
                     int render_height = get_render_height(tile_hit.distance, casting_ray_angles[i].second);
-
-                    // With calculated render height, we specify the section of the screen we'd like to render the column of pixels into
                     SDL_Rect screen_rect = {i, GameData->Multimedia.screen_height / 2 - render_height / 2, 1, render_height};
-
-                    // SDL renders out the portion of the texture given by the tile into the portion of the screen specified by us.
-                    // Crucially, this function handles the texture scaling for us, and it does those calculations on the GPU.
-                    SDL_RenderCopy(GameData->Multimedia.sdl_renderer, tile_hit.texture, &texture_rect, &screen_rect);
-
-                    // Since we've hit a non-empty block, we can break out of the loop
-                    break;
+                    
+                    // If sprite is hit, store the texture slice and rendering info, as we first need to render the walls + doors behind the sprites
+                    if (GameData->Map.get_tile(curr_inter.iPoint)->type() == SPRITE) {
+                        sprite_backups.push_back(texture_slice_render_info(tile_hit.texture, texture_rect, render_height, screen_rect));
+                        continue;
+                    } else {
+                        SDL_RenderCopy(GameData->Multimedia.sdl_renderer, tile_hit.texture, &texture_rect, &screen_rect);
+                        break;
+                    }
                 } else
-                    // If the tile hit is empty (or ray intersects part of door that is currently open), then pass through and go on to next intersection
                     continue;
             }
+            
+            // Now that all the walls + doors have been rendered, we can render each sprite we stored earlier
+            if (!sprite_backups.empty()) {
+                // Must render sprites in reverse of the order in which they were encountered
+                for (auto s = sprite_backups.rbegin(); s != sprite_backups.rend(); ++s)
+                    SDL_RenderCopy(GameData->Multimedia.sdl_renderer, s->texture, &(s->texture_rect), &(s->screen_rect));
+                sprite_backups.clear();
+            }
         }
-        // Refresh SDL renderer (so that new rendered frame shows up)
+        
         SDL_RenderPresent(GameData->Multimedia.sdl_renderer);
     }
 
@@ -113,4 +104,16 @@ private:
 
     double fov = 72.0;
     std::vector<std::pair<double, double>> casting_ray_angles;  // First element in each pair is the angle, second is the cosine of it
+    
+    struct texture_slice_render_info {
+        texture_slice_render_info(SDL_Texture* const _texture, const SDL_Rect& _texture_rect, const int& _render_height, const SDL_Rect& _screen_rect):
+            texture(_texture), texture_rect(_texture_rect), render_height(_render_height), screen_rect(_screen_rect) {}
+        
+        SDL_Texture* texture;
+        SDL_Rect texture_rect;
+        int render_height;
+        SDL_Rect screen_rect;
+    };
+    
+    std::vector<texture_slice_render_info> sprite_backups;
 };

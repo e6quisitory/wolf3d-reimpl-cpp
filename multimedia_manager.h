@@ -30,7 +30,15 @@ public:
     }
 
     void exit() const {
-        // As all SDL_Texture*'s textures are stored in std::vector's, memory will be freed automatically when game_data object is deleted
+        
+        // Destroy all SDL_Textures out of memory
+        for (int texture_type = 0; texture_type < NUM_TEXTURE_TYPES; ++texture_type) {
+            auto texture_vec = GameData->Multimedia.textures[static_cast<TEXTURE_TYPE>(texture_type)];
+            if (!texture_vec.empty()) {
+                for (SDL_Texture* texture : texture_vec)
+                    SDL_DestroyTexture(texture);
+            }
+        }
 
         // Free all SDL-related memory
         SDL_DestroyRenderer(GameData->Multimedia.sdl_renderer);
@@ -38,6 +46,7 @@ public:
 
         // Exit SDL globally
         SDL_Quit();
+        
     }
 
     void create_window_and_renderer(int screen_width, int screen_height) const {
@@ -63,23 +72,13 @@ public:
         // First load texture sheet BMP file into an SDL_Surface
         SDL_Surface* texture_sheet = bmp_to_surface(filename);
                 
-        if (_texture_type != WALLS) {
-            int num_pixels = texture_sheet->w * texture_sheet->h;
-            SDL_LockSurface(texture_sheet);
-            Uint32* pixels = static_cast<Uint32*>(texture_sheet->pixels);
-            for (int i = 0; i < num_pixels; ++i) {
-                if (pixels[i] == 0xFF980088)
-                    pixels[i] = 0x00000000;
-            }
-            SDL_UnlockSurface(texture_sheet);
-        }
+        // Must take out transparency pixels from sprite sheets
+        if (_texture_type != WALLS)
+            SDL_SetColorKey(texture_sheet, SDL_TRUE, 0xFF980088);
         
         // Then extract all textures from texture sheet and store in array
         for (int texture_id = 1; texture_id <= num_textures; ++texture_id) {
             SDL_Texture* t = extract_texture(texture_sheet, texture_sheet_pitch, texture_id);
-            if (_texture_type != WALLS) {
-                SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
-            }
             GameData->Multimedia.add_texture(_texture_type, t);
         }
             

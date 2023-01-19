@@ -23,19 +23,6 @@
 #include "global.h"
 
 /*
-================================
- Types of tiles
-================================
-*/
-
-enum TILE_TYPE {
-    EMPTY,
-    WALL,
-    DOOR,
-    SPRITE
-};
-
-/*
 =======================================================
  Struct that ray-tile intersection function spits out
 =======================================================
@@ -56,6 +43,13 @@ struct ray_tile_hit_info {
  Tile base class (abstract)
 ================================
 */
+
+enum TILE_TYPE {
+    EMPTY,
+    WALL,
+    DOOR,
+    SPRITE
+};
 
 class tile {
 public:
@@ -315,9 +309,9 @@ public:
         return true;
     }
     
-    void calculate_perp_line(const point2& player_loc) {
-        vec2 new_perp_vec = (player_loc - center).perp_vec();
-        perp_line.change_dir(new_perp_vec);
+    void calculate_perp_line(const vec2& view_dir) {
+        static double neg_ninety_deg = -PI/2;
+        perp_line.change_dir(view_dir.rotate(neg_ninety_deg));
     }
     
 private:

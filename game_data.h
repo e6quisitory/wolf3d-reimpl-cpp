@@ -96,6 +96,8 @@ enum TEXTURE_TYPE {
     WEAPONS
 };
 
+#define NUM_TEXTURE_TYPES 4
+
 struct multimedia {
     SDL_Texture* get_texture(const TEXTURE_TYPE& _texture_type, const int& texture_id) {
         return textures[_texture_type][texture_id-1];
@@ -119,11 +121,11 @@ struct multimedia {
     SDL_Window* sdl_window;
     SDL_Renderer* sdl_renderer;
     
-    std::map<TEXTURE_TYPE, std::vector<SDL_Texture*>> textures;
-
     int screen_width;
     int screen_height;
     int refresh_rate;
+    
+    std::map<TEXTURE_TYPE, std::vector<SDL_Texture*>> textures;
 };
 
 /*
