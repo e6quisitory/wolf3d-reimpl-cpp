@@ -36,16 +36,22 @@ struct player {
 */
 
 struct map {
-    tile* operator [] (int index) const {
+    tile* operator [] (const int& index) const {
         return tiles[index];
     }
 
-    tile* operator () (int x, int y) const {
+    tile* operator () (const int& x, const int& y) const {
         return tiles[y*width + x];
     }
 
     tile* get_tile(const ipoint2& ipt) const {
         return (*this)(ipt.x(), ipt.y());
+    }
+    
+    point2 get_center(const int& index) {
+        int x = index % width;
+        int y = index / width;
+        return point2(x + 0.5, y + 0.5);
     }
 
     template<class point_type>
@@ -69,8 +75,12 @@ struct map {
     int height;
     int num_tiles;
 
+    /* Doors */
     std::map<door*, door*> active_doors;
     bool any_doors_awaiting_rendering;
+    
+    /* Sprites */
+    std::vector<sprite*> sprites;
 };
 
 /*
@@ -79,29 +89,37 @@ struct map {
 ================================
 */
 
+enum TEXTURE_TYPE {
+    WALLS,
+    GUARD,
+    OBJECTS,
+    WEAPONS
+};
+
 struct multimedia {
-    SDL_Texture* get_texture(int texture_id) const {
-        return textures[texture_id-1];
+    SDL_Texture* get_texture(const TEXTURE_TYPE& _texture_type, const int& texture_id) {
+        return textures[_texture_type][texture_id-1];
     }
 
-    void set_texture(int texture_id, SDL_Texture* texture) {
-        textures[texture_id-1] = texture;
+    void add_texture(const TEXTURE_TYPE& _texture_type, SDL_Texture* const texture) {
+        textures[_texture_type].push_back(texture);
     }
 
-    texture_pair get_texture_pair(int texture_id) const {
+    texture_pair get_wall_texture_pair(int texture_id) {
         static int no_lighting_list[10] = {31,32,41,42,43,44,107,108,109,110};
         for (int i = 0; i < 10; ++i) {
             if (texture_id == no_lighting_list[i]) {
-                SDL_Texture* t = get_texture(texture_id);
+                SDL_Texture* t = get_texture(WALLS, texture_id);
                 return texture_pair(t,t);
             }
         }
-        return texture_pair(get_texture(texture_id), get_texture(texture_id+1));
+        return texture_pair(get_texture(WALLS, texture_id), get_texture(WALLS, texture_id+1));
     }
 
     SDL_Window* sdl_window;
     SDL_Renderer* sdl_renderer;
-    SDL_Texture* textures[110];
+    
+    std::map<TEXTURE_TYPE, std::vector<SDL_Texture*>> textures;
 
     int screen_width;
     int screen_height;

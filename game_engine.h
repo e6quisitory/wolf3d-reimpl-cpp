@@ -31,7 +31,8 @@ public:
         // Initialize managers & InputParser
         MultimediaManager.init(GameData);
         MultimediaManager.create_window_and_renderer(1280, 720);
-        MultimediaManager.load_wall_texture_pairs("wall_textures.bmp", 6);
+        MultimediaManager.load_textures(WALLS, "wall_textures.bmp", 6, 110);
+        MultimediaManager.load_textures(GUARD, "guard.bmp", 8, 51);
         PlayerManager.init(Inputs, GameData);
         MapManager.init(GameData);
         MapManager.load_map("map.csv");
@@ -58,6 +59,7 @@ public:
 
         if (running) {
             PlayerManager.update();
+            MapManager.update_sprite_perp_lines();
             Renderer.render_frame();
         } else
             SDL_Delay(40);

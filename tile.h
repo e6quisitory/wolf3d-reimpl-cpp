@@ -14,7 +14,9 @@
 
 #pragma once
 
+#include <optional>
 #include <SDL2/SDL.h>
+
 #include "vec2.h"
 #include "ray.h"
 #include "dda.h"
@@ -29,7 +31,8 @@
 enum TILE_TYPE {
     EMPTY,
     WALL,
-    DOOR
+    DOOR,
+    SPRITE
 };
 
 /*
@@ -63,10 +66,10 @@ public:
     virtual TILE_TYPE type() const = 0;
 
     // Ray-tile intersection function
-    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;
+    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;
 
     // Player-tile intersection function
-    virtual bool player_hit() const = 0;
+    virtual bool player_tile_hit() const = 0;
 
 protected:
     enum WALL_TYPE {
@@ -77,7 +80,7 @@ protected:
 
     // Given a point on a line on the map grid, calculates the wall type (horizontal or vertical) + the width percent
     struct wall_hit_info {
-        wall_hit_info(point2 pt) {
+        wall_hit_info(const point2& pt) {
             bool x_is_int = is_integer(pt.x());
             bool y_is_int = is_integer(pt.y());
             bool x_is_middle = (pt.x() - static_cast<int>(pt.x())) == 0.5;
@@ -109,6 +112,9 @@ protected:
         else
             return _texture_pair.second;
     }
+    
+protected:
+    point2 center;
 };
 
 /*
@@ -119,17 +125,19 @@ protected:
 
 class empty : public tile {
 public:
-    empty() {}
+    empty(const point2& _center) {
+        center = _center;
+    }
 
     virtual TILE_TYPE type() const override {
         return EMPTY;
     }
 
-    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
         return ray_tile_hit_info(false);
     }
 
-    virtual bool player_hit() const override {
+    virtual bool player_tile_hit() const override {
         return false;
     }
 };
@@ -142,13 +150,15 @@ public:
 
 class wall : public tile {
 public:
-    wall(texture_pair _texture, texture_pair _sidewall_texture): texture(_texture), gate_sidewall_texture(_sidewall_texture) {}
+    wall(const point2& _center, const texture_pair& _texture, const texture_pair& _sidewall_texture): texture(_texture), gate_sidewall_texture(_sidewall_texture) {
+        center = _center;
+    }
 
     virtual TILE_TYPE type() const override {
         return WALL;
     }
 
-    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
         wall_hit_info _wall_hit_info(curr_inter.Point);
         SDL_Rect rect = {static_cast<int>(_wall_hit_info.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
         double distance = curr_inter.dist_to_inter();
@@ -160,7 +170,7 @@ public:
 
     }
 
-    virtual bool player_hit() const override {
+    virtual bool player_tile_hit() const override {
         return true;
     }
 
@@ -196,7 +206,9 @@ enum TIMER_VALUE {
 
 class door : public tile {
 public:
-    door(texture_pair _gate_texture, texture_pair _sidewall_texture): gate_texture(_gate_texture), gate_sidewall_texture(_sidewall_texture) {
+    door(const point2& _center, const texture_pair& _gate_texture, const texture_pair& _sidewall_texture): gate_texture(_gate_texture), gate_sidewall_texture(_sidewall_texture) {
+        center = _center;
+        
         // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
         status = CLOSED;
         position = CLOSED_POSITION;
@@ -207,7 +219,7 @@ public:
         return DOOR;
     }
 
-    virtual ray_tile_hit_info ray_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
 
         // Get wall description for point on edge of tile
         wall_hit_info _wall_hit_info(curr_inter.Point);
@@ -241,7 +253,7 @@ public:
 
     }
 
-    virtual bool player_hit() const override {
+    virtual bool player_tile_hit() const override {
         return position <= 0.2 ? false : true;  // Allow player to pass through door if door is at least 80% open
     }
 
@@ -268,4 +280,79 @@ public:
 private:
     texture_pair gate_texture;
     texture_pair gate_sidewall_texture;
+};
+
+/*
+================================
+ Sprite tile
+================================
+*/
+
+class sprite : public tile {
+public:
+    sprite(const point2& _center, texture_pair _texture): texture(_texture) {
+        center = _center;
+        perp_line.origin = center;
+    }
+    
+    virtual TILE_TYPE type() const override {
+        return SPRITE;
+    }
+    
+    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+        std::optional<intersection_and_width_percent> hit = perp_line_ray_intersection(curr_inter.Ray);
+        
+        if (hit.has_value() == false)
+            return ray_tile_hit_info(false);
+        else {
+            SDL_Rect rect = {static_cast<int>(hit.value().width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
+            double distance = curr_inter.Ray.dist_to_pt(hit.value().Intersection.Point);
+            return ray_tile_hit_info(texture.first, rect, distance);
+        }
+    }
+
+    virtual bool player_tile_hit() const override {
+        return true;
+    }
+    
+    void calculate_perp_line(const point2& player_loc) {
+        vec2 new_perp_vec = (player_loc - center).perp_vec();
+        perp_line.change_dir(new_perp_vec);
+    }
+    
+private:
+    struct intersection_and_width_percent {
+        intersection_and_width_percent(const intersection& _intersection, const double& _width_percent): Intersection(_intersection), width_percent(_width_percent) {}
+        
+        intersection Intersection;
+        double width_percent;
+    };
+    
+    std::optional<intersection_and_width_percent> perp_line_ray_intersection(const ray& casted_ray) const {
+        vec2 O1 = casted_ray.origin;
+        vec2 D1 = casted_ray.direction;
+        vec2 O2 = perp_line.origin;
+        vec2 D2 = perp_line.direction;
+
+        double denominator = D2.x()*D1.y()-D2.y()*D1.x();
+        if (denominator == 0)
+            return {};
+        else {
+            double numerator = D1.x()*(O2.y()-O1.y())-D1.y()*(O2.x()-O1.x());
+            double t = numerator/denominator;
+            
+            if (abs(t) > 0.5)
+                return {};
+            else {
+                double width_percent = t > 0 ? 0.5 + t : 0.5 - abs(t);
+                point2 p = O2+t*D2;
+                intersection i = intersection(casted_ray, p);
+                return intersection_and_width_percent(i, width_percent);
+            }
+        }
+    }
+    
+private:
+    texture_pair texture;
+    ray perp_line;
 };

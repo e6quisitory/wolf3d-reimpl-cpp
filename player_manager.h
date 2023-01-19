@@ -46,13 +46,17 @@ public:
 
         switch(Inputs->curr_commands[MOVEMENT]) {
             case MOVE_EAST:
-                move_horizontal(EAST, FULL); break;
+                move_horizontal(EAST, FULL);
+                break;
             case MOVE_WEST:
-                move_horizontal(WEST, FULL); break;
+                move_horizontal(WEST, FULL);
+                break;
             case MOVE_NORTH:
-                move_vertical(NORTH, FULL); break;
+                move_vertical(NORTH, FULL);
+                break;
             case MOVE_SOUTH:
-                move_vertical(SOUTH, FULL); break;
+                move_vertical(SOUTH, FULL);
+                break;
             case MOVE_NORTHEAST:
                 move_vertical(NORTH, HALF);
                 move_horizontal(EAST, HALF);
@@ -110,7 +114,7 @@ private:
     // Moves player to a proposed location (passed in) only if player will not hit a non-empty block at that location
     void move_if_valid(const point2& proposed_loc) const {
         tile* proposed_tile = GameData->Map.get_tile(proposed_loc);
-        if (!proposed_tile->player_hit())
+        if (!proposed_tile->player_tile_hit())
             GameData->Player.location = proposed_loc;
     }
 

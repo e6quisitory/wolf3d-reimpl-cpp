@@ -10,6 +10,8 @@
 #include <iostream>
 #include <cmath>
 
+#include "global.h"
+
 class vec2 {
 public:
     vec2(double x, double y): e{x,y} {}
@@ -61,6 +63,11 @@ public:
 
     vec2 rotate(double radians) const {
         return vec2(e[0]*std::cos(radians)-e[1]*std::sin(radians), e[0]*std::sin(radians)+e[1]*std::cos(radians));
+    }
+    
+    vec2 perp_vec() const {
+        static double ninety_deg = PI/2;
+        return rotate(ninety_deg);
     }
 
 public:

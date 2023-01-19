@@ -70,13 +70,10 @@ public:
 
         /*
         ===========================
-         Escape key to exit game
+         W,A,S,D to move player
         ===========================
         */
-
-        if (keyboard_state[SDL_SCANCODE_ESCAPE]) Inputs->quit_flag = true;
-
-        // Movement (to move player in the game world)
+        
         bool up         = keyboard_state[SDL_SCANCODE_W];
         bool back       = keyboard_state[SDL_SCANCODE_S];
         bool right      = keyboard_state[SDL_SCANCODE_D];
@@ -103,11 +100,21 @@ public:
         */
 
         Inputs->curr_commands[DOORS] = keyboard_state[SDL_SCANCODE_SPACE] ? OPEN_DOOR : NONE;
+        
+        /*
+        ===========================
+         Escape key to exit game
+        ===========================
+        */
+
+        if (keyboard_state[SDL_SCANCODE_ESCAPE])
+            Inputs->quit_flag = true;
+        
     }
 
 private:
     // Returns current relative x position of mouse (an alternative way to get it aside from using SDL_Events)
-    int get_xrel() {
+    int get_xrel() const {
         int x;
         SDL_GetRelativeMouseState(&x, nullptr);
         return x;

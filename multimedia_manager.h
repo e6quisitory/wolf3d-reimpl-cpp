@@ -12,6 +12,7 @@
 #include <SDL2/SDL.h>
 
 #include "global.h"
+#include "inputs.h"
 #include "game_data.h"
 
 class multimedia_manager {
@@ -29,9 +30,7 @@ public:
     }
 
     void exit() const {
-        // Free all textures from memory
-        for (int i = 0; i < 110; ++i)
-            SDL_DestroyTexture(GameData->Multimedia.textures[i]);
+        // As all SDL_Texture*'s textures are stored in std::vector's, memory will be freed automatically when game_data object is deleted
 
         // Free all SDL-related memory
         SDL_DestroyRenderer(GameData->Multimedia.sdl_renderer);
@@ -42,26 +41,48 @@ public:
     }
 
     void create_window_and_renderer(int screen_width, int screen_height) const {
+        // Make sure screen_width and screen_height are even numbers
         assert(screen_width % 2 == 0 && screen_height % 2 == 0);
+        
         GameData->Multimedia.screen_width = screen_width;
         GameData->Multimedia.screen_height = screen_height;
+        
         GameData->Multimedia.sdl_window = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_SHOWN);
         GameData->Multimedia.sdl_renderer = SDL_CreateRenderer(GameData->Multimedia.sdl_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // VSYNC is important
+        
         SDL_SetHint( SDL_HINT_RENDER_VSYNC, "1" );
+        
+        // Lock mouse to within window and hike pointer
         SDL_SetWindowMouseGrab(GameData->Multimedia.sdl_window, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
         SDL_SetRelativeMouseMode(SDL_TRUE);
     }
 
     // Loads wall textures (pair of lit + unlit texture) into GameData->Multimedia
-    void load_wall_texture_pairs(const char* filename, int texture_sheet_pitch) const {
+    void load_textures(const TEXTURE_TYPE& _texture_type, const char* filename, const int& texture_sheet_pitch, const int& num_textures) const {
         // First load texture sheet BMP file into an SDL_Surface
         SDL_Surface* texture_sheet = bmp_to_surface(filename);
-
+                
+        if (_texture_type != WALLS) {
+            int num_pixels = texture_sheet->w * texture_sheet->h;
+            SDL_LockSurface(texture_sheet);
+            Uint32* pixels = static_cast<Uint32*>(texture_sheet->pixels);
+            for (int i = 0; i < num_pixels; ++i) {
+                if (pixels[i] == 0xFF980088)
+                    pixels[i] = 0x00000000;
+            }
+            SDL_UnlockSurface(texture_sheet);
+        }
+        
         // Then extract all textures from texture sheet and store in array
-        for (int texture_id = 1; texture_id <= 110; ++texture_id)
-            GameData->Multimedia.set_texture(texture_id, extract_texture(texture_sheet, texture_sheet_pitch, texture_id));
-
+        for (int texture_id = 1; texture_id <= num_textures; ++texture_id) {
+            SDL_Texture* t = extract_texture(texture_sheet, texture_sheet_pitch, texture_id);
+            if (_texture_type != WALLS) {
+                SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
+            }
+            GameData->Multimedia.add_texture(_texture_type, t);
+        }
+            
         // Free texture sheet SDL_Surface, as all textures from it have been extracted and stored as SDL_Textures
         SDL_FreeSurface(texture_sheet);
     }

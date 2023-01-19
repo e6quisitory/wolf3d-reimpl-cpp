@@ -33,6 +33,8 @@ public:
 
     // Renders a single frame and outputs it to the window/screen
     void render_frame() {
+        vec2& view_dir = GameData->Player.view_dir;
+        
         // Clear screen
         SDL_RenderClear(GameData->Multimedia.sdl_renderer);
 
@@ -54,7 +56,7 @@ public:
                 curr_inter = next_intersection(curr_inter);
 
                 // See if tile that is hit is opaque (non-empty)
-                ray_tile_hit_info tile_hit = GameData->Map.get_tile(curr_inter.iPoint)->ray_hit(curr_inter, prev_tile_type);
+                ray_tile_hit_info tile_hit = GameData->Map.get_tile(curr_inter.iPoint)->ray_tile_hit(curr_inter, prev_tile_type);
 
                 // If non-empty, then we must render out a column of pixels on the screen, with the texture + SDL_Rect given by the tile
                 if (tile_hit.hit == true) {

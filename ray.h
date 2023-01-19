@@ -39,6 +39,10 @@ public:
     double dist_to_pt(const point2& p) const {
         return get_ray_dist_dx(p.x()-origin.x());
     }
+    
+    void change_dir(const vec2& new_dir_vec) {
+        (*this) = ray(origin, new_dir_vec);
+    }
 
 private:
     double y_at(double x) const {

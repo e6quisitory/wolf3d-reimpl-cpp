@@ -12,7 +12,7 @@
 enum COMMAND_TYPE {
     MOVEMENT,
     LOOKING,
-    DOORS,
+    DOORS
 };
 
 #define NUM_COMMAND_TYPES 3
