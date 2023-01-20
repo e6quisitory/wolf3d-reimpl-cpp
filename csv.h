@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <optional>
 
 // Converts an std::vector of integers containing digits to an int. For ex {1,3,4} --> 134
 int digits_to_int(std::vector<int>& digits) {
@@ -28,16 +29,21 @@ int digits_to_int(std::vector<int>& digits) {
 struct csv_data {
     csv_data(): columns(0), rows(0) {}
 
-    std::vector<int> data;   // Grid of numbers stored in csv file
-    int columns;               // Width of grid
-    int rows;              // Height of grid
+    std::vector<std::optional<std::string>> data;
+    int columns;
+    int rows;
 };
 
 // Pushes digits stored in temp_digits csv_data struct
-void push_digit(bool& num_in_progress, csv_data& csvData, std::vector<int>& temp_digits) {
+void push_val(bool& num_in_progress, csv_data& csvData, std::string& cell_value) {
     num_in_progress = false;
-    csvData.data.push_back(digits_to_int(temp_digits));
-    temp_digits.clear();
+
+    if (cell_value == "")
+        csvData.data.push_back({});
+    else
+        csvData.data.push_back(cell_value);
+
+    cell_value.clear();
 }
 
 // Parses a csv file and outputs a csv_data struct, containing the data in the file + number of columns and rows
@@ -47,7 +53,7 @@ csv_data parse_csv(std::string filename) {
     std::ifstream map_file(filename);
 
     bool num_in_progress = false;
-    std::vector<int> temp_digits;
+    std::string curr_cell_value;
 
     while (map_file.is_open()) {
         char c = map_file.get();
@@ -56,22 +62,22 @@ csv_data parse_csv(std::string filename) {
         bool eof = c == EOF;
 
         if (comma) {
-            push_digit(num_in_progress, csvData, temp_digits);
+            push_val(num_in_progress, csvData, curr_cell_value);
         } else if (newline) {
             if (num_in_progress == true) {
                 ++csvData.rows;
-                push_digit(num_in_progress, csvData, temp_digits);
+                push_val(num_in_progress, csvData, curr_cell_value);
             } else
                 continue;
         } else if (eof) {
             ++csvData.rows;
-            push_digit(num_in_progress, csvData, temp_digits);
+            push_val(num_in_progress, csvData, curr_cell_value);
             map_file.close();
         } else if (num_in_progress == true) {
-            temp_digits.push_back(c - '0');
+            curr_cell_value.push_back(c);
         } else {
             num_in_progress = true;
-            temp_digits.push_back(c - '0');
+            curr_cell_value.push_back(c);
             if (csvData.rows == 0) ++csvData.columns;
         }
     }

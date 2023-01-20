@@ -90,32 +90,52 @@ struct map {
 */
 
 enum TEXTURE_TYPE {
-    WALLS,
-    GUARD,
-    OBJECTS,
-    WEAPONS
+    TEXTURE_WALLS,
+    TEXTURE_GUARD,
+    TEXTURE_OBJECTS,
+    TEXTURE_WEAPONS
 };
 
 #define NUM_TEXTURE_TYPES 4
+
+struct texture_info {
+    texture_info(const TEXTURE_TYPE& _texture_type, const int& _texture_id): TextureType(_texture_type), TextureID(_texture_id) {}
+
+    TEXTURE_TYPE TextureType;
+    int TextureID;
+};
 
 struct multimedia {
     SDL_Texture* get_texture(const TEXTURE_TYPE& _texture_type, const int& texture_id) {
         return textures[_texture_type][texture_id-1];
     }
 
+    SDL_Texture* get_texture(const texture_info& _texture_info) {
+        return textures[_texture_info.TextureType][_texture_info.TextureID-1];
+    }
+
     void add_texture(const TEXTURE_TYPE& _texture_type, SDL_Texture* const texture) {
         textures[_texture_type].push_back(texture);
+    }
+
+    texture_pair get_texture_pair(const texture_info& _texture_info) {
+        if (_texture_info.TextureType == TEXTURE_WALLS)
+            return get_wall_texture_pair(_texture_info.TextureID);
+        else {
+            SDL_Texture* t = get_texture(_texture_info);
+            return texture_pair(t,t);
+        }
     }
 
     texture_pair get_wall_texture_pair(int texture_id) {
         static int no_lighting_list[10] = {31,32,41,42,43,44,107,108,109,110};
         for (int i = 0; i < 10; ++i) {
             if (texture_id == no_lighting_list[i]) {
-                SDL_Texture* t = get_texture(WALLS, texture_id);
+                SDL_Texture* t = get_texture(TEXTURE_WALLS, texture_id);
                 return texture_pair(t,t);
             }
         }
-        return texture_pair(get_texture(WALLS, texture_id), get_texture(WALLS, texture_id+1));
+        return texture_pair(get_texture(TEXTURE_WALLS, texture_id), get_texture(TEXTURE_WALLS, texture_id + 1));
     }
 
     SDL_Window* sdl_window;

@@ -73,7 +73,7 @@ public:
         SDL_Surface* texture_sheet = bmp_to_surface(filename);
                 
         // Must take out transparency pixels from sprite sheets
-        if (_texture_type != WALLS)
+        if (_texture_type != TEXTURE_WALLS)
             SDL_SetColorKey(texture_sheet, SDL_TRUE, 0xFF980088);
         
         // Then extract all textures from texture sheet and store in array
