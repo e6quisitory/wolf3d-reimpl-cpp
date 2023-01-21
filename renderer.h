@@ -29,6 +29,9 @@ public:
             double angle = std::atan(-(i*segment_len-(proj_plane_width/2)));
             casting_ray_angles.push_back({angle, std::cos(angle)});
         }
+
+        // Sprites can, at maximum, fill up entire screen
+        sprite_backups.reserve(GameData->Multimedia.screen_width);
     }
 
     // Renders a single frame and outputs it to the window/screen
@@ -54,7 +57,7 @@ public:
                     
                     // If sprite is hit, store the texture slice and rendering info, as we first need to render the walls + doors behind the sprites
                     if (GameData->Map.get_tile(curr_inter.iPoint)->type() == SPRITE) {
-                        sprite_backups.push_back(texture_slice_render_info(tile_hit.texture, texture_rect, render_height, screen_rect));
+                        sprite_backups.push_back(texture_slice_render_info(tile_hit.texture, texture_rect, screen_rect));
                         continue;
                     } else {
                         SDL_RenderCopy(GameData->Multimedia.sdl_renderer, tile_hit.texture, &texture_rect, &screen_rect);
@@ -106,12 +109,13 @@ private:
     std::vector<std::pair<double, double>> casting_ray_angles;  // First element in each pair is the angle, second is the cosine of it
     
     struct texture_slice_render_info {
-        texture_slice_render_info(SDL_Texture* const _texture, const SDL_Rect& _texture_rect, const int& _render_height, const SDL_Rect& _screen_rect):
-            texture(_texture), texture_rect(_texture_rect), render_height(_render_height), screen_rect(_screen_rect) {}
-        
+        texture_slice_render_info(SDL_Texture* const _texture, const SDL_Rect& _texture_rect, const SDL_Rect& _screen_rect):
+            texture(_texture), texture_rect(_texture_rect), screen_rect(_screen_rect) {}
+
+        texture_slice_render_info() {};
+
         SDL_Texture* texture;
         SDL_Rect texture_rect;
-        int render_height;
         SDL_Rect screen_rect;
     };
     

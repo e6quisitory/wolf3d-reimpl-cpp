@@ -55,7 +55,7 @@ As for how to construct the map, i.e. what the values in the `csv` file mean, I 
 - Port to iOS?
 
 ## Credits
-All textures used are the official Wolfenstein 3D textures that shipped in the game back in 1992. I found them [here](https://www.textures-resource.com/pc_computer/wolf3d/texture/1375/) and [here](https://www.spriters-resource.com/snes/wolfenstein3d/).
+All textures used are the official Wolfenstein 3D textures that shipped in the game back in 1992. I found them [here](https://www.spriters-resource.com/pc_computer/wolfenstein3d/).
 
 ## Resources Used
 - _Game Engine Blackbook - Wolfenstein 3D_ by Fabien Sanglard
