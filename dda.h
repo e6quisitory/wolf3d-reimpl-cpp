@@ -42,4 +42,3 @@ intersection next_intersection(const intersection& curr_inter) {
     else
         return intersection(curr_inter.Ray, curr_inter.Point + curr_inter.Ray.direction, curr_inter.iPoint + curr_inter.Ray.x_dir_vec + curr_inter.Ray.y_dir_vec);
 }
-

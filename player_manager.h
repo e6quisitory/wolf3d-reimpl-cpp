@@ -134,16 +134,24 @@ private:
                 break;
             else {
                 tile* curr_tile = GameData->Map.get_tile(curr_inter.Point);
-                if (curr_tile->type() == DOOR) {
-                    door* curr_door = static_cast<door*>(curr_tile);
-                    switch (curr_door->status) {
-                        case CLOSED:  GameData->Map.add_active_door(curr_door);
-                        case CLOSING: curr_door->status = OPENING;
+                switch (curr_tile->type) {
+                    case EMPTY:
+                    case SPRITE:
+                        continue;
+                    case DOOR:
+                    {
+                        door* curr_door = static_cast<door*>(curr_tile);
+                        switch (curr_door->status) {
+                            case CLOSED:  GameData->Map.add_active_door(curr_door);
+                            case CLOSING: curr_door->status = OPENING;
+                        }
                     }
-                } else
-                    continue;
+                    case WALL:
+                        goto exit_loop;
+                }
             }
         }
+        exit_loop: {}
     }
 
 private:

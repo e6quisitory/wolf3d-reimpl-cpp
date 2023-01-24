@@ -56,14 +56,14 @@ public:
     // Virtual destructor
     virtual ~tile() {}
 
-    // Spits out tile's type
-    virtual TILE_TYPE type() const = 0;
-
     // Ray-tile intersection function
     virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;
 
     // Player-tile intersection function
     virtual bool player_tile_hit() const = 0;
+
+public:
+    TILE_TYPE type;
 
 protected:
     enum WALL_TYPE {
@@ -106,9 +106,6 @@ protected:
         else
             return _texture_pair.second;
     }
-    
-protected:
-    point2 center;
 };
 
 /*
@@ -119,12 +116,8 @@ protected:
 
 class empty : public tile {
 public:
-    empty(const point2& _center) {
-        center = _center;
-    }
-
-    virtual TILE_TYPE type() const override {
-        return EMPTY;
+    empty() {
+        type = EMPTY;
     }
 
     virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
@@ -144,12 +137,9 @@ public:
 
 class wall : public tile {
 public:
-    wall(const point2& _center, const texture_pair& _texture, const texture_pair& _sidewall_texture): texture(_texture), gate_sidewall_texture(_sidewall_texture) {
-        center = _center;
-    }
-
-    virtual TILE_TYPE type() const override {
-        return WALL;
+    wall(const texture_pair& _texture, const texture_pair& _sidewall_texture):
+        texture(_texture), gate_sidewall_texture(_sidewall_texture) {
+        type = WALL;
     }
 
     virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
@@ -200,17 +190,15 @@ enum TIMER_VALUE {
 
 class door : public tile {
 public:
-    door(const point2& _center, const texture_pair& _gate_texture, const texture_pair& _sidewall_texture): gate_texture(_gate_texture), gate_sidewall_texture(_sidewall_texture) {
-        center = _center;
-        
+    door(const texture_pair& _gate_texture, const texture_pair& _sidewall_texture):
+        gate_texture(_gate_texture), gate_sidewall_texture(_sidewall_texture) {
+
+        type = DOOR;
+
         // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
         status = CLOSED;
         position = CLOSED_POSITION;
         timer = FULL_TIME_LEFT;
-    }
-
-    virtual TILE_TYPE type() const override {
-        return DOOR;
     }
 
     virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
@@ -284,13 +272,9 @@ private:
 
 class sprite : public tile {
 public:
-    sprite(const point2& _center, texture_pair _texture): texture(_texture) {
-        center = _center;
-        perp_line.origin = center;
-    }
-    
-    virtual TILE_TYPE type() const override {
-        return SPRITE;
+    sprite(const point2& _center, const texture_pair& _texture): texture(_texture) {
+        type = SPRITE;
+        perp_line.origin = _center;
     }
     
     virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
@@ -321,7 +305,8 @@ private:
         intersection Intersection;
         double width_percent;
     };
-    
+
+    // Calculates intersection between incoming ray and perp_line
     std::optional<intersection_and_width_percent> perp_line_ray_intersection(const ray& casted_ray) const {
         vec2 O1 = casted_ray.origin;
         vec2 D1 = casted_ray.direction;
@@ -348,5 +333,5 @@ private:
     
 private:
     texture_pair texture;
-    ray perp_line;
+    ray perp_line;          // Vector line (ray) perpendicular to player view direction
 };

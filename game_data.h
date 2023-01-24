@@ -47,12 +47,6 @@ struct map {
     tile* get_tile(const ipoint2& ipt) const {
         return (*this)(ipt.x(), ipt.y());
     }
-    
-    point2 get_center(const int& index) {
-        int x = index % width;
-        int y = index / width;
-        return point2(x + 0.5, y + 0.5);
-    }
 
     template<class point_type>
     bool within_map(point_type pt) {
@@ -93,14 +87,16 @@ enum TEXTURE_TYPE {
     TEXTURE_WALLS,
     TEXTURE_GUARD,
     TEXTURE_OBJECTS,
-    TEXTURE_WEAPONS
+    TEXTURE_WEAPONS,
 };
 
 #define NUM_TEXTURE_TYPES 4
 
-struct texture_info {
-    texture_info(const TEXTURE_TYPE& _texture_type, const int& _texture_id): TextureType(_texture_type), TextureID(_texture_id) {}
+struct texture {
+    texture(SDL_Texture* const texture, const TEXTURE_TYPE& texture_type, const int& texture_id):
+        Texture(texture), TextureType(texture_type), TextureID(texture_id) {}
 
+    SDL_Texture* Texture;
     TEXTURE_TYPE TextureType;
     int TextureID;
 };
@@ -110,21 +106,22 @@ struct multimedia {
         return textures[_texture_type][texture_id-1];
     }
 
-    SDL_Texture* get_texture(const texture_info& _texture_info) {
-        return textures[_texture_info.TextureType][_texture_info.TextureID-1];
-    }
-
     void add_texture(const TEXTURE_TYPE& _texture_type, SDL_Texture* const texture) {
         textures[_texture_type].push_back(texture);
     }
 
-    texture_pair get_texture_pair(const texture_info& _texture_info) {
-        if (_texture_info.TextureType == TEXTURE_WALLS)
-            return get_wall_texture_pair(_texture_info.TextureID);
+    texture_pair get_texture_pair(const TEXTURE_TYPE& _texture_type, const int& texture_id) {
+        if (_texture_type == TEXTURE_WALLS)
+            return get_wall_texture_pair(texture_id);
         else {
-            SDL_Texture* t = get_texture(_texture_info);
+            SDL_Texture* t = get_texture(_texture_type, texture_id);
             return texture_pair(t,t);
         }
+    }
+
+    texture_pair get_texture_pair(const std::pair<TEXTURE_TYPE, int>& texture_info) {
+        auto& [TextureType, TextureID] = texture_info;
+        return get_texture_pair(TextureType, TextureID);
     }
 
     texture_pair get_wall_texture_pair(int texture_id) {
@@ -144,7 +141,7 @@ struct multimedia {
     int screen_width;
     int screen_height;
     int refresh_rate;
-    
+
     std::map<TEXTURE_TYPE, std::vector<SDL_Texture*>> textures;
 };
 

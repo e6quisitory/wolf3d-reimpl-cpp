@@ -107,7 +107,7 @@ private:
 
     // Returns true if player is currently inside *any* door
     bool inside_door() const {
-        return GameData->Map.get_tile(GameData->Player.location)->type() == DOOR;
+        return GameData->Map.get_tile(GameData->Player.location)->type == DOOR;
     }
 
     void set_active_door_for_erasing(door* const _door) {
