@@ -23,20 +23,19 @@
 #include "global.h"
 
 /*
-=======================================================
- Struct that ray-tile intersection function spits out
-=======================================================
+=========================================================
+ ray-tile intersection function return type definitions
+=========================================================
 */
 
-struct ray_tile_hit_info {
-    ray_tile_hit_info(bool h): hit(h) {}
-    ray_tile_hit_info(SDL_Texture* t, SDL_Rect r, double _distance): hit(true), texture(t), texture_rect(r), distance(_distance) {}
+struct textureSlice_t {
+    textureSlice_t(SDL_Texture* t, SDL_Rect r): texture(t), textureRect(r) {}
 
-    bool hit;                // Indicates if tile hit is non-empty
     SDL_Texture* texture;    // If non-empty, then the texture of the tile hit
-    SDL_Rect texture_rect;   // The portion of the texture that the ray intersected with
-    double distance;         // Distance of intersection from player location
+    SDL_Rect textureRect;   // The portion of the texture that the ray intersected with
 };
+
+typedef std::optional<std::pair<textureSlice_t, double>> textureSliceDistPair_o;
 
 /*
 ================================
@@ -44,26 +43,26 @@ struct ray_tile_hit_info {
 ================================
 */
 
-enum TILE_TYPE {
-    EMPTY,
-    WALL,
-    DOOR,
-    SPRITE
+enum tileType_t {
+    TILE_TYPE_EMPTY,
+    TILE_TYPE_WALL,
+    TILE_TYPE_DOOR,
+    TILE_TYPE_SPRITE
 };
 
-class tile {
+class Tile {
 public:
     // Virtual destructor
-    virtual ~tile() {}
+    virtual ~Tile() {}
 
-    // Ray-tile intersection function
-    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const = 0;
+    // Ray-tile intersection function ; returns texture slice hit + distance from player where hit occurred
+    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const = 0;
 
     // Player-tile intersection function
-    virtual bool player_tile_hit() const = 0;
+    virtual bool PlayerTileHit() const = 0;
 
 public:
-    TILE_TYPE type;
+    tileType_t type;
 
 protected:
     enum WALL_TYPE {
@@ -114,17 +113,17 @@ protected:
 ================================
 */
 
-class empty : public tile {
+class EmptyTile : public Tile {
 public:
-    empty() {
-        type = EMPTY;
+    EmptyTile() {
+        type = TILE_TYPE_EMPTY;
     }
 
-    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
-        return ray_tile_hit_info(false);
+    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
+        return {};
     }
 
-    virtual bool player_tile_hit() const override {
+    virtual bool PlayerTileHit() const override {
         return false;
     }
 };
@@ -135,26 +134,25 @@ public:
 ================================
 */
 
-class wall : public tile {
+class WallTile : public Tile {
 public:
-    wall(const texture_pair& _texture, const texture_pair& _sidewall_texture):
+    WallTile(const texture_pair& _texture, const texture_pair& _sidewall_texture):
         texture(_texture), gate_sidewall_texture(_sidewall_texture) {
-        type = WALL;
+        type = TILE_TYPE_WALL;
     }
 
-    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
         wall_hit_info _wall_hit_info(curr_inter.Point);
         SDL_Rect rect = {static_cast<int>(_wall_hit_info.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
         double distance = curr_inter.dist_to_inter();
 
-        if (prev_tile_type == DOOR)
-            return ray_tile_hit_info(do_texture_lighting(gate_sidewall_texture,_wall_hit_info), rect, distance);
+        if (prev_tile_type == TILE_TYPE_DOOR)
+            return std::pair(textureSlice_t(do_texture_lighting(gate_sidewall_texture, _wall_hit_info), rect), distance);
         else
-            return ray_tile_hit_info(do_texture_lighting(texture, _wall_hit_info), rect, distance);
-
+            return std::pair(textureSlice_t(do_texture_lighting(texture, _wall_hit_info), rect), distance);
     }
 
-    virtual bool player_tile_hit() const override {
+    virtual bool PlayerTileHit() const override {
         return true;
     }
 
@@ -171,37 +169,37 @@ private:
 ================================
 */
 
-enum DOOR_STATUS {
-    CLOSED,
-    OPENING,
-    OPEN,
-    CLOSING
+enum doorStatus_t {
+    DOOR_STATUS_CLOSED,
+    DOOR_STATUS_OPENING,
+    DOOR_STATUS_OPEN,
+    DOOR_STATUS_CLOSING
 };
 
-enum DOOR_POSITION {
-    OPEN_POSITION = 0,
-    CLOSED_POSITION = 1
+enum doorPosition_t {
+    DOOR_POSITION_OPEN = 0,
+    DOOR_POSITION_CLOSED = 1
 };
 
-enum TIMER_VALUE {
-    NO_TIME_LEFT = 0,
-    FULL_TIME_LEFT = 1
+enum timerValue_t {
+    TIMER_VALUE_NONE = 0,
+    TIMER_VALUE_FULL = 1
 };
 
-class door : public tile {
+class DoorTile : public Tile {
 public:
-    door(const texture_pair& _gate_texture, const texture_pair& _sidewall_texture):
+    DoorTile(const texture_pair& _gate_texture, const texture_pair& _sidewall_texture):
         gate_texture(_gate_texture), gate_sidewall_texture(_sidewall_texture) {
 
-        type = DOOR;
+        type = TILE_TYPE_DOOR;
 
         // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
-        status = CLOSED;
-        position = CLOSED_POSITION;
-        timer = FULL_TIME_LEFT;
+        status = DOOR_STATUS_CLOSED;
+        position = DOOR_POSITION_CLOSED;
+        timer = TIMER_VALUE_FULL;
     }
 
-    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
+    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
 
         // Get wall description for point on edge of tile
         wall_hit_info _wall_hit_info(curr_inter.Point);
@@ -223,19 +221,19 @@ public:
                 SDL_Rect gate_texture_rect = {static_cast<int>(gate_texture_width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
                 double center_pt_dist = curr_inter.Ray.dist_to_pt(centered_pt);
 
-                return ray_tile_hit_info(do_texture_lighting(gate_texture, _gate_hit_info), gate_texture_rect, center_pt_dist);
+                return std::pair(textureSlice_t(do_texture_lighting(gate_texture, _gate_hit_info), gate_texture_rect), center_pt_dist);
 
             } else {
                 // If gate doesn't block the ray, let ray pass through
-                return ray_tile_hit_info(false);
+                return {};
             }
         } else
             // If ray doesn't even intersect the middle of the tile, then let ray pass through
-            return ray_tile_hit_info(false);
+            return {};
 
     }
 
-    virtual bool player_tile_hit() const override {
+    virtual bool PlayerTileHit() const override {
         return position <= 0.2 ? false : true;  // Allow player to pass through door if door is at least 80% open
     }
 
@@ -255,7 +253,7 @@ private:
     }
 
 public:
-    DOOR_STATUS status;
+    doorStatus_t status;
     double position;
     double timer;
 
@@ -270,30 +268,30 @@ private:
 ================================
 */
 
-class sprite : public tile {
+class SpriteTile : public Tile {
 public:
-    sprite(const point2& _center, const texture_pair& _texture): texture(_texture) {
-        type = SPRITE;
+    SpriteTile(const point2& _center, const texture_pair& _texture): texture(_texture) {
+        type = TILE_TYPE_SPRITE;
         perp_line.origin = _center;
     }
     
-    virtual ray_tile_hit_info ray_tile_hit(const intersection& curr_inter, const TILE_TYPE& prev_tile_type) const override {
-        std::optional<intersection_and_width_percent> hit = perp_line_ray_intersection(curr_inter.Ray);
+    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
+        auto hit = perp_line_ray_intersection(curr_inter.Ray);
         
         if (hit.has_value() == false)
-            return ray_tile_hit_info(false);
+            return {};
         else {
             SDL_Rect rect = {static_cast<int>(hit.value().width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
             double distance = curr_inter.Ray.dist_to_pt(hit.value().Intersection.Point);
-            return ray_tile_hit_info(texture.first, rect, distance);
+            return std::pair(textureSlice_t(texture.first, rect), distance);
         }
     }
 
-    virtual bool player_tile_hit() const override {
+    virtual bool PlayerTileHit() const override {
         return true;
     }
-    
-    void calculate_perp_line(const vec2& view_dir) {
+
+    void CalculatePerpLine(const vec2& view_dir) {
         static double neg_ninety_deg = -PI/2;
         perp_line.change_dir(view_dir.rotate(neg_ninety_deg));
     }
@@ -330,8 +328,8 @@ private:
             }
         }
     }
-    
+
 private:
     texture_pair texture;
-    ray perp_line;          // Vector line (ray) perpendicular to player view direction
+    ray perp_line;          // Vector line (ray) perpendicular to player view direction ; same for ALL sprites
 };

@@ -32,8 +32,8 @@ enum COMMAND {
     OPEN_DOOR
 };
 
-struct inputs {
-    bool any_active_inputs() {
+struct Inputs {
+    bool AnyActiveInputs() {
         for (int cmd_type = 0; cmd_type < NUM_COMMAND_TYPES; ++cmd_type)
             if (curr_commands[static_cast<COMMAND_TYPE>(cmd_type)] != NONE)
                 return true;

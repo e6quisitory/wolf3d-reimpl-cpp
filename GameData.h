@@ -15,7 +15,7 @@
 
 #include "vec2.h"
 #include "ivec2.h"
-#include "tile.h"
+#include "Tile.h"
 
 /*
 ================================
@@ -25,7 +25,7 @@
 
 struct player {
     point2 location;
-    vec2 view_dir;
+    vec2 viewDir;
     vec2 east;
 };
 
@@ -36,15 +36,15 @@ struct player {
 */
 
 struct map {
-    tile* operator [] (const int& index) const {
+    Tile* operator [] (const int& index) const {
         return tiles[index];
     }
 
-    tile* operator () (const int& x, const int& y) const {
+    Tile* operator () (const int& x, const int& y) const {
         return tiles[y*width + x];
     }
 
-    tile* get_tile(const ipoint2& ipt) const {
+    Tile* GetTile(const ipoint2& ipt) const {
         return (*this)(ipt.x(), ipt.y());
     }
 
@@ -56,25 +56,25 @@ struct map {
             return false;
     }
 
-    void add_active_door(door* const _door) {
+    void add_active_door(DoorTile* const _door) {
         active_doors.insert({_door, _door});
     }
 
-    void remove_active_door(door* const _door) {
+    void remove_active_door(DoorTile* const _door) {
         active_doors.erase(_door);
     }
 
-    tile** tiles;  // Tiles need to be stored as pointers for polymorphism to work
+    Tile** tiles;  // Tiles need to be stored as pointers for polymorphism to work
     int width;
     int height;
-    int num_tiles;
+    int numTiles;
 
     /* Doors */
-    std::map<door*, door*> active_doors;
-    bool any_doors_awaiting_rendering;
+    std::map<DoorTile*, DoorTile*> active_doors;
+    bool anyDoorsAwaitingRendering;
     
     /* Sprites */
-    std::vector<sprite*> sprites;
+    std::vector<SpriteTile*> sprites;
 };
 
 /*
@@ -136,7 +136,7 @@ struct multimedia {
     }
 
     SDL_Window* sdl_window;
-    SDL_Renderer* sdl_renderer;
+    SDL_Renderer* sdlRenderer;
     
     int screen_width;
     int screen_height;
@@ -151,7 +151,7 @@ struct multimedia {
 ================================
 */
 
-struct game_data {
+struct GameData {
 
     player Player;
     map Map;

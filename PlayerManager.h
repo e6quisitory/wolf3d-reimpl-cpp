@@ -8,13 +8,13 @@
 
 #pragma once
 
-#include "game_data.h"
-#include "inputs.h"
+#include "GameData.h"
+#include "Inputs.h"
 #include "global.h"
 
-class player_manager {
+class PlayerManager {
 public:
-    void init(inputs* _inputs, game_data* _game_data) {
+    void Init(Inputs* _inputs, GameData* _game_data) {
         Inputs = _inputs;
         GameData = _game_data;
 
@@ -24,7 +24,7 @@ public:
     }
 
     // Set spawn location and view direction of player
-    void set_player(point2 location, vec2 view_dir) {
+    void SetPlayer(point2 location, vec2 view_dir) {
         // If spawn is set for a perfect grid corner (i.e. x and y vals are both integers), there is some weird clipping that happens when you first move
         // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
         // avoid the bug
@@ -33,12 +33,12 @@ public:
                 location[i] += 0.01;
 
         GameData->Player.location = location;
-        GameData->Player.view_dir = unit_vector(view_dir);
+        GameData->Player.viewDir = unit_vector(view_dir);
     }
 
     // Scans current input commands for movement, looking around, and door opening.
     // Then, changes player attributes (and/or opens door) as necessary.
-    void update() const {
+    void Update() const {
         switch(Inputs->curr_commands[LOOKING]) {
             case LOOK_RIGHT: swivel(CLOCKWISE); break;
             case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
@@ -100,27 +100,27 @@ private:
     }
 
     void move_vertical(VERTICAL_DIR _v_dir, SPEED _speed) const {
-        vec2 mov_vec = _v_dir * speed_coefficient(_speed) * GameData->Player.view_dir;
+        vec2 mov_vec = _v_dir * speed_coefficient(_speed) * GameData->Player.viewDir;
         point2 proposed_loc = GameData->Player.location + mov_vec;
 
         move_if_valid(proposed_loc);
     }
 
     void swivel(SWIVEL_DIR _swivel_dir) const {
-        GameData->Player.view_dir = GameData->Player.view_dir.rotate(swivel_amount*Inputs->mouse_abs_xrel*_swivel_dir);
-        GameData->Player.east = GameData->Player.view_dir.rotate(-PI/2);
+        GameData->Player.viewDir = GameData->Player.viewDir.rotate(swivel_amount * Inputs->mouse_abs_xrel * _swivel_dir);
+        GameData->Player.east = GameData->Player.viewDir.rotate(-PI / 2);
     }
 
     // Moves player to a proposed location (passed in) only if player will not hit a non-empty block at that location
     void move_if_valid(const point2& proposed_loc) const {
-        tile* proposed_tile = GameData->Map.get_tile(proposed_loc);
-        if (!proposed_tile->player_tile_hit())
+        Tile* proposed_tile = GameData->Map.GetTile(proposed_loc);
+        if (!proposed_tile->PlayerTileHit())
             GameData->Player.location = proposed_loc;
     }
 
     // Returns a ray that starts at the current player location and with the player's view_dir as it's direction
     ray view_dir_ray() const {
-        return ray(GameData->Player.location, GameData->Player.view_dir);
+        return ray(GameData->Player.location, GameData->Player.viewDir);
     }
 
     // Checks if player is facing a door and close enough to it, and if so, begins the process of opening the door
@@ -133,20 +133,20 @@ private:
             if (curr_inter.dist_to_inter() > 4.0)
                 break;
             else {
-                tile* curr_tile = GameData->Map.get_tile(curr_inter.Point);
+                Tile* curr_tile = GameData->Map.GetTile(curr_inter.Point);
                 switch (curr_tile->type) {
-                    case EMPTY:
-                    case SPRITE:
+                    case TILE_TYPE_EMPTY:
+                    case TILE_TYPE_SPRITE:
                         continue;
-                    case DOOR:
+                    case TILE_TYPE_DOOR:
                     {
-                        door* curr_door = static_cast<door*>(curr_tile);
+                        DoorTile* curr_door = static_cast<DoorTile*>(curr_tile);
                         switch (curr_door->status) {
-                            case CLOSED:  GameData->Map.add_active_door(curr_door);
-                            case CLOSING: curr_door->status = OPENING;
+                            case DOOR_STATUS_CLOSED:  GameData->Map.add_active_door(curr_door);
+                            case DOOR_STATUS_CLOSING: curr_door->status = DOOR_STATUS_OPENING;
                         }
                     }
-                    case WALL:
+                    case TILE_TYPE_WALL:
                         goto exit_loop;
                 }
             }
@@ -155,8 +155,8 @@ private:
     }
 
 private:
-    inputs* Inputs;
-    game_data* GameData;
+    Inputs* Inputs;
+    GameData* GameData;
 
     double movement_coeff;
     double swivel_amount;

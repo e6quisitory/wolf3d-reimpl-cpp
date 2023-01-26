@@ -15,9 +15,9 @@
 #include <cmath>
 #include <optional>
 
-class map_file {
+class MapFile {
 public:
-    map_file(const std::string& filename): rows(0), columns(0), num_cells(0) {
+    MapFile(const std::string& filename): rows(0), columns(0), numCells(0) {
         parse(filename);
     }
 
@@ -54,7 +54,7 @@ private:
                 if (rows == 0) ++columns;
             }
         }
-        num_cells = rows*columns;
+        numCells = rows * columns;
     };
 
     void push_val(bool& num_in_progress, std::string& cell_value) {
@@ -87,5 +87,5 @@ public:
     std::vector<std::optional<tile_info>> data;
     int columns;
     int rows;
-    int num_cells;
+    int numCells;
 };

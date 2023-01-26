@@ -1,14 +1,14 @@
-#include "game_engine.h"
+#include "GameEngine.h"
 
 int main() {
 
-    game_engine GameEngine;
-    GameEngine.init();
+    GameEngine GameEngine;
+    GameEngine.Init();
 
-    while (GameEngine.Inputs->quit_flag == false)
-        GameEngine.game_loop();
+    while (GameEngine.inputs->quit_flag == false)
+        GameEngine.GameLoop();
 
-    GameEngine.exit();
+    GameEngine.Exit();
      
     return 0;
     

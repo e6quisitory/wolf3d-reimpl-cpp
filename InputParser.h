@@ -11,12 +11,12 @@
 #include <algorithm>
 #include <SDL2/SDL.h>
 
-#include "inputs.h"
-#include "game_data.h"
+#include "Inputs.h"
+#include "GameData.h"
 
-class input_parser {
+class InputParser {
 public:
-    void init(inputs* _inputs) {
+    void Init(Inputs* _inputs) {
         Inputs = _inputs;
 
         // Initialize current commands std::map in GameData->Inputs
@@ -30,7 +30,7 @@ public:
         keyboard_state = SDL_GetKeyboardState(nullptr);
     }
 
-    void parse_inputs() {
+    void ParseInputs() {
 
         /*
         ====================================================
@@ -121,6 +121,6 @@ private:
     }
 
 private:
-    inputs* Inputs;
+    Inputs* Inputs;
     const Uint8* keyboard_state;
 };
