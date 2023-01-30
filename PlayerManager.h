@@ -24,7 +24,7 @@ public:
     }
 
     // Set spawn location and view direction of player
-    void SetPlayer(point2 location, vec2 view_dir) {
+    void SetPlayer(Point2 location, vec2 view_dir) {
         // If spawn is set for a perfect grid corner (i.e. x and y vals are both integers), there is some weird clipping that happens when you first move
         // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
         // avoid the bug
@@ -94,14 +94,14 @@ private:
 
     void move_horizontal(HORIZONTAL_DIR _h_dir, SPEED _speed) const {
         vec2 mov_vec = _h_dir * speed_coefficient(_speed) * GameData->Player.east;
-        point2 proposed_loc = GameData->Player.location + mov_vec;
+        Point2 proposed_loc = GameData->Player.location + mov_vec;
 
         move_if_valid(proposed_loc);
     }
 
     void move_vertical(VERTICAL_DIR _v_dir, SPEED _speed) const {
         vec2 mov_vec = _v_dir * speed_coefficient(_speed) * GameData->Player.viewDir;
-        point2 proposed_loc = GameData->Player.location + mov_vec;
+        Point2 proposed_loc = GameData->Player.location + mov_vec;
 
         move_if_valid(proposed_loc);
     }
@@ -112,23 +112,23 @@ private:
     }
 
     // Moves player to a proposed location (passed in) only if player will not hit a non-empty block at that location
-    void move_if_valid(const point2& proposed_loc) const {
+    void move_if_valid(const Point2& proposed_loc) const {
         Tile* proposed_tile = GameData->Map.GetTile(proposed_loc);
         if (!proposed_tile->PlayerTileHit())
             GameData->Player.location = proposed_loc;
     }
 
     // Returns a ray that starts at the current player location and with the player's view_dir as it's direction
-    ray view_dir_ray() const {
-        return ray(GameData->Player.location, GameData->Player.viewDir);
+    Ray view_dir_ray() const {
+        return Ray(GameData->Player.location, GameData->Player.viewDir);
     }
 
     // Checks if player is facing a door and close enough to it, and if so, begins the process of opening the door
     void open_door() const {
-        ray view_dir_r = view_dir_ray();
+        Ray view_dir_r = view_dir_ray();
         intersection curr_inter(view_dir_r, view_dir_r.origin);
 
-        while (GameData->Map.within_map<ipoint2>(curr_inter.iPoint)) {
+        while (GameData->Map.within_map(curr_inter.iPoint)) {
             curr_inter = next_intersection(curr_inter);
             if (curr_inter.dist_to_inter() > 4.0)
                 break;

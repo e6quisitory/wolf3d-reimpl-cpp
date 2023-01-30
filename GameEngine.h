@@ -42,7 +42,7 @@ public:
         renderer.Init(gameData);
 
         // Set player location & view direction
-        playerManager.SetPlayer(point2(4.8, 28.1), vec2(1, 1));
+        playerManager.SetPlayer(Point2(4.8, 28.1), vec2(1, 1));
     }
 
     void Exit() {

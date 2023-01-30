@@ -59,7 +59,7 @@ private:
 
     void push_val(bool& num_in_progress, std::string& cell_value) {
         num_in_progress = false;
-        data.push_back(parse_tile_code(cell_value));
+        tiles.push_back(parse_tile_code(cell_value));
         cell_value.clear();
     }
 
@@ -84,7 +84,7 @@ private:
     }
 
 public:
-    std::vector<std::optional<tile_info>> data;
+    std::vector<std::optional<tile_info>> tiles;
     int columns;
     int rows;
     int numCells;

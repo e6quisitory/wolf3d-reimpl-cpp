@@ -9,28 +9,36 @@
 #pragma once
 
 #include "vec2.h"
-#include "ivec2.h"
-#include "ray.h"
+#include "Ray.h"
+
+/*
+struct hitInfo_t {
+
+    Ray ray;
+    Point2 point;
+    ipoint2 iPoint;
+};
+*/
 
 // A line (ray) + the point (rational + integer) it has currently intersected with on the grid map
 struct intersection {
-    intersection(ray _r, point2 _pt, ipoint2 _ipt): Ray(_r), Point(_pt), iPoint(_ipt) {}
-    intersection(ray _r, point2 _pt): Ray(_r), Point(_pt), iPoint(_pt) {}
+    intersection(Ray _r, Point2 _pt, ipoint2 _ipt): Ray(_r), Point(_pt), iPoint(_ipt) {}
+    intersection(Ray _r, Point2 _pt): Ray(_r), Point(_pt), iPoint(_pt) {}
     intersection() {}
 
     double dist_to_inter() const {
         return Ray.dist_to_pt(Point);
     }
 
-    ray Ray;
-    point2 Point;
+    Ray Ray;
+    Point2 Point;
     ipoint2 iPoint;
 };
 
 // Takes in a current intersection of a line (ray) on grid map and calculates the next one (main DDA algorithm)
 intersection next_intersection(const intersection& curr_inter) {
-    point2 next_x = curr_inter.Ray.next_x_intersection(curr_inter.Point);
-    point2 next_y = curr_inter.Ray.next_y_intersection(curr_inter.Point);
+    Point2 next_x = curr_inter.Ray.next_x_intersection(curr_inter.Point);
+    Point2 next_y = curr_inter.Ray.next_y_intersection(curr_inter.Point);
 
     double dist_next_x = curr_inter.Ray.dist_to_pt(next_x);
     double dist_next_y = curr_inter.Ray.dist_to_pt(next_y);

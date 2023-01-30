@@ -14,7 +14,6 @@
 #include <map>
 
 #include "vec2.h"
-#include "ivec2.h"
 #include "Tile.h"
 
 /*
@@ -24,7 +23,7 @@
 */
 
 struct player {
-    point2 location;
+    Point2 location;
     vec2 viewDir;
     vec2 east;
 };
@@ -48,8 +47,7 @@ struct map {
         return (*this)(ipt.x(), ipt.y());
     }
 
-    template<class point_type>
-    bool within_map(point_type pt) {
+    bool within_map(const ipoint2& pt) {
         if((pt.x() >= 0 && pt.x() <= width) && (pt.y() >= 0 && pt.y() <= height))
             return true;
         else

@@ -18,7 +18,7 @@
 #include <SDL2/SDL.h>
 
 #include "vec2.h"
-#include "ray.h"
+#include "Ray.h"
 #include "dda.h"
 #include "global.h"
 
@@ -73,7 +73,7 @@ protected:
 
     // Given a point on a line on the map grid, calculates the wall type (horizontal or vertical) + the width percent
     struct wall_hit_info {
-        wall_hit_info(const point2& pt) {
+        wall_hit_info(const Point2& pt) {
             bool x_is_int = is_integer(pt.x());
             bool y_is_int = is_integer(pt.y());
             bool x_is_middle = (pt.x() - static_cast<int>(pt.x())) == 0.5;
@@ -205,7 +205,7 @@ public:
         wall_hit_info _wall_hit_info(curr_inter.Point);
 
         // Center this point
-        point2 centered_pt = center_point(curr_inter, _wall_hit_info);
+        Point2 centered_pt = center_point(curr_inter, _wall_hit_info);
 
         // First check if incoming ray actually intersects with middle of tile (the gate)
         if (ipoint2(centered_pt) == curr_inter.iPoint) {
@@ -239,8 +239,8 @@ public:
 
 private:
     // Takes intersection on the edge of a tile/block and centers it
-    point2 center_point(const intersection& curr_inter, const wall_hit_info& curr_wall_desc) const {
-        point2 centered_pt = curr_inter.Point;
+    Point2 center_point(const intersection& curr_inter, const wall_hit_info& curr_wall_desc) const {
+        Point2 centered_pt = curr_inter.Point;
 
         if (curr_wall_desc.WallType == VERTICAL) {
             centered_pt.x() += static_cast<double>(curr_inter.Ray.x_dir) / 2;
@@ -270,7 +270,7 @@ private:
 
 class SpriteTile : public Tile {
 public:
-    SpriteTile(const point2& _center, const texture_pair& _texture): texture(_texture) {
+    SpriteTile(const Point2& _center, const texture_pair& _texture): texture(_texture) {
         type = TILE_TYPE_SPRITE;
         perp_line.origin = _center;
     }
@@ -278,13 +278,12 @@ public:
     virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
         auto hit = perp_line_ray_intersection(curr_inter.Ray);
         
-        if (hit.has_value() == false)
-            return {};
-        else {
+        if (hit.has_value()) {
             SDL_Rect rect = {static_cast<int>(hit.value().width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
             double distance = curr_inter.Ray.dist_to_pt(hit.value().Intersection.Point);
             return std::pair(textureSlice_t(texture.first, rect), distance);
-        }
+        } else
+            return {};
     }
 
     virtual bool PlayerTileHit() const override {
@@ -305,7 +304,7 @@ private:
     };
 
     // Calculates intersection between incoming ray and perp_line
-    std::optional<intersection_and_width_percent> perp_line_ray_intersection(const ray& casted_ray) const {
+    std::optional<intersection_and_width_percent> perp_line_ray_intersection(const Ray& casted_ray) const {
         vec2 O1 = casted_ray.origin;
         vec2 D1 = casted_ray.direction;
         vec2 O2 = perp_line.origin;
@@ -322,7 +321,7 @@ private:
                 return {};
             else {
                 double width_percent = t > 0 ? 0.5 + t : 0.5 - abs(t);
-                point2 p = O2+t*D2;
+                Point2 p = O2 + t * D2;
                 intersection i = intersection(casted_ray, p);
                 return intersection_and_width_percent(i, width_percent);
             }
@@ -331,5 +330,5 @@ private:
 
 private:
     texture_pair texture;
-    ray perp_line;          // Vector line (ray) perpendicular to player view direction ; same for ALL sprites
+    Ray perp_line;          // Vector line (ray) perpendicular to player view direction ; same for ALL sprites
 };

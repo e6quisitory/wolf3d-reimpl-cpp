@@ -11,7 +11,7 @@
 #include <vector>
 #include <utility>
 
-#include "ray.h"
+#include "Ray.h"
 #include "GameData.h"
 #include "dda.h"
 #include "global.h"
@@ -63,10 +63,10 @@ private:
 
     void DrawWalls() {
         for (int i = 0; i < gameData->Multimedia.screen_width; ++i) {
-            ray currRay = GetRay(i);
+            Ray currRay = GetRay(i);
             intersection currIntrsc(currRay, currRay.origin);
 
-            while (gameData->Map.within_map<ipoint2>(currIntrsc.iPoint)) {
+            while (gameData->Map.within_map(currIntrsc.iPoint)) {
                 tileType_t prevTileType = gameData->Map.GetTile(currIntrsc.iPoint)->type;
                 currIntrsc = next_intersection(currIntrsc);
                 auto tileHit = gameData->Map.GetTile(currIntrsc.iPoint)->RayTileHit(currIntrsc, prevTileType);
@@ -103,8 +103,8 @@ private:
     }
 
     // Returns ray corresponding to a vertical column of pixels (0 is leftmost column of pixels)
-    ray GetRay(const int& ray_num) {
-        return ray(gameData->Player.location, gameData->Player.viewDir.rotate(casting_ray_angles[ray_num].first));
+    Ray GetRay(const int& ray_num) {
+        return Ray(gameData->Player.location, gameData->Player.viewDir.rotate(casting_ray_angles[ray_num].first));
     }
 
     // Given hit distance and ray angle cosine, calculate how high the column of pixels to render should be

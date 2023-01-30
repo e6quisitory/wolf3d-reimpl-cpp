@@ -42,7 +42,7 @@ public:
         // Allocate and fill map with corresponding tiles
         gameData->Map.tiles = new Tile*[mapFile.numCells];
         for (int tileIndex = 0; tileIndex < mapFile.numCells; ++tileIndex) {
-            auto tileInfo = mapFile.data[tileIndex];
+            auto tileInfo = mapFile.tiles[tileIndex];
 
             if (tileInfo.has_value() == false)
                 gameData->Map.tiles[tileIndex] = new EmptyTile();
@@ -59,7 +59,7 @@ public:
                         break;
                     case TEXTURE_OBJECTS:
                     case TEXTURE_GUARD:
-                        point2 tileCenterPt = GetTileCenterPt(tileIndex, mapFile.columns);
+                        Point2 tileCenterPt = GetTileCenterPt(tileIndex, mapFile.columns);
                         SpriteTile *s = new SpriteTile(tileCenterPt, gameData->Multimedia.get_texture_pair(texture_info));
                         gameData->Map.tiles[tileIndex] = s;
                         gameData->Map.sprites.push_back(s);
@@ -68,17 +68,17 @@ public:
             }
         }
     }
-    
+
     void UpdateSpritePerpLines() {
         for (SpriteTile* s : gameData->Map.sprites)
             s->CalculatePerpLine(gameData->Player.viewDir);
     }
 
 private:
-    point2 GetTileCenterPt(const int& index, const int& map_width) const {
+    Point2 GetTileCenterPt(const int& index, const int& map_width) const {
         int x = index % map_width;
         int y = index / map_width;
-        return point2(x + 0.5, y + 0.5);
+        return Point2(x + 0.5, y + 0.5);
     }
     
 private:
