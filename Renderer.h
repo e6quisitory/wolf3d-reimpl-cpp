@@ -17,18 +17,20 @@
 #include "global.h"
 
 class Renderer {
+private:
+    typedef std::pair<textureSlice_t, SDL_Rect> textureSliceScreenRectPair_t;
+
+    GameData* gameData;
+    std::vector<std::pair<double, double>> castingRayAngles;  // First element in each pair is the angle, second is the cosine of it
+    std::vector<textureSliceScreenRectPair_t> spriteBackups;
+    const double fov = 72.0;
+
 public:
     void Init(GameData* _game_data) {
         gameData = _game_data;
 
         // Pre-calculate the ray angles and their cosines, as they do not change
-        double proj_plane_width = 2*std::tan(degrees_to_radians(fov/2));
-        double segment_len = proj_plane_width / gameData->Multimedia.screen_width;
-        casting_ray_angles.reserve(gameData->Multimedia.screen_width);
-        for (int i = 0; i < gameData->Multimedia.screen_width; ++i) {
-            double angle = std::atan(-(i*segment_len-(proj_plane_width/2)));
-            casting_ray_angles.push_back({angle, std::cos(angle)});
-        }
+        CalculateCastingRayAngles();
 
         spriteBackups.reserve(gameData->Multimedia.screen_width);
             // One sprite encountered per casted ray is a good initial assumption to allocate memory according to.
@@ -38,15 +40,11 @@ public:
 
     // Renders a single frame and outputs it to the window/screen
     void RenderFrame() {
-
         SDL_RenderClear(gameData->Multimedia.sdlRenderer);
-
         DrawCeilingFloor();
         DrawWalls();
         DrawSprites();
-        
         SDL_RenderPresent(gameData->Multimedia.sdlRenderer);
-
     }
 
 private:
@@ -64,23 +62,23 @@ private:
     void DrawWalls() {
         for (int i = 0; i < gameData->Multimedia.screen_width; ++i) {
             Ray currRay = GetRay(i);
-            intersection currIntrsc(currRay, currRay.origin);
+            HitInfo hitInfo(currRay, currRay.origin);
 
-            while (gameData->Map.within_map(currIntrsc.iPoint)) {
-                tileType_t prevTileType = gameData->Map.GetTile(currIntrsc.iPoint)->type;
-                currIntrsc = next_intersection(currIntrsc);
-                auto tileHit = gameData->Map.GetTile(currIntrsc.iPoint)->RayTileHit(currIntrsc, prevTileType);
+            while (gameData->Map.within_map(hitInfo.hitTile)) {
+                tileType_t prevTileType = gameData->Map.GetTile(hitInfo.hitTile)->type;
+                hitInfo.GoToNextHit();
+                auto tileHit = gameData->Map.GetTile(hitInfo.hitTile)->RayTileHit(hitInfo, prevTileType);
 
                 if (tileHit.has_value()) {
                     auto [textureSlice, hitDistance] = tileHit.value();
 
                     SDL_Rect textureRect = textureSlice.textureRect;
-                    int renderHeight = GetRenderHeight(hitDistance, casting_ray_angles[i].second);
+                    int renderHeight = GetRenderHeight(hitDistance, castingRayAngles[i].second);
                     SDL_Rect screenRect = {i, gameData->Multimedia.screen_height / 2 - renderHeight / 2, 1, renderHeight};
 
                     // If sprite is hit, store the rendering info for later, as we first need to render the walls + doors behind the sprites.
-                    if (gameData->Map.GetTile(currIntrsc.iPoint)->type == TILE_TYPE_SPRITE) {
-                        spriteBackups.push_back(textureSliceRenderInfo_t(textureSlice.texture, textureRect, screenRect));
+                    if (gameData->Map.GetTile(hitInfo.hitTile)->type == TILE_TYPE_SPRITE) {
+                        spriteBackups.push_back({textureSlice_t(textureSlice.texture, textureRect), screenRect});
                         continue;
                     } else {
                         // If wall or door is hit, render immediately.
@@ -96,15 +94,17 @@ private:
     void DrawSprites() {
         if (!spriteBackups.empty()) {
             // Must render sprites in reverse of the order in which they were encountered
-            for (auto s = spriteBackups.rbegin(); s != spriteBackups.rend(); ++s)
-                SDL_RenderCopy(gameData->Multimedia.sdlRenderer, s->texture, &(s->textureRect), &(s->screenRect));
+            for (auto s = spriteBackups.rbegin(); s != spriteBackups.rend(); ++s) {
+                auto [textureSlice, screenRect] = *s;
+                SDL_RenderCopy(gameData->Multimedia.sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+            }
             spriteBackups.clear();
         }
     }
 
     // Returns ray corresponding to a vertical column of pixels (0 is leftmost column of pixels)
     Ray GetRay(const int& ray_num) {
-        return Ray(gameData->Player.location, gameData->Player.viewDir.rotate(casting_ray_angles[ray_num].first));
+        return Ray(gameData->Player.location, gameData->Player.viewDir.rotate(castingRayAngles[ray_num].first));
     }
 
     // Given hit distance and ray angle cosine, calculate how high the column of pixels to render should be
@@ -113,22 +113,14 @@ private:
         return static_cast<int>(coeff/(hit_dist*angle_cosine));
     }
 
-private:
-    GameData* gameData;
+    void CalculateCastingRayAngles() {
+        double proj_plane_width = 2*std::tan(degrees_to_radians(fov/2));
+        double segment_len = proj_plane_width / gameData->Multimedia.screen_width;
 
-    double fov = 72.0;
-    std::vector<std::pair<double, double>> casting_ray_angles;  // First element in each pair is the angle, second is the cosine of it
-    
-    struct textureSliceRenderInfo_t {
-        textureSliceRenderInfo_t(SDL_Texture* const _texture, const SDL_Rect& _texture_rect, const SDL_Rect& _screen_rect):
-                texture(_texture), textureRect(_texture_rect), screenRect(_screen_rect) {}
-
-        textureSliceRenderInfo_t() {};
-
-        SDL_Texture* texture;
-        SDL_Rect textureRect;
-        SDL_Rect screenRect;
-    };
-    
-    std::vector<textureSliceRenderInfo_t> spriteBackups;
+        castingRayAngles.reserve(gameData->Multimedia.screen_width);
+        for (int i = 0; i < gameData->Multimedia.screen_width; ++i) {
+            double angle = std::atan(-(i*segment_len-(proj_plane_width/2)));
+            castingRayAngles.push_back({angle, std::cos(angle)});
+        }
+    }
 };

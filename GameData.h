@@ -24,8 +24,8 @@
 
 struct player {
     Point2 location;
-    vec2 viewDir;
-    vec2 east;
+    Vec2 viewDir;
+    Vec2 east;
 };
 
 /*
@@ -43,11 +43,11 @@ struct map {
         return tiles[y*width + x];
     }
 
-    Tile* GetTile(const ipoint2& ipt) const {
+    Tile* GetTile(const iPoint2& ipt) const {
         return (*this)(ipt.x(), ipt.y());
     }
 
-    bool within_map(const ipoint2& pt) {
+    bool within_map(const iPoint2& pt) {
         if((pt.x() >= 0 && pt.x() <= width) && (pt.y() >= 0 && pt.y() <= height))
             return true;
         else

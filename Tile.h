@@ -52,55 +52,16 @@ enum tileType_t {
 
 class Tile {
 public:
-    // Virtual destructor
     virtual ~Tile() {}
-
-    // Ray-tile intersection function ; returns texture slice hit + distance from player where hit occurred
-    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const = 0;
-
-    // Player-tile intersection function
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const tileType_t& prev_tile_type) const = 0;
     virtual bool PlayerTileHit() const = 0;
 
 public:
     tileType_t type;
 
 protected:
-    enum WALL_TYPE {
-        HORIZONTAL,
-        VERTICAL,
-        CORNER
-    };
-
-    // Given a point on a line on the map grid, calculates the wall type (horizontal or vertical) + the width percent
-    struct wall_hit_info {
-        wall_hit_info(const Point2& pt) {
-            bool x_is_int = is_integer(pt.x());
-            bool y_is_int = is_integer(pt.y());
-            bool x_is_middle = (pt.x() - static_cast<int>(pt.x())) == 0.5;
-            bool y_is_middle = (pt.y() - static_cast<int>(pt.y())) == 0.5;
-
-            if ((x_is_int || x_is_middle) && !y_is_int) {
-                WallType = VERTICAL;
-                width_percent = pt.y() - int(pt.y());
-            } else if ((y_is_int || y_is_middle) && !x_is_int) {
-                WallType = HORIZONTAL;
-                width_percent = pt.x() - int(pt.x());
-            } else {
-                WallType = CORNER;
-                width_percent = 0;
-            }
-        }
-
-        WALL_TYPE WallType;
-        double width_percent;  // Say you hit point (1.45, 2); then the width_percent would be 0.45; if (3, 7.39), width_percent = 0.39
-    };
-
-    using gate_hit_info = wall_hit_info;
-
-    // Given a texture pair and a wall description, returns the lit or unlit version of the texture.
-    // If vertical wall is hit, we use lit texture, if horizontal wall, then unlit texture.
-    SDL_Texture* do_texture_lighting(const texture_pair& _texture_pair, const wall_hit_info& _wall_hit_info) const {
-        if (_wall_hit_info.WallType == VERTICAL)
+    SDL_Texture* LightTexture(const texture_pair& _texture_pair, HitInfo& hitInfo) const {
+        if (hitInfo.GetWallType() == WALL_TYPE_VERTICAL)
             return _texture_pair.first;
         else
             return _texture_pair.second;
@@ -119,7 +80,7 @@ public:
         type = TILE_TYPE_EMPTY;
     }
 
-    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const tileType_t& prev_tile_type) const override {
         return {};
     }
 
@@ -141,15 +102,13 @@ public:
         type = TILE_TYPE_WALL;
     }
 
-    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
-        wall_hit_info _wall_hit_info(curr_inter.Point);
-        SDL_Rect rect = {static_cast<int>(_wall_hit_info.width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
-        double distance = curr_inter.dist_to_inter();
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const tileType_t& prev_tile_type) const override {
+        SDL_Texture* litTexture = LightTexture(prev_tile_type == TILE_TYPE_DOOR ? gate_sidewall_texture : texture,
+                                               hitInfo);
+        SDL_Rect textureRect = {static_cast<int>(hitInfo.GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
+        textureSlice_t textureSlice(litTexture, textureRect);
 
-        if (prev_tile_type == TILE_TYPE_DOOR)
-            return std::pair(textureSlice_t(do_texture_lighting(gate_sidewall_texture, _wall_hit_info), rect), distance);
-        else
-            return std::pair(textureSlice_t(do_texture_lighting(texture, _wall_hit_info), rect), distance);
+        return std::pair(textureSlice, hitInfo.GetDistToHitPoint());
     }
 
     virtual bool PlayerTileHit() const override {
@@ -158,8 +117,6 @@ public:
 
 private:
     texture_pair texture;
-    // To render door sidewall, we see if the type of the *previous* tile that was hit was a door.
-    // If so, then simply swap this wall's texture with the door sidewall texture.
     texture_pair gate_sidewall_texture;
 };
 
@@ -199,32 +156,27 @@ public:
         timer = TIMER_VALUE_FULL;
     }
 
-    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const tileType_t& prev_tile_type) const override {
 
-        // Get wall description for point on edge of tile
-        wall_hit_info _wall_hit_info(curr_inter.Point);
-
-        // Center this point
-        Point2 centered_pt = center_point(curr_inter, _wall_hit_info);
+        // Center hit point
+        HitInfo centeredHitInfo = hitInfo.GetNextCenterHit();
 
         // First check if incoming ray actually intersects with middle of tile (the gate)
-        if (ipoint2(centered_pt) == curr_inter.iPoint) {
-
-            // Get width percent of middle point in the tile
-            gate_hit_info _gate_hit_info = gate_hit_info(centered_pt);
+        if (centeredHitInfo.hitTile == hitInfo.hitTile) {
 
             // Ray does intersect gate, but now check if the gate *blocks* the ray
-            if (_gate_hit_info.width_percent < position) {
+            if (centeredHitInfo.GetWidthPercent() < position) {
 
                 // If ray is blocked by gate, then output the proper gate texture and rect
-                double gate_texture_width_percent = position - _gate_hit_info.width_percent;
-                SDL_Rect gate_texture_rect = {static_cast<int>(gate_texture_width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
-                double center_pt_dist = curr_inter.Ray.dist_to_pt(centered_pt);
+                SDL_Texture* litGateTexture = LightTexture(gate_texture, centeredHitInfo);
+                double gateTextureWidthPercent = position - centeredHitInfo.GetWidthPercent();
+                SDL_Rect gateTextureRect = {static_cast<int>(gateTextureWidthPercent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
+                textureSlice_t gateTextureSlice(litGateTexture, gateTextureRect);
 
-                return std::pair(textureSlice_t(do_texture_lighting(gate_texture, _gate_hit_info), gate_texture_rect), center_pt_dist);
+                return std::pair(gateTextureSlice, centeredHitInfo.GetDistToHitPoint());
 
             } else {
-                // If gate doesn't block the ray, let ray pass through
+                // If gate doesn't block the ray, that means ray hits sidewall
                 return {};
             }
         } else
@@ -235,21 +187,6 @@ public:
 
     virtual bool PlayerTileHit() const override {
         return position <= 0.2 ? false : true;  // Allow player to pass through door if door is at least 80% open
-    }
-
-private:
-    // Takes intersection on the edge of a tile/block and centers it
-    Point2 center_point(const intersection& curr_inter, const wall_hit_info& curr_wall_desc) const {
-        Point2 centered_pt = curr_inter.Point;
-
-        if (curr_wall_desc.WallType == VERTICAL) {
-            centered_pt.x() += static_cast<double>(curr_inter.Ray.x_dir) / 2;
-            centered_pt.y() += static_cast<double>(curr_inter.Ray.y_dir)*(curr_inter.Ray.y_step/2);
-        } else {
-            centered_pt.y() += static_cast<double>(curr_inter.Ray.y_dir) / 2;
-            centered_pt.x() += static_cast<double>(curr_inter.Ray.x_dir)*(curr_inter.Ray.x_step/2);
-        }
-        return centered_pt;
     }
 
 public:
@@ -272,15 +209,15 @@ class SpriteTile : public Tile {
 public:
     SpriteTile(const Point2& _center, const texture_pair& _texture): texture(_texture) {
         type = TILE_TYPE_SPRITE;
-        perp_line.origin = _center;
+        perpLine.origin = _center;
     }
     
-    virtual textureSliceDistPair_o RayTileHit(const intersection& curr_inter, const tileType_t& prev_tile_type) const override {
-        auto hit = perp_line_ray_intersection(curr_inter.Ray);
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const tileType_t& prev_tile_type) const override {
+        HitInfo_o perpLineHitInfo = PerpLineHit(hitInfo.ray);
         
-        if (hit.has_value()) {
-            SDL_Rect rect = {static_cast<int>(hit.value().width_percent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
-            double distance = curr_inter.Ray.dist_to_pt(hit.value().Intersection.Point);
+        if (perpLineHitInfo.has_value()) {
+            SDL_Rect rect = {static_cast<int>(perpLineHitInfo.value().GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
+            double distance = perpLineHitInfo->GetDistToHitPoint();
             return std::pair(textureSlice_t(texture.first, rect), distance);
         } else
             return {};
@@ -290,25 +227,18 @@ public:
         return true;
     }
 
-    void CalculatePerpLine(const vec2& view_dir) {
+    void CalculatePerpLine(const Vec2& view_dir) {
         static double neg_ninety_deg = -PI/2;
-        perp_line.change_dir(view_dir.rotate(neg_ninety_deg));
+        perpLine.change_dir(view_dir.rotate(neg_ninety_deg));
     }
     
 private:
-    struct intersection_and_width_percent {
-        intersection_and_width_percent(const intersection& _intersection, const double& _width_percent): Intersection(_intersection), width_percent(_width_percent) {}
-        
-        intersection Intersection;
-        double width_percent;
-    };
-
     // Calculates intersection between incoming ray and perp_line
-    std::optional<intersection_and_width_percent> perp_line_ray_intersection(const Ray& casted_ray) const {
-        vec2 O1 = casted_ray.origin;
-        vec2 D1 = casted_ray.direction;
-        vec2 O2 = perp_line.origin;
-        vec2 D2 = perp_line.direction;
+    HitInfo_o PerpLineHit(const Ray& incomingRay) const {
+        Vec2 O1 = incomingRay.origin;
+        Vec2 D1 = incomingRay.direction;
+        Vec2 O2 = perpLine.origin;
+        Vec2 D2 = perpLine.direction;
 
         double denominator = D2.x()*D1.y()-D2.y()*D1.x();
         if (denominator == 0)
@@ -320,15 +250,18 @@ private:
             if (abs(t) > 0.5)
                 return {};
             else {
-                double width_percent = t > 0 ? 0.5 + t : 0.5 - abs(t);
-                Point2 p = O2 + t * D2;
-                intersection i = intersection(casted_ray, p);
-                return intersection_and_width_percent(i, width_percent);
+                Point2 perpLineHitPoint = O2 + t * D2;
+                double perpLineWidthPercent = t > 0 ? 0.5 + t : 0.5 - abs(t);
+
+                HitInfo perpLineHitInfo(incomingRay, perpLineHitPoint);
+                perpLineHitInfo.InsertCustomWallTypeWidthPercentPair({WALL_TYPE_SPRITE, perpLineWidthPercent});
+
+                return perpLineHitInfo;
             }
         }
     }
 
 private:
     texture_pair texture;
-    Ray perp_line;          // Vector line (ray) perpendicular to player view direction ; same for ALL sprites
+    Ray perpLine;          // Vector line (ray) perpendicular to player view direction ; same for ALL sprites
 };

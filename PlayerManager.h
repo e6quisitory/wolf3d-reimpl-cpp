@@ -24,7 +24,7 @@ public:
     }
 
     // Set spawn location and view direction of player
-    void SetPlayer(Point2 location, vec2 view_dir) {
+    void SetPlayer(Point2 location, Vec2 view_dir) {
         // If spawn is set for a perfect grid corner (i.e. x and y vals are both integers), there is some weird clipping that happens when you first move
         // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
         // avoid the bug
@@ -93,14 +93,14 @@ private:
     }
 
     void move_horizontal(HORIZONTAL_DIR _h_dir, SPEED _speed) const {
-        vec2 mov_vec = _h_dir * speed_coefficient(_speed) * GameData->Player.east;
+        Vec2 mov_vec = _h_dir * speed_coefficient(_speed) * GameData->Player.east;
         Point2 proposed_loc = GameData->Player.location + mov_vec;
 
         move_if_valid(proposed_loc);
     }
 
     void move_vertical(VERTICAL_DIR _v_dir, SPEED _speed) const {
-        vec2 mov_vec = _v_dir * speed_coefficient(_speed) * GameData->Player.viewDir;
+        Vec2 mov_vec = _v_dir * speed_coefficient(_speed) * GameData->Player.viewDir;
         Point2 proposed_loc = GameData->Player.location + mov_vec;
 
         move_if_valid(proposed_loc);
@@ -126,14 +126,14 @@ private:
     // Checks if player is facing a door and close enough to it, and if so, begins the process of opening the door
     void open_door() const {
         Ray view_dir_r = view_dir_ray();
-        intersection curr_inter(view_dir_r, view_dir_r.origin);
+        HitInfo hitInfo(view_dir_r, view_dir_r.origin);
 
-        while (GameData->Map.within_map(curr_inter.iPoint)) {
-            curr_inter = next_intersection(curr_inter);
-            if (curr_inter.dist_to_inter() > 4.0)
+        while (GameData->Map.within_map(hitInfo.hitTile)) {
+            hitInfo.GoToNextHit();
+            if (hitInfo.GetDistToHitPoint() > 4.0)
                 break;
             else {
-                Tile* curr_tile = GameData->Map.GetTile(curr_inter.Point);
+                Tile* curr_tile = GameData->Map.GetTile(hitInfo.hitPoint);
                 switch (curr_tile->type) {
                     case TILE_TYPE_EMPTY:
                     case TILE_TYPE_SPRITE:

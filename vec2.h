@@ -6,14 +6,14 @@
 #include "global.h"
 
 template<typename T>
-class Vec2 {
+class Vec2D {
 public:
-    Vec2(const T& x, const T& y): e{x,y} {}
-    Vec2(const T& a): e{a,a} {}
-    Vec2(): e{static_cast<T>(0), static_cast<T>(0)} {}
+    Vec2D(const T& x, const T& y): e{x, y} {}
+    Vec2D(const T& a): e{a, a} {}
+    Vec2D(): e{static_cast<T>(0), static_cast<T>(0)} {}
 
     template<typename U>
-    Vec2(Vec2<U> v): e{static_cast<T>(v.x()), static_cast<T>(v.y())} {}
+    Vec2D(Vec2D<U> v): e{static_cast<T>(v.x()), static_cast<T>(v.y())} {}
 
     T& x() { return e[0]; };
     T& y() { return e[1]; };
@@ -28,25 +28,25 @@ public:
         return e[index];
     }
 
-    Vec2& operator += (const Vec2& v) {
+    Vec2D<T>& operator += (const Vec2D<T>& v) {
         e[0] += v.e[0];
         e[1] += v.e[1];
         return *this;
     }
 
-    Vec2& operator -= (const Vec2& v) {
+    Vec2D<T>& operator -= (const Vec2D<T>& v) {
         e[0] -= v.e[0];
         e[1] -= v.e[1];
         return *this;
     }
 
-    Vec2& operator *= (const double& d) {
+    Vec2D<T>& operator *= (const double& d) {
         e[0] *= d;
         e[1] *= d;
         return *this;
     }
 
-    bool operator == (const Vec2& v) {
+    bool operator == (const Vec2D& v) {
         return e[0] == v.e[0] && e[1] == v.e[1] ? true : false;
     }
 
@@ -58,8 +58,8 @@ public:
         return std::sqrt(length_squared());
     }
 
-    Vec2<double> rotate(const double& radians) const {
-        return Vec2<double>(e[0]*std::cos(radians)-e[1]*std::sin(radians), e[0]*std::sin(radians)+e[1]*std::cos(radians));
+    Vec2D<double> rotate(const double& radians) const {
+        return Vec2D<double>(e[0] * std::cos(radians) - e[1] * std::sin(radians), e[0] * std::sin(radians) + e[1] * std::cos(radians));
     }
 
 public:
@@ -72,10 +72,10 @@ public:
 ================================
 */
 
-typedef Vec2<double> Point2;
-typedef Vec2<int> ipoint2;
-typedef Vec2<double> vec2;
-typedef Vec2<int> ivec2;
+typedef Vec2D<double> Point2;
+typedef Vec2D<int> iPoint2;
+typedef Vec2D<double> Vec2;
+typedef Vec2D<int> iVec2;
 
 /*
 ================================
@@ -84,7 +84,7 @@ typedef Vec2<int> ivec2;
 */
 
 template<typename T>
-inline std::ostream& operator << (std::ostream& out, const Vec2<T>& v) {
+inline std::ostream& operator << (std::ostream& out, const Vec2D<T>& v) {
     return out << "[" << v.x() << ", " << v.y() << "]";
 }
 
@@ -95,8 +95,8 @@ inline std::ostream& operator << (std::ostream& out, const Vec2<T>& v) {
 */
 
 template<typename T>
-inline Vec2<T> operator + (const Vec2<T>& v1, const Vec2<T>& v2) {
-    return Vec2<T>(v1.x() + v2.x(), v1.y() + v2.y());
+inline Vec2D<T> operator + (const Vec2D<T>& v1, const Vec2D<T>& v2) {
+    return Vec2D<T>(v1.x() + v2.x(), v1.y() + v2.y());
 }
 
 /*
@@ -106,7 +106,7 @@ inline Vec2<T> operator + (const Vec2<T>& v1, const Vec2<T>& v2) {
 */
 
 template<typename T>
-inline Vec2<T> operator - (const Vec2<T>& v1, const Vec2<T>& v2) {
+inline Vec2D<T> operator - (const Vec2D<T>& v1, const Vec2D<T>& v2) {
     return v1 + (-v2);
 }
 
@@ -117,13 +117,13 @@ inline Vec2<T> operator - (const Vec2<T>& v1, const Vec2<T>& v2) {
 */
 
 template<typename T>
-inline Vec2<T> operator * (const Vec2<T>& v, const double& t) {
-    return Vec2<T>(t*v.x(), t*v.y());
+inline Vec2D<T> operator * (const Vec2D<T>& v, const double& t) {
+    return Vec2D<T>(t * v.x(), t * v.y());
 }
 
 template<typename T>
-inline Vec2<T> operator * (const double& t, const Vec2<T>& v) {
-    return Vec2<T>(t*v.x(), t*v.y());
+inline Vec2D<T> operator * (const double& t, const Vec2D<T>& v) {
+    return Vec2D<T>(t * v.x(), t * v.y());
 }
 
 /*
@@ -133,8 +133,8 @@ inline Vec2<T> operator * (const double& t, const Vec2<T>& v) {
 */
 
 template<typename T>
-inline Vec2<T> operator - (const Vec2<T>& v) {
-    return Vec2<T>(-v.x(), -v.y());
+inline Vec2D<T> operator - (const Vec2D<T>& v) {
+    return Vec2D<T>(-v.x(), -v.y());
 }
 
 /*
@@ -144,8 +144,8 @@ inline Vec2<T> operator - (const Vec2<T>& v) {
 */
 
 template<typename T>
-inline Vec2<T> operator / (const Vec2<T>& v, const double& t) {
-    return Vec2<T>(v.x()/t, v.y()/t);
+inline Vec2D<T> operator / (const Vec2D<T>& v, const double& t) {
+    return Vec2D<T>(v.x() / t, v.y() / t);
 }
 
 /*
@@ -155,6 +155,6 @@ inline Vec2<T> operator / (const Vec2<T>& v, const double& t) {
 */
 
 template<typename T>
-Vec2<T> unit_vector(const Vec2<T>& v) {
+Vec2D<T> unit_vector(const Vec2D<T>& v) {
     return v / v.length();
 }

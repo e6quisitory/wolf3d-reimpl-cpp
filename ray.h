@@ -6,15 +6,15 @@
 
 class Ray {
 public:
-    Ray(const vec2& o, const vec2& dir): origin(o), direction(unit_vector(dir)) {
+    Ray(const Vec2& o, const Vec2& dir): origin(o), direction(unit_vector(dir)) {
         dx_const = std::sqrt(1+pow(direction.y()/direction.x(),2));  // Change in length along ray upon change in x of 1 unit
         dy_const = std::sqrt(1+pow(direction.x()/direction.y(),2));  // Change in length along ray upon change in y of 1 unit
 
         x_dir = direction.x() > 0 ? EAST : WEST;
-        x_dir_vec = ivec2(x_dir, 0);
+        x_dir_vec = iVec2(x_dir, 0);
 
         y_dir = direction.y() > 0 ? NORTH : SOUTH;
-        y_dir_vec = ivec2(0, y_dir);
+        y_dir_vec = iVec2(0, y_dir);
 
         y_step = std::sqrt(dx_const*dx_const - 1);  // Amount y changes for change of 1 unit in x
         x_step = std::sqrt(dy_const*dy_const - 1);  // Amount x changes for change of 1 unit in y
@@ -22,7 +22,7 @@ public:
 
     Ray() {};
 
-    vec2 at(double t) const {
+    Vec2 at(double t) const {
         return origin + t*direction;
     }
 
@@ -40,7 +40,7 @@ public:
         return get_ray_dist_dx(p.x()-origin.x());
     }
     
-    void change_dir(const vec2& new_dir_vec) {
+    void change_dir(const Vec2& new_dir_vec) {
         (*this) = Ray(origin, new_dir_vec);
     }
 
@@ -84,14 +84,14 @@ private:
     }
 
 public:
-    vec2 origin;
-    vec2 direction;
+    Vec2 origin;
+    Vec2 direction;
 
     X_DIR x_dir;
-    ivec2 x_dir_vec;
+    iVec2 x_dir_vec;
 
     Y_DIR y_dir;
-    ivec2 y_dir_vec;
+    iVec2 y_dir_vec;
 
     double x_step;
     double y_step;
