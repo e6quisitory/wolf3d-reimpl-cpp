@@ -33,7 +33,7 @@ public:
                 location[i] += 0.01;
 
         GameData->Player.location = location;
-        GameData->Player.viewDir = unit_vector(view_dir);
+        GameData->Player.viewDir = UnitVector(view_dir);
     }
 
     // Scans current input commands for movement, looking around, and door opening.
@@ -107,8 +107,8 @@ private:
     }
 
     void swivel(SWIVEL_DIR _swivel_dir) const {
-        GameData->Player.viewDir = GameData->Player.viewDir.rotate(swivel_amount * Inputs->mouse_abs_xrel * _swivel_dir);
-        GameData->Player.east = GameData->Player.viewDir.rotate(-PI / 2);
+        GameData->Player.viewDir = GameData->Player.viewDir.Rotate(swivel_amount * Inputs->mouse_abs_xrel * _swivel_dir);
+        GameData->Player.east = GameData->Player.viewDir.Rotate(-PI / 2);
     }
 
     // Moves player to a proposed location (passed in) only if player will not hit a non-empty block at that location

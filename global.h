@@ -4,14 +4,14 @@
  * Various constants, conventions and misc. functions used across multiple files in project.
  *
  */
-
-#pragma once
-
 /*
 ================================
  Global constants
 ================================
 */
+#pragma once
+
+
 
 const double PI = 3.1415926535897932385;
 const int TEXTURE_PITCH = 64;

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "vec2.h"
+#include "utils/Vec2D.h"
 #include "global.h"
 #include <cmath>
 
 class Ray {
 public:
-    Ray(const Vec2& o, const Vec2& dir): origin(o), direction(unit_vector(dir)) {
+    Ray(const Vec2& o, const Vec2& dir): origin(o), direction(UnitVector(dir)) {
         dx_const = std::sqrt(1+pow(direction.y()/direction.x(),2));  // Change in length along ray upon change in x of 1 unit
         dy_const = std::sqrt(1+pow(direction.x()/direction.y(),2));  // Change in length along ray upon change in y of 1 unit
 
@@ -38,10 +38,6 @@ public:
 
     double dist_to_pt(const Point2& p) const {
         return get_ray_dist_dx(p.x()-origin.x());
-    }
-    
-    void change_dir(const Vec2& new_dir_vec) {
-        (*this) = Ray(origin, new_dir_vec);
     }
 
 private:

@@ -20,9 +20,8 @@ public:
     }
 
     void Exit() const {
-        for (int i = 0; i < gameData->Map.numTiles; ++i)
-            delete gameData->Map.tiles[i];
-        delete[] gameData->Map.tiles;
+        for (Tile* tile : gameData->Map.tiles)
+            delete tile;
     }
 
     void LoadMap(const std::string& file) const {
@@ -35,23 +34,23 @@ public:
         // Grab door textures to feed into DoorTiles
         texturePairsPair_t door_textures = {gameData->Multimedia.get_wall_texture_pair(99), gameData->Multimedia.get_wall_texture_pair(101)};
 
-        // Allocate and fill map with corresponding tiles
-        gameData->Map.tiles = new Tile*[mapFile.numCells];
+        // Allocate enough memory and fill map with tiles corresponding to mapFile data
+        gameData->Map.tiles.reserve(mapFile.numCells);
         for (int tileIndex = 0; tileIndex < mapFile.numCells; ++tileIndex) {
             auto tileInfo = mapFile.tiles[tileIndex];
 
             if (tileInfo.has_value() == false)
-                gameData->Map.tiles[tileIndex] = new EmptyTile();
+                gameData->Map.tiles.push_back(new EmptyTile());
             else {
                 auto texture_info = tileInfo.value();
                 auto [TextureType, TextureID] = tileInfo.value();
                 switch (TextureType) {
                     case TEXTURE_WALLS:
                         if (TextureID == 99)
-                            gameData->Map.tiles[tileIndex] = new DoorTile(door_textures);
+                            gameData->Map.tiles.push_back(new DoorTile(door_textures));
                         else {
                             auto wallTexturePair = gameData->Multimedia.get_wall_texture_pair(TextureID);
-                            gameData->Map.tiles[tileIndex] = new WallTile(wallTexturePair);
+                            gameData->Map.tiles.push_back(new WallTile(wallTexturePair));
                         }
                         break;
                     case TEXTURE_OBJECTS:
@@ -59,7 +58,7 @@ public:
                         Point2 tileCenterPt = GetTileCenterPt(tileIndex, mapFile.columns);
                         auto spriteTexture = gameData->Multimedia.get_texture_pair(texture_info);
                         SpriteTile *s = new SpriteTile(tileCenterPt, spriteTexture);
-                        gameData->Map.tiles[tileIndex] = s;
+                        gameData->Map.tiles.push_back(s);
                         gameData->Map.sprites.push_back(s);
                         break;
                 }

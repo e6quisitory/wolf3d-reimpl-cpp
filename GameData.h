@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-#include "vec2.h"
+#include "utils/Vec2D.h"
 #include "Tile.h"
 
 /*
@@ -62,7 +62,7 @@ struct map {
         active_doors.erase(_door);
     }
 
-    Tile** tiles;  // Tiles need to be stored as pointers for polymorphism to work
+    std::vector<Tile*> tiles;  // Tiles need to be stored as pointers for polymorphism to work
     int width;
     int height;
     int numTiles;
@@ -130,7 +130,7 @@ struct multimedia {
                 return texturePair_t(t, t);
             }
         }
-        return texturePair_t(get_texture(TEXTURE_WALLS, texture_id), get_texture(TEXTURE_WALLS, texture_id + 1));
+        return {get_texture(TEXTURE_WALLS, texture_id), get_texture(TEXTURE_WALLS, texture_id + 1)};
     }
 
     SDL_Window* sdl_window;

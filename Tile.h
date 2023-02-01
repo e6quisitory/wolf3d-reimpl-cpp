@@ -17,7 +17,7 @@
 #include <optional>
 #include <SDL2/SDL.h>
 
-#include "vec2.h"
+#include "utils/Vec2D.h"
 #include "Ray.h"
 #include "dda.h"
 #include "global.h"
@@ -86,7 +86,7 @@ public:
     }
 
     virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
-        return {};
+        return std::nullopt;
     }
 
     virtual bool PlayerTileHit() const override {
@@ -179,9 +179,9 @@ public:
                 return std::pair(gateTextureSlice, centeredHitInfo.GetDistToHitPoint());
 
             } else
-                return {};
+                return std::nullopt;
         } else
-            return {};
+            return std::nullopt;
     }
 
     virtual bool PlayerTileHit() const override {
@@ -219,7 +219,7 @@ public:
             double distance = perpLineHitInfo->GetDistToHitPoint();
             return std::pair(textureSlice_t(texture.first, rect), distance);
         } else
-            return {};
+            return std::nullopt;
     }
 
     virtual bool PlayerTileHit() const override {
@@ -228,7 +228,7 @@ public:
 
     void CalculatePerpLine(const Vec2& view_dir) {
         static double neg_ninety_deg = -PI/2;
-        perpLine.change_dir(view_dir.rotate(neg_ninety_deg));
+        perpLine.direction = view_dir.Rotate(neg_ninety_deg);
     }
     
 private:
@@ -249,7 +249,7 @@ private:
             double t = numerator/denominator;
             
             if (abs(t) > 0.5)
-                return {};
+                return std::nullopt;
             else {
                 Point2 perpLineHitPoint = O2 + t * D2;
                 double perpLineWidthPercent = t > 0 ? 0.5 + t : 0.5 - abs(t);

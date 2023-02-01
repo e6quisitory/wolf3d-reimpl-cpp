@@ -10,7 +10,7 @@
 
 #include <utility>
 
-#include "vec2.h"
+#include "utils/Vec2D.h"
 #include "Ray.h"
 
 enum wallType_t {

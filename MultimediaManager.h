@@ -31,7 +31,7 @@ public:
 
     void Exit() const {
         
-        // Destroy all SDL_Textures out of memory
+        // Destroy all SDL_Textures out of memory """""ITERATE OVER MAP""""""
         for (int texture_type = 0; texture_type < NUM_TEXTURE_TYPES; ++texture_type) {
             auto texture_vec = GameData->Multimedia.textures[static_cast<TEXTURE_TYPE>(texture_type)];
             if (!texture_vec.empty()) {

@@ -111,7 +111,7 @@ private:
 
     // Returns ray corresponding to a vertical column of pixels (0 is leftmost column of pixels)
     Ray GetRay(const int& ray_num) {
-        return Ray(gameData->Player.location, gameData->Player.viewDir.rotate(castingRayAngles[ray_num].first));
+        return Ray(gameData->Player.location, gameData->Player.viewDir.Rotate(castingRayAngles[ray_num].first));
     }
 
     // Given hit distance and ray angle cosine, calculate how high the column of pixels to render should be
