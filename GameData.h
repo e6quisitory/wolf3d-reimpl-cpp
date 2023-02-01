@@ -100,37 +100,37 @@ struct texture {
 };
 
 struct multimedia {
-    SDL_Texture* get_texture(const TEXTURE_TYPE& _texture_type, const int& texture_id) {
-        return textures[_texture_type][texture_id-1];
+    SDL_Texture* get_texture(const TEXTURE_TYPE& _texture_type, const int& texture_id) const {
+        return textures.at(_texture_type)[texture_id-1];
     }
 
     void add_texture(const TEXTURE_TYPE& _texture_type, SDL_Texture* const texture) {
         textures[_texture_type].push_back(texture);
     }
 
-    texture_pair get_texture_pair(const TEXTURE_TYPE& _texture_type, const int& texture_id) {
+    texturePair_t get_texture_pair(const TEXTURE_TYPE& _texture_type, const int& texture_id) const {
         if (_texture_type == TEXTURE_WALLS)
             return get_wall_texture_pair(texture_id);
         else {
             SDL_Texture* t = get_texture(_texture_type, texture_id);
-            return texture_pair(t,t);
+            return texturePair_t(t, t);
         }
     }
 
-    texture_pair get_texture_pair(const std::pair<TEXTURE_TYPE, int>& texture_info) {
+    texturePair_t get_texture_pair(const std::pair<TEXTURE_TYPE, int>& texture_info) const {
         auto& [TextureType, TextureID] = texture_info;
         return get_texture_pair(TextureType, TextureID);
     }
 
-    texture_pair get_wall_texture_pair(int texture_id) {
+    texturePair_t get_wall_texture_pair(int texture_id) const {
         static int no_lighting_list[10] = {31,32,41,42,43,44,107,108,109,110};
         for (int i = 0; i < 10; ++i) {
             if (texture_id == no_lighting_list[i]) {
                 SDL_Texture* t = get_texture(TEXTURE_WALLS, texture_id);
-                return texture_pair(t,t);
+                return texturePair_t(t, t);
             }
         }
-        return texture_pair(get_texture(TEXTURE_WALLS, texture_id), get_texture(TEXTURE_WALLS, texture_id + 1));
+        return texturePair_t(get_texture(TEXTURE_WALLS, texture_id), get_texture(TEXTURE_WALLS, texture_id + 1));
     }
 
     SDL_Window* sdl_window;

@@ -17,7 +17,7 @@ enum wallType_t {
     WALL_TYPE_HORIZONTAL,
     WALL_TYPE_VERTICAL,
     WALL_TYPE_CORNER,
-    WALL_TYPE_SPRITE
+    WALL_TYPE_SPRITE_PERPLINE
 };
 
 class HitInfo {
@@ -53,6 +53,12 @@ public:
         }
 
         wallTypeWidthPercentPair_o.reset();
+    }
+
+    HitInfo GetNextHit() {
+        HitInfo temp = (*this);
+        temp.GoToNextHit();
+        return temp;
     }
 
     HitInfo GetNextCenterHit() {

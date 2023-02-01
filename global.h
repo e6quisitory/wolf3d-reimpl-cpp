@@ -44,9 +44,6 @@ enum SWIVEL_DIR {
     CLOCKWISE = -1
 };
 
-// A pair of SDL_Texture pointers; the first texture is the lit texture, the second is the unlit version
-typedef std::pair<SDL_Texture*, SDL_Texture*> texture_pair;
-
 /*
 ================================
  Miscellaneous functions

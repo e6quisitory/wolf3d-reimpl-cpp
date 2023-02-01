@@ -15,15 +15,8 @@
 
 class MapManager {
 public:
-
     void Init(GameData* _game_data) {
         gameData = _game_data;
-        
-        gate_texture = gameData->Multimedia.get_wall_texture_pair(99);
-        gate_sidewall_texture = gameData->Multimedia.get_wall_texture_pair(101);
-        guard = texture_pair(gameData->Multimedia.get_texture(TEXTURE_GUARD, 1), gameData->Multimedia.get_texture(TEXTURE_GUARD, 1));
-        tables = texture_pair(gameData->Multimedia.get_texture(TEXTURE_OBJECTS, 5), gameData->Multimedia.get_texture(TEXTURE_OBJECTS, 5));
-        light = texture_pair(gameData->Multimedia.get_texture(TEXTURE_OBJECTS, 17), gameData->Multimedia.get_texture(TEXTURE_OBJECTS, 17));
     }
 
     void Exit() const {
@@ -39,6 +32,9 @@ public:
         gameData->Map.height = mapFile.rows;
         gameData->Map.numTiles = mapFile.numCells;
 
+        // Grab door textures to feed into DoorTiles
+        texturePairsPair_t door_textures = {gameData->Multimedia.get_wall_texture_pair(99), gameData->Multimedia.get_wall_texture_pair(101)};
+
         // Allocate and fill map with corresponding tiles
         gameData->Map.tiles = new Tile*[mapFile.numCells];
         for (int tileIndex = 0; tileIndex < mapFile.numCells; ++tileIndex) {
@@ -52,15 +48,17 @@ public:
                 switch (TextureType) {
                     case TEXTURE_WALLS:
                         if (TextureID == 99)
-                            gameData->Map.tiles[tileIndex] = new DoorTile(gate_texture, gate_sidewall_texture);
-                        else
-                            gameData->Map.tiles[tileIndex] = new WallTile(
-                                    gameData->Multimedia.get_texture_pair(texture_info), gate_sidewall_texture);
+                            gameData->Map.tiles[tileIndex] = new DoorTile(door_textures);
+                        else {
+                            auto wallTexturePair = gameData->Multimedia.get_wall_texture_pair(TextureID);
+                            gameData->Map.tiles[tileIndex] = new WallTile(wallTexturePair);
+                        }
                         break;
                     case TEXTURE_OBJECTS:
                     case TEXTURE_GUARD:
                         Point2 tileCenterPt = GetTileCenterPt(tileIndex, mapFile.columns);
-                        SpriteTile *s = new SpriteTile(tileCenterPt, gameData->Multimedia.get_texture_pair(texture_info));
+                        auto spriteTexture = gameData->Multimedia.get_texture_pair(texture_info);
+                        SpriteTile *s = new SpriteTile(tileCenterPt, spriteTexture);
                         gameData->Map.tiles[tileIndex] = s;
                         gameData->Map.sprites.push_back(s);
                         break;
@@ -83,10 +81,4 @@ private:
     
 private:
     GameData* gameData;
-
-    texture_pair guard;
-    texture_pair tables;
-    texture_pair light;
-    texture_pair gate_texture;
-    texture_pair gate_sidewall_texture;
 };

@@ -25,6 +25,8 @@ private:
     std::vector<textureSliceScreenRectPair_t> spriteBackups;
     const double fov = 72.0;
 
+    textureOverride_o gateSidewallTexture_o;
+
 public:
     void Init(GameData* _game_data) {
         gameData = _game_data;
@@ -36,6 +38,8 @@ public:
             // One sprite encountered per casted ray is a good initial assumption to allocate memory according to.
             // However, it's entirely possible to have a single casted ray encounter more than one sprite, in which case
             // sprite_backups vector may need to be extended.
+
+        gateSidewallTexture_o = gameData->Multimedia.get_wall_texture_pair(101);
     }
 
     // Renders a single frame and outputs it to the window/screen
@@ -65,12 +69,15 @@ private:
             HitInfo hitInfo(currRay, currRay.origin);
 
             while (gameData->Map.within_map(hitInfo.hitTile)) {
-                tileType_t prevTileType = gameData->Map.GetTile(hitInfo.hitTile)->type;
-                hitInfo.GoToNextHit();
-                auto tileHit = gameData->Map.GetTile(hitInfo.hitTile)->RayTileHit(hitInfo, prevTileType);
+                Tile* prevTile = gameData->Map.GetTile(hitInfo.hitTile);
+                    hitInfo.GoToNextHit();
+                Tile* nextTile = gameData->Map.GetTile(hitInfo.hitTile);
 
-                if (tileHit.has_value()) {
-                    auto [textureSlice, hitDistance] = tileHit.value();
+                auto textureOverride = prevTile->type == TILE_TYPE_DOOR ? gateSidewallTexture_o : std::nullopt;
+                auto rayTileHitResult = nextTile->RayTileHit(hitInfo, textureOverride);
+
+                if (rayTileHitResult.has_value()) {
+                    auto [textureSlice, hitDistance] = rayTileHitResult.value();
 
                     SDL_Rect textureRect = textureSlice.textureRect;
                     int renderHeight = GetRenderHeight(hitDistance, castingRayAngles[i].second);
