@@ -18,9 +18,9 @@
 #include <SDL2/SDL.h>
 
 #include "utils/Vec2D.h"
-#include "Ray.h"
+#include "utils/Ray.h"
 #include "dda.h"
-#include "global.h"
+#include "utils/Conventions.h"
 
 /*
 =========================================================

@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "Conventions.h"
+
 template<typename T>
 class Vec2D {
 public:
@@ -15,6 +17,9 @@ public:
 
     template<typename U>
     Vec2D(const Vec2D<U>& v);
+
+    Vec2D<int>(const xDir_t& xDir);
+    Vec2D<int>(const yDir_t& yDir);
 
     T& x();
     T& y();
@@ -68,6 +73,14 @@ template<typename T>
     template<typename U>
         Vec2D<T>::Vec2D(const Vec2D<U>& v):
             e{static_cast<T>(v.x()), static_cast<T>(v.y())} {}
+
+template<typename T>
+    Vec2D<T>::Vec2D(const xDir_t& xDir):
+        e{static_cast<int>(xDir), 0} {}
+
+template<typename T>
+Vec2D<T>::Vec2D(const yDir_t& yDir):
+        e{0, static_cast<int>(yDir)} {}
 
 /*
 ================================

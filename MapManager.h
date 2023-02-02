@@ -11,7 +11,7 @@
 
 #include "GameData.h"
 #include "MapFile.h"
-#include "global.h"
+#include "utils/Conventions.h"
 
 class MapManager {
 public:

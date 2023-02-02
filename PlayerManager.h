@@ -10,7 +10,9 @@
 
 #include "GameData.h"
 #include "Inputs.h"
-#include "global.h"
+#include "utils/Conventions.h"
+#include "utils/MiscMath.h"
+
 
 class PlayerManager {
 public:
@@ -29,7 +31,7 @@ public:
         // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
         // avoid the bug
         for (int i = 0; i < 2; ++i)
-            if (is_integer(location[i]))
+            if (IsInteger(location[i]))
                 location[i] += 0.01;
 
         GameData->Player.location = location;
@@ -40,38 +42,38 @@ public:
     // Then, changes player attributes (and/or opens door) as necessary.
     void Update() const {
         switch(Inputs->curr_commands[LOOKING]) {
-            case LOOK_RIGHT: swivel(CLOCKWISE); break;
-            case LOOK_LEFT: swivel(COUNTER_CLOCKWISE); break;
+            case LOOK_RIGHT: swivel(swivelDir_t::CLOCKWISE); break;
+            case LOOK_LEFT: swivel(swivelDir_t::COUNTER_CLOCKWISE); break;
         }
 
         switch(Inputs->curr_commands[MOVEMENT]) {
             case MOVE_EAST:
-                move_horizontal(EAST, FULL);
+                move_horizontal(xDir_t::EAST, speed_t::FULL);
                 break;
             case MOVE_WEST:
-                move_horizontal(WEST, FULL);
+                move_horizontal(xDir_t::WEST, speed_t::FULL);
                 break;
             case MOVE_NORTH:
-                move_vertical(NORTH, FULL);
+                move_vertical(yDir_t::NORTH, speed_t::FULL);
                 break;
             case MOVE_SOUTH:
-                move_vertical(SOUTH, FULL);
+                move_vertical(yDir_t::SOUTH, speed_t::FULL);
                 break;
             case MOVE_NORTHEAST:
-                move_vertical(NORTH, HALF);
-                move_horizontal(EAST, HALF);
+                move_vertical(yDir_t::NORTH, speed_t::HALF);
+                move_horizontal(xDir_t::EAST, speed_t::HALF);
                 break;
             case MOVE_NORTHWEST:
-                move_vertical(NORTH, HALF);
-                move_horizontal(WEST, HALF);
+                move_vertical(yDir_t::NORTH, speed_t::HALF);
+                move_horizontal(xDir_t::WEST, speed_t::HALF);
                 break;
             case MOVE_SOUTHEAST:
-                move_vertical(SOUTH, HALF);
-                move_horizontal(EAST, HALF);
+                move_vertical(yDir_t::SOUTH, speed_t::HALF);
+                move_horizontal(xDir_t::EAST, speed_t::HALF);
                 break;
             case MOVE_SOUTHWEST:
-                move_vertical(SOUTH, HALF);
-                move_horizontal(WEST, HALF);
+                move_vertical(yDir_t::SOUTH, speed_t::HALF);
+                move_horizontal(xDir_t::WEST, speed_t::HALF);
                 break;
         }
 
@@ -80,34 +82,34 @@ public:
     }
 
 private:
-    enum SPEED {
+    enum class speed_t {
         FULL,
         HALF
     };
 
-    double speed_coefficient(SPEED _speed) const {
-        switch (_speed) {
-            case FULL: return movement_coeff;
-            case HALF: return 0.70711*movement_coeff;  // Reduce speed in each direction if going diagonally (45-45 triangle)
+    double speed_coefficient(speed_t speed) const {
+        switch (speed) {
+            case speed_t::FULL: return movement_coeff;
+            case speed_t::HALF: return 0.70711*movement_coeff;  // Reduce speed in each direction if going diagonally (45-45 triangle)
         }
     }
 
-    void move_horizontal(HORIZONTAL_DIR _h_dir, SPEED _speed) const {
-        Vec2 mov_vec = _h_dir * speed_coefficient(_speed) * GameData->Player.east;
+    void move_horizontal(xDir_t xDir, speed_t speed) const {
+        Vec2 mov_vec = static_cast<int>(xDir) * speed_coefficient(speed) * GameData->Player.east;
         Point2 proposed_loc = GameData->Player.location + mov_vec;
 
         move_if_valid(proposed_loc);
     }
 
-    void move_vertical(VERTICAL_DIR _v_dir, SPEED _speed) const {
-        Vec2 mov_vec = _v_dir * speed_coefficient(_speed) * GameData->Player.viewDir;
+    void move_vertical(yDir_t yDir, speed_t speed) const {
+        Vec2 mov_vec = static_cast<int>(yDir) * speed_coefficient(speed) * GameData->Player.viewDir;
         Point2 proposed_loc = GameData->Player.location + mov_vec;
 
         move_if_valid(proposed_loc);
     }
 
-    void swivel(SWIVEL_DIR _swivel_dir) const {
-        GameData->Player.viewDir = GameData->Player.viewDir.Rotate(swivel_amount * Inputs->mouse_abs_xrel * _swivel_dir);
+    void swivel(swivelDir_t swivelDir) const {
+        GameData->Player.viewDir = GameData->Player.viewDir.Rotate(swivel_amount * Inputs->mouse_abs_xrel * static_cast<int>(swivelDir));
         GameData->Player.east = GameData->Player.viewDir.Rotate(-PI / 2);
     }
 

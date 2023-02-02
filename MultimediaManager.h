@@ -11,7 +11,7 @@
 #include <cassert>
 #include <SDL2/SDL.h>
 
-#include "global.h"
+#include "utils/Conventions.h"
 #include "Inputs.h"
 #include "GameData.h"
 

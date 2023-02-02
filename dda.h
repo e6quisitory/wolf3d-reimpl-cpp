@@ -11,7 +11,8 @@
 #include <utility>
 
 #include "utils/Vec2D.h"
-#include "Ray.h"
+#include "utils/MiscMath.h"
+#include "utils/Ray.h"
 
 enum wallType_t {
     WALL_TYPE_HORIZONTAL,
@@ -35,21 +36,21 @@ public:
     HitInfo(const Ray& _ray, const Point2& _point2): ray(_ray), hitPoint(_point2), hitTile(_point2) {}
 
     void GoToNextHit() {
-        Point2 nextX = ray.next_x_intersection(hitPoint);
-        Point2 nextY = ray.next_y_intersection(hitPoint);
+        Point2 nextX = ray.NextXIntersection(hitPoint);
+        Point2 nextY = ray.NextYIntersection(hitPoint);
 
-        double distNextX = ray.dist_to_pt(nextX);
-        double distNextY = ray.dist_to_pt(nextY);
+        double distNextX = ray.DistToPoint(nextX);
+        double distNextY = ray.DistToPoint(nextY);
 
         if (distNextX < distNextY) {
             hitPoint = nextX;
-            hitTile += ray.x_dir_vec;
+            hitTile += ray.xDirVec;
         } else if (distNextY < distNextX) {
             hitPoint = nextY;
-            hitTile += ray.y_dir_vec;
+            hitTile += ray.yDirVec;
         } else {
             hitPoint = ray.direction;
-            hitTile += (ray.x_dir_vec + ray.y_dir_vec);
+            hitTile += (ray.xDirVec + ray.yDirVec);
         }
 
         wallTypeWidthPercentPair_o.reset();
@@ -64,17 +65,17 @@ public:
     HitInfo GetNextCenterHit() {
         Vec2 vecToCenter;
         if (GetWallType() == WALL_TYPE_VERTICAL) {
-            vecToCenter.x() = static_cast<double>(ray.x_dir)/2;
-            vecToCenter.y() = static_cast<double>(ray.y_dir)*(ray.y_step/2);
+            vecToCenter.x() = static_cast<double>(ray.xDir) / 2;
+            vecToCenter.y() = static_cast<double>(ray.yDir) * (ray.yStep / 2);
         } else {
-            vecToCenter.x() = static_cast<double>(ray.x_dir)*(ray.x_step/2);
-            vecToCenter.y() = static_cast<double>(ray.y_dir)/2;
+            vecToCenter.x() = static_cast<double>(ray.xDir) * (ray.xStep / 2);
+            vecToCenter.y() = static_cast<double>(ray.yDir) / 2;
         }
         return HitInfo(ray, hitPoint + vecToCenter);
     }
 
     double GetDistToHitPoint() const {
-        return ray.dist_to_pt(hitPoint);
+        return ray.DistToPoint(hitPoint);
     }
 
     wallType_t GetWallType() {
@@ -95,8 +96,8 @@ public:
 
 private:
     void CalculateWallTypeWidthPercentPair() {
-        bool x_is_int = is_integer(hitPoint.x());
-        bool y_is_int = is_integer(hitPoint.y());
+        bool x_is_int = IsInteger(hitPoint.x());
+        bool y_is_int = IsInteger(hitPoint.y());
         bool x_is_middle = (hitPoint.x() - static_cast<int>(hitPoint.x())) == 0.5;
         bool y_is_middle = (hitPoint.y() - static_cast<int>(hitPoint.y())) == 0.5;
 

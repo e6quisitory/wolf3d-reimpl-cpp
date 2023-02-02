@@ -11,10 +11,10 @@
 #include <vector>
 #include <utility>
 
-#include "Ray.h"
+#include "utils/Ray.h"
 #include "GameData.h"
 #include "dda.h"
-#include "global.h"
+#include "utils/Conventions.h"
 
 class Renderer {
 private:
@@ -121,7 +121,7 @@ private:
     }
 
     void CalculateCastingRayAngles() {
-        double proj_plane_width = 2*std::tan(degrees_to_radians(fov/2));
+        double proj_plane_width = 2*std::tan(DegreesToRadians(fov / 2));
         double segment_len = proj_plane_width / gameData->Multimedia.screen_width;
 
         castingRayAngles.reserve(gameData->Multimedia.screen_width);
