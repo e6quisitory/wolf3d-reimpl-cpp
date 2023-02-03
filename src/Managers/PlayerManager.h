@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "GameData.h"
-#include "Inputs.h"
-#include "utils/Conventions.h"
-#include "utils/MiscMath.h"
+#include "../GameData.h"
+#include "../Inputs.h"
+#include "../Utilities/Conventions.h"
+#include "../Utilities/MiscMath.h"
 
 
 class PlayerManager {
@@ -21,8 +21,8 @@ public:
         GameData = _game_data;
 
         // Set movement and swivel speeds based on display refresh rate (assumed that fps = refresh rate)
-        movement_coeff = 3.645/GameData->Multimedia.refresh_rate;
-        swivel_amount = 0.075/GameData->Multimedia.refresh_rate;
+        movement_coeff = 3.645/GameData->Multimedia.refreshRate;
+        swivel_amount = 0.075/GameData->Multimedia.refreshRate;
     }
 
     // Set spawn location and view direction of player
@@ -143,9 +143,9 @@ private:
                     case TILE_TYPE_DOOR:
                     {
                         DoorTile* curr_door = static_cast<DoorTile*>(curr_tile);
-                        switch (curr_door->status) {
-                            case DOOR_STATUS_CLOSED:  GameData->Map.add_active_door(curr_door);
-                            case DOOR_STATUS_CLOSING: curr_door->status = DOOR_STATUS_OPENING;
+                        switch (curr_door->doorStatus) {
+                            case doorStatus_t::CLOSED:  GameData->Map.add_active_door(curr_door);
+                            case doorStatus_t::CLOSING: curr_door->doorStatus = doorStatus_t::OPENING;
                         }
                     }
                     case TILE_TYPE_WALL:

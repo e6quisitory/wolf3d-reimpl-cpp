@@ -8,7 +8,9 @@
 ================================
 */
 
-Ray::Ray(const Vec2& _origin, const Vec2& _direction): origin(_origin), direction(UnitVector(_direction)) {
+Ray::Ray(const Vec2& _origin, const Vec2& _direction):
+    origin(_origin), direction(UnitVector(_direction)) {
+
     dxConst = std::sqrt(1 + pow(direction.y() / direction.x(), 2));
     dyConst = std::sqrt(1 + pow(direction.x() / direction.y(), 2));
 

@@ -17,10 +17,10 @@
 #include <optional>
 #include <SDL2/SDL.h>
 
-#include "utils/Vec2D.h"
-#include "utils/Ray.h"
-#include "dda.h"
-#include "utils/Conventions.h"
+#include "Utilities/Vec2D.h"
+#include "Utilities/Ray.h"
+#include "Utilities/DDA.h"
+#include "Utilities/Conventions.h"
 
 /*
 =========================================================
@@ -66,7 +66,7 @@ public:
 
 protected:
     SDL_Texture* LightTexture(const texturePair_t& _texture_pair, HitInfo& hitInfo) const {
-        if (hitInfo.GetWallType() == WALL_TYPE_VERTICAL)
+        if (hitInfo.GetWallType() == wallType_t::VERTICAL)
             return _texture_pair.first;
         else
             return _texture_pair.second;
@@ -128,35 +128,35 @@ private:
 ================================
 */
 
-enum doorStatus_t {
-    DOOR_STATUS_CLOSED,
-    DOOR_STATUS_OPENING,
-    DOOR_STATUS_OPEN,
-    DOOR_STATUS_CLOSING
+enum class doorStatus_t {
+    CLOSED,
+    OPENING,
+    OPEN,
+    CLOSING
 };
 
-enum doorPosition_t {
-    DOOR_POSITION_OPEN = 0,
-    DOOR_POSITION_CLOSED = 1
+enum class doorPosition_t {
+    OPEN   = 0,
+    CLOSED = 1
 };
 
-enum timerValue_t {
-    TIMER_VALUE_NONE = 0,
-    TIMER_VALUE_FULL = 1
+enum class doorTimerVal_t {
+    NO_TIME_LEFT   = 0,
+    FULL_TIME_LEFT = 1
 };
 
 class DoorTile : public Tile {
 public:
     DoorTile(const texturePairsPair_t& doorTextures) {
-        gate_texture = doorTextures.first;
+        gate_texture          = doorTextures.first;
         gate_sidewall_texture = doorTextures.second;
 
         type = TILE_TYPE_DOOR;
 
         // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
-        status = DOOR_STATUS_CLOSED;
-        position = DOOR_POSITION_CLOSED;
-        timer = TIMER_VALUE_FULL;
+        doorStatus   = doorStatus_t::CLOSED;
+        doorPosition = static_cast<double>(doorPosition_t::CLOSED);
+        doorTimerVal = static_cast<double>(doorTimerVal_t::FULL_TIME_LEFT);
     }
 
     virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
@@ -168,11 +168,11 @@ public:
         if (centeredHitInfo.hitTile == hitInfo.hitTile) {
 
             // Ray does intersect gate, but now check if the gate *blocks* the ray
-            if (centeredHitInfo.GetWidthPercent() < position) {
+            if (centeredHitInfo.GetWidthPercent() < doorPosition) {
 
                 // If ray is blocked by gate, then output the proper gate texture and rect
                 SDL_Texture* litGateTexture = LightTexture(gate_texture, centeredHitInfo);
-                double gateTextureWidthPercent = position - centeredHitInfo.GetWidthPercent();
+                double gateTextureWidthPercent = doorPosition - centeredHitInfo.GetWidthPercent();
                 SDL_Rect gateTextureRect = {static_cast<int>(gateTextureWidthPercent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
                 textureSlice_t gateTextureSlice(litGateTexture, gateTextureRect);
 
@@ -185,13 +185,13 @@ public:
     }
 
     virtual bool PlayerTileHit() const override {
-        return position <= 0.2 ? false : true;  // Allow player to pass through door if door is at least 80% open
+        return doorPosition <= 0.2 ? false : true;  // Allow player to pass through door if door is at least 80% open
     }
 
 public:
-    doorStatus_t status;
-    double position;
-    double timer;
+    doorStatus_t doorStatus;
+    double doorPosition;
+    double doorTimerVal;
 
 private:
     texturePair_t gate_texture;
@@ -255,7 +255,7 @@ private:
                 double perpLineWidthPercent = t > 0 ? 0.5 + t : 0.5 - abs(t);
 
                 HitInfo perpLineHitInfo(incomingRay, perpLineHitPoint);
-                perpLineHitInfo.InsertCustomWallTypeWidthPercentPair({WALL_TYPE_SPRITE_PERPLINE, perpLineWidthPercent});
+                perpLineHitInfo.InsertCustomWallTypeWidthPercentPair({wallType_t::SPRITE_PERPLINE, perpLineWidthPercent});
 
                 return perpLineHitInfo;
             }

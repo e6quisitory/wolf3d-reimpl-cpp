@@ -12,8 +12,9 @@
 
 #include <vector>
 #include <map>
+#include <optional>
 
-#include "utils/Vec2D.h"
+#include "Utilities/Vec2D.h"
 #include "Tile.h"
 
 /*
@@ -55,11 +56,18 @@ struct map {
     }
 
     void add_active_door(DoorTile* const _door) {
-        active_doors.insert({_door, _door});
+        activeDoors.insert({_door, _door});
     }
 
-    void remove_active_door(DoorTile* const _door) {
-        active_doors.erase(_door);
+    void RemoveActiveDoor(DoorTile* const _door) {
+        activeDoors.erase(_door);
+    }
+
+    std::optional<DoorTile*> GetLoneActiveDoor() const {
+        if (activeDoors.size() == 1)
+            return activeDoors.begin()->first;
+        else
+            return std::nullopt;
     }
 
     std::vector<Tile*> tiles;  // Tiles need to be stored as pointers for polymorphism to work
@@ -68,7 +76,7 @@ struct map {
     int numTiles;
 
     /* Doors */
-    std::map<DoorTile*, DoorTile*> active_doors;
+    std::map<DoorTile*, DoorTile*> activeDoors;  // Using map for this instead of vector for dynamic active door removal
     bool anyDoorsAwaitingRendering;
     
     /* Sprites */
@@ -81,35 +89,35 @@ struct map {
 ================================
 */
 
-enum TEXTURE_TYPE {
-    TEXTURE_WALLS,
-    TEXTURE_GUARD,
-    TEXTURE_OBJECTS,
-    TEXTURE_WEAPONS,
+enum class textureType_t {
+    WALLS,
+    GUARD,
+    OBJECTS,
+    WEAPONS,
 };
 
 #define NUM_TEXTURE_TYPES 4
 
 struct texture {
-    texture(SDL_Texture* const texture, const TEXTURE_TYPE& texture_type, const int& texture_id):
+    texture(SDL_Texture* const texture, const textureType_t& texture_type, const int& texture_id):
         Texture(texture), TextureType(texture_type), TextureID(texture_id) {}
 
     SDL_Texture* Texture;
-    TEXTURE_TYPE TextureType;
+    textureType_t TextureType;
     int TextureID;
 };
 
 struct multimedia {
-    SDL_Texture* get_texture(const TEXTURE_TYPE& _texture_type, const int& texture_id) const {
+    SDL_Texture* get_texture(const textureType_t& _texture_type, const int& texture_id) const {
         return textures.at(_texture_type)[texture_id-1];
     }
 
-    void add_texture(const TEXTURE_TYPE& _texture_type, SDL_Texture* const texture) {
+    void add_texture(const textureType_t& _texture_type, SDL_Texture* const texture) {
         textures[_texture_type].push_back(texture);
     }
 
-    texturePair_t get_texture_pair(const TEXTURE_TYPE& _texture_type, const int& texture_id) const {
-        if (_texture_type == TEXTURE_WALLS)
+    texturePair_t get_texture_pair(const textureType_t& _texture_type, const int& texture_id) const {
+        if (_texture_type == textureType_t::WALLS)
             return get_wall_texture_pair(texture_id);
         else {
             SDL_Texture* t = get_texture(_texture_type, texture_id);
@@ -117,7 +125,7 @@ struct multimedia {
         }
     }
 
-    texturePair_t get_texture_pair(const std::pair<TEXTURE_TYPE, int>& texture_info) const {
+    texturePair_t get_texture_pair(const std::pair<textureType_t, int>& texture_info) const {
         auto& [TextureType, TextureID] = texture_info;
         return get_texture_pair(TextureType, TextureID);
     }
@@ -126,11 +134,11 @@ struct multimedia {
         static int no_lighting_list[10] = {31,32,41,42,43,44,107,108,109,110};
         for (int i = 0; i < 10; ++i) {
             if (texture_id == no_lighting_list[i]) {
-                SDL_Texture* t = get_texture(TEXTURE_WALLS, texture_id);
+                SDL_Texture* t = get_texture(textureType_t::WALLS, texture_id);
                 return texturePair_t(t, t);
             }
         }
-        return {get_texture(TEXTURE_WALLS, texture_id), get_texture(TEXTURE_WALLS, texture_id + 1)};
+        return {get_texture(textureType_t::WALLS, texture_id), get_texture(textureType_t::WALLS, texture_id + 1)};
     }
 
     SDL_Window* sdl_window;
@@ -138,9 +146,9 @@ struct multimedia {
     
     int screen_width;
     int screen_height;
-    int refresh_rate;
+    int refreshRate;
 
-    std::map<TEXTURE_TYPE, std::vector<SDL_Texture*>> textures;
+    std::map<textureType_t, std::vector<SDL_Texture*>> textures;
 };
 
 /*

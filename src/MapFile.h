@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <utility>
 #include <optional>
 
 class MapFile {
@@ -28,23 +29,25 @@ private:
         bool num_in_progress = false;
         std::string curr_cell_value;
 
+        int tileIndex = 0;
         while (map_file.is_open()) {
             char c = map_file.get();
+
             bool comma = (c == ',');
             bool newline = (c == '\r') || (c == '\n');
             bool eof = c == EOF;
 
             if (comma) {
-                push_val(num_in_progress, curr_cell_value);
+                push_val(num_in_progress, tileIndex, curr_cell_value);
             } else if (newline) {
                 if (num_in_progress == true) {
                     ++rows;
-                    push_val(num_in_progress, curr_cell_value);
+                    push_val(num_in_progress, tileIndex, curr_cell_value);
                 } else
                     continue;
             } else if (eof) {
                 ++rows;
-                push_val(num_in_progress, curr_cell_value);
+                push_val(num_in_progress, tileIndex, curr_cell_value);
                 map_file.close();
             } else if (num_in_progress == true) {
                 curr_cell_value.push_back(c);
@@ -57,15 +60,16 @@ private:
         numCells = rows * columns;
     };
 
-    void push_val(bool& num_in_progress, std::string& cell_value) {
+    void push_val(bool& num_in_progress, int& index, std::string& cell_value) {
         num_in_progress = false;
-        tiles.push_back(parse_tile_code(cell_value));
+        tiles.push_back({index, parse_tile_code(cell_value)});
         cell_value.clear();
+        ++index;
     }
 
-    typedef std::pair<TEXTURE_TYPE, int> tile_info;
+    typedef std::pair<textureType_t, int> tileTextureInfo_t;
 
-    std::optional<tile_info> parse_tile_code(const std::string& texture_code) const {
+    std::optional<tileTextureInfo_t> parse_tile_code(const std::string& texture_code) const {
         if (texture_code == "")
             return {};  // empty tile
         else {
@@ -73,18 +77,18 @@ private:
             int id = std::stoi(texture_code.substr(texture_code.find("-") + 1));
 
             if (type_code == "W")
-                return std::pair(TEXTURE_WALLS, id);
+                return std::pair(textureType_t::WALLS, id);
             else if (type_code == "O")
-                return std::pair(TEXTURE_OBJECTS, id);
+                return std::pair(textureType_t::OBJECTS, id);
             else if (type_code == "G1")
-                return std::pair(TEXTURE_GUARD, id);
+                return std::pair(textureType_t::GUARD, id);
             else
                 return {};  // invalid format ; default to empty tile
         }
     }
 
 public:
-    std::vector<std::optional<tile_info>> tiles;
+    std::vector<std::pair<int, std::optional<tileTextureInfo_t>>> tiles;
     int columns;
     int rows;
     int numCells;

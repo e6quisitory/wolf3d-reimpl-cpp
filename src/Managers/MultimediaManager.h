@@ -11,9 +11,9 @@
 #include <cassert>
 #include <SDL2/SDL.h>
 
-#include "utils/Conventions.h"
-#include "Inputs.h"
-#include "GameData.h"
+#include "../Utilities/Conventions.h"
+#include "../Inputs.h"
+#include "../GameData.h"
 
 class MultimediaManager {
 public:
@@ -26,14 +26,14 @@ public:
         // Extract refresh rate of display
         SDL_DisplayMode dm;
         SDL_GetCurrentDisplayMode(0, &dm);
-        GameData->Multimedia.refresh_rate = dm.refresh_rate;
+        GameData->Multimedia.refreshRate = dm.refresh_rate;
     }
 
     void Exit() const {
         
         // Destroy all SDL_Textures out of memory """""ITERATE OVER MAP""""""
         for (int texture_type = 0; texture_type < NUM_TEXTURE_TYPES; ++texture_type) {
-            auto texture_vec = GameData->Multimedia.textures[static_cast<TEXTURE_TYPE>(texture_type)];
+            auto texture_vec = GameData->Multimedia.textures[static_cast<textureType_t>(texture_type)];
             if (!texture_vec.empty()) {
                 for (SDL_Texture* texture : texture_vec)
                     SDL_DestroyTexture(texture);
@@ -68,12 +68,12 @@ public:
     }
 
     // Loads wall textures (pair of lit + unlit texture) into GameData->Multimedia
-    void LoadTextures(const TEXTURE_TYPE& _texture_type, const char* const filename, const int& texture_sheet_pitch, const int& num_textures) const {
+    void LoadTextures(const textureType_t& _texture_type, const char* const filename, const int& texture_sheet_pitch, const int& num_textures) const {
         // First load texture sheet BMP file into an SDL_Surface
         SDL_Surface* texture_sheet = bmp_to_surface(filename);
                 
         // Must take out transparency pixels from sprite sheets
-        if (_texture_type != TEXTURE_WALLS)
+        if (_texture_type != textureType_t::WALLS)
             SDL_SetColorKey(texture_sheet, SDL_TRUE, 0xFF980088);
         
         // Then extract all textures from texture sheet and store in array

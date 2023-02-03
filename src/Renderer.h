@@ -11,10 +11,10 @@
 #include <vector>
 #include <utility>
 
-#include "utils/Ray.h"
+#include "Utilities/Ray.h"
 #include "GameData.h"
-#include "dda.h"
-#include "utils/Conventions.h"
+#include "Utilities/DDA.h"
+#include "Utilities/Conventions.h"
 
 class Renderer {
 private:
