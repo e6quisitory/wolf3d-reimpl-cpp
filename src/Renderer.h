@@ -34,7 +34,7 @@ public:
         // Pre-calculate the ray angles and their cosines, as they do not change
         CalculateCastingRayAngles();
 
-        spriteBackups.reserve(gameData->Multimedia.screen_width);
+        spriteBackups.reserve(gameData->Multimedia.screenWidth);
             // One sprite encountered per casted ray is a good initial assumption to allocate memory according to.
             // However, it's entirely possible to have a single casted ray encounter more than one sprite, in which case
             // sprite_backups vector may need to be extended.
@@ -53,8 +53,8 @@ public:
 
 private:
     void DrawCeilingFloor() {
-        SDL_Rect ceiling = {0, 0, gameData->Multimedia.screen_width, gameData->Multimedia.screen_height / 2};
-        SDL_Rect floor = {0, gameData->Multimedia.screen_height / 2, gameData->Multimedia.screen_width, gameData->Multimedia.screen_height / 2};
+        SDL_Rect ceiling = {0, 0, gameData->Multimedia.screenWidth, gameData->Multimedia.screenHeight / 2};
+        SDL_Rect floor = {0, gameData->Multimedia.screenHeight / 2, gameData->Multimedia.screenWidth, gameData->Multimedia.screenHeight / 2};
 
         SDL_SetRenderDrawColor(gameData->Multimedia.sdlRenderer, 50, 50, 50, 0 );
         SDL_RenderFillRect(gameData->Multimedia.sdlRenderer, &ceiling );
@@ -64,7 +64,7 @@ private:
     }
 
     void DrawWalls() {
-        for (int i = 0; i < gameData->Multimedia.screen_width; ++i) {
+        for (int i = 0; i < gameData->Multimedia.screenWidth; ++i) {
             Ray currRay = GetRay(i);
             HitInfo hitInfo(currRay, currRay.origin);
 
@@ -81,7 +81,7 @@ private:
 
                     SDL_Rect textureRect = textureSlice.textureRect;
                     int renderHeight = GetRenderHeight(hitDistance, castingRayAngles[i].second);
-                    SDL_Rect screenRect = {i, gameData->Multimedia.screen_height / 2 - renderHeight / 2, 1, renderHeight};
+                    SDL_Rect screenRect = {i, gameData->Multimedia.screenHeight / 2 - renderHeight / 2, 1, renderHeight};
 
                     // If sprite is hit, store the rendering info for later, as we first need to render the walls + doors behind the sprites.
                     if (gameData->Map.GetTile(hitInfo.hitTile)->type == TILE_TYPE_SPRITE) {
@@ -116,16 +116,16 @@ private:
 
     // Given hit distance and ray angle cosine, calculate how high the column of pixels to render should be
     int GetRenderHeight(const double& hit_dist, const double& angle_cosine) {
-        static double coeff = 1.3 * gameData->Multimedia.screen_width / ((16.0 / 9.0) * (fov / 72.0));  // must account for screen aspect ratio
+        static double coeff = 1.3 * gameData->Multimedia.screenWidth / ((16.0 / 9.0) * (fov / 72.0));  // must account for screen aspect ratio
         return static_cast<int>(coeff/(hit_dist*angle_cosine));
     }
 
     void CalculateCastingRayAngles() {
         double proj_plane_width = 2*std::tan(DegreesToRadians(fov / 2));
-        double segment_len = proj_plane_width / gameData->Multimedia.screen_width;
+        double segment_len = proj_plane_width / gameData->Multimedia.screenWidth;
 
-        castingRayAngles.reserve(gameData->Multimedia.screen_width);
-        for (int i = 0; i < gameData->Multimedia.screen_width; ++i) {
+        castingRayAngles.reserve(gameData->Multimedia.screenWidth);
+        for (int i = 0; i < gameData->Multimedia.screenWidth; ++i) {
             double angle = std::atan(-(i*segment_len-(proj_plane_width/2)));
             castingRayAngles.push_back({angle, std::cos(angle)});
         }

@@ -84,22 +84,6 @@ void DoorManager::MoveDoor(DoorTile* const doorTile) {
         doorTile->doorPosition = proposedPosition;
 }
 
-void DoorManager::DecrementTimer(DoorTile* const doorTile) const {
-    double proposedTimerVal = doorTile->doorTimerVal - timerIncrement;
-
-    bool timeIsUp = proposedTimerVal <= static_cast<double>(doorTimerVal_t::NO_TIME_LEFT);
-
-    if (timeIsUp) {
-        doorTile->doorStatus = doorStatus_t::CLOSING;
-        ResetTimer(doorTile);
-    } else
-        doorTile->doorTimerVal = proposedTimerVal;
-}
-
-void DoorManager::ResetTimer(DoorTile* const doorTile) const {
-    doorTile->doorTimerVal = static_cast<double>(doorTimerVal_t::FULL_TIME_LEFT);
-}
-
 bool DoorManager::InsideDoor(DoorTile* const doorTile) const {
     return gameData->Map.GetTile(gameData->Player.location) == doorTile ? true : false;
 }
@@ -129,4 +113,20 @@ void DoorManager::RemoveActiveDoorIfAnyAwaiting() {
         gameData->Map.RemoveActiveDoor(activeDoorToErase.second);
         ClearActiveDoorForRemoval();
     }
+}
+
+void DoorManager::DecrementTimer(DoorTile* const doorTile) const {
+    double proposedTimerVal = doorTile->doorTimerVal - timerIncrement;
+
+    bool timeIsUp = proposedTimerVal <= static_cast<double>(doorTimerVal_t::NO_TIME_LEFT);
+
+    if (timeIsUp) {
+        doorTile->doorStatus = doorStatus_t::CLOSING;
+        ResetTimer(doorTile);
+    } else
+        doorTile->doorTimerVal = proposedTimerVal;
+}
+
+void DoorManager::ResetTimer(DoorTile* const doorTile) const {
+    doorTile->doorTimerVal = static_cast<double>(doorTimerVal_t::FULL_TIME_LEFT);
 }

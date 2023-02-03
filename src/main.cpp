@@ -2,13 +2,13 @@
 
 int main() {
 
-    GameEngine GameEngine;
-    GameEngine.Init();
+    GameEngine gameEngine;
+    gameEngine.Init();
 
-    while (GameEngine.inputs->quit_flag == false)
-        GameEngine.GameLoop();
+    while (gameEngine.inputs->quit_flag == false)
+        gameEngine.GameLoop();
 
-    GameEngine.Exit();
+    gameEngine.Exit();
      
     return 0;
     

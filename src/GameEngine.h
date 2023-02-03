@@ -9,7 +9,8 @@
 
 #pragma once
 
-#include <thread>
+#include <string>
+#include <cstring>
 
 #include "InputParser.h"
 #include "Managers/PlayerManager.h"
@@ -31,9 +32,9 @@ public:
         // Initialize managers & InputParser
         multimediaManager.Init(gameData);
         multimediaManager.CreateWindowRenderer(1280, 720);
-        multimediaManager.LoadTextures(textureType_t::WALLS, "wall_textures.bmp", 6, 110);
-        multimediaManager.LoadTextures(textureType_t::GUARD, "guard.bmp", 8, 51);
-        multimediaManager.LoadTextures(textureType_t::OBJECTS, "objects.bmp", 5, 50);
+        multimediaManager.LoadTextures(textureType_t::WALLS,   {"wall_textures.bmp", 6, 110});
+        multimediaManager.LoadTextures(textureType_t::GUARD,   {"guard.bmp", 8, 51});
+        multimediaManager.LoadTextures(textureType_t::OBJECTS, {"objects.bmp", 5, 50});
         playerManager.Init(inputs, gameData);
         mapManager.Init(gameData);
         mapManager.LoadMap("map.csv");

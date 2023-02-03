@@ -31,7 +31,7 @@ brew install sdl2
 ```
 I'm compiling and running like so:
 ```
-cd src; g++ -std=c++17 main.cpp Utilities/DDA.cpp Utilities/MiscMath.cpp Utilities/Ray.cpp Managers/DoorManager.cpp Managers/MapManager.cpp -o wolf3d-clone -lSDL2 -Wno-switch; ./wolf3d-clone; rm wolf3d-clone
+cd src; g++ -std=c++17 main.cpp Utilities/DDA.cpp Utilities/MiscMath.cpp Utilities/Ray.cpp Managers/DoorManager.cpp Managers/MapManager.cpp Managers/MultimediaManager.cpp -o wolf3d-clone -lSDL2 -Wno-switch; ./wolf3d-clone; rm wolf3d-clone
 ```
 (yes i know this is hideous; I will write a proper Cmake script soon...)
 

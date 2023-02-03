@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <optional>
+#include <string>
 
 #include "Utilities/Vec2D.h"
 #include "Tile.h"
@@ -98,13 +99,10 @@ enum class textureType_t {
 
 #define NUM_TEXTURE_TYPES 4
 
-struct texture {
-    texture(SDL_Texture* const texture, const textureType_t& texture_type, const int& texture_id):
-        Texture(texture), TextureType(texture_type), TextureID(texture_id) {}
-
-    SDL_Texture* Texture;
-    textureType_t TextureType;
-    int TextureID;
+struct spriteSheetParams_t {
+    std::string  fileName;
+    int          pitch;
+    int          numTextures;
 };
 
 struct multimedia {
@@ -112,7 +110,7 @@ struct multimedia {
         return textures.at(_texture_type)[texture_id-1];
     }
 
-    void add_texture(const textureType_t& _texture_type, SDL_Texture* const texture) {
+    void AddTexture(const textureType_t& _texture_type, SDL_Texture* const texture) {
         textures[_texture_type].push_back(texture);
     }
 
@@ -141,11 +139,11 @@ struct multimedia {
         return {get_texture(textureType_t::WALLS, texture_id), get_texture(textureType_t::WALLS, texture_id + 1)};
     }
 
-    SDL_Window* sdl_window;
+    SDL_Window* sdlWindow;
     SDL_Renderer* sdlRenderer;
     
-    int screen_width;
-    int screen_height;
+    int screenWidth;
+    int screenHeight;
     int refreshRate;
 
     std::map<textureType_t, std::vector<SDL_Texture*>> textures;

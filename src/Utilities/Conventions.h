@@ -1,13 +1,16 @@
 #pragma once
 
+#include <SDL2/SDL_surface.h>
+
 /*
 ================================
  Global constants
 ================================
 */
 
-const double PI = 3.1415926535897932385;
-const int TEXTURE_PITCH = 64;
+const double  PI                 = 3.1415926535897932385;
+const int     TEXTURE_PITCH      = 64;
+const Uint32  TRANSPARENCY_COLOR = 0xFF980088;
 
 /*
 ===================================
