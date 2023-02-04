@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GameData.h"
+#include "../../GameData.h"
 
 class MultimediaManager {
 private:

@@ -31,7 +31,7 @@ brew install sdl2
 ```
 I'm compiling and running like so:
 ```
-cd src; g++ -std=c++17 main.cpp Utilities/DDA.cpp Utilities/MiscMath.cpp Utilities/Ray.cpp Managers/DoorManager.cpp Managers/MapManager.cpp Managers/MultimediaManager.cpp -o wolf3d-clone -lSDL2 -Wno-switch; ./wolf3d-clone; rm wolf3d-clone
+cd src; g++ -std=c++17 main.cpp Utilities/DDA/DDA.cpp Utilities/MiscMath/MiscMath.cpp Utilities/Ray/Ray.cpp Managers/DoorManager/DoorManager.cpp Managers/MapManager/MapManager.cpp Managers/MultimediaManager/MultimediaManager.cpp Managers/PlayerManager/PlayerManager.cpp -o wolf3d-clone -lSDL2 -Wno-switch; ./wolf3d-clone; rm wolf3d-clone; cd ..
 ```
 (yes i know this is hideous; I will write a proper Cmake script soon...)
 
@@ -44,6 +44,7 @@ As for how to construct the map, i.e. what the values in the `csv` file mean, I 
 
 ## Immediate Goals
 - Project restructuring (proper headers + implementation files)
+- Refactoring according to [idTech4 style guidelines](https://github.com/e6quisitory/wolf3d-clone/files/10593839/CodeStyleConventions.pdf)
 - Shifting to Cmake instead of compiling from terminal
 - Character animation
 - Weapons

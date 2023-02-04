@@ -1,7 +1,7 @@
 #pragma once
 
 #include <utility>
-#include "../GameData.h"
+#include "../../GameData.h"
 
 class DoorManager {
 private:

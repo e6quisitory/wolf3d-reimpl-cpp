@@ -9,7 +9,7 @@
 
 #include <map>
 
-enum COMMAND_TYPE {
+enum class inputCommandType_t {
     MOVEMENT,
     LOOKING,
     DOORS
@@ -17,7 +17,7 @@ enum COMMAND_TYPE {
 
 #define NUM_COMMAND_TYPES 3
 
-enum COMMAND {
+enum class inputCommand_t {
     NONE,
     MOVE_NORTH,
     MOVE_SOUTH,
@@ -34,14 +34,14 @@ enum COMMAND {
 
 struct Inputs {
     bool AnyActiveInputs() {
-        for (int cmd_type = 0; cmd_type < NUM_COMMAND_TYPES; ++cmd_type)
-            if (curr_commands[static_cast<COMMAND_TYPE>(cmd_type)] != NONE)
+        for (const auto& [commandType, command] : currentCommands)
+            if (command != inputCommand_t::NONE)
                 return true;
         return false;
     }
 
-    std::map<COMMAND_TYPE, COMMAND> curr_commands;
-    int mouse_abs_xrel;
+    std::map<inputCommandType_t, inputCommand_t> currentCommands;
+    int mouseAbsXrel;
 
-    bool quit_flag;
+    bool quitGameFlag;
 };

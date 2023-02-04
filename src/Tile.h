@@ -18,8 +18,8 @@
 #include <SDL2/SDL.h>
 
 #include "Utilities/Vec2D.h"
-#include "Utilities/Ray.h"
-#include "Utilities/DDA.h"
+#include "Utilities/Ray/Ray.h"
+#include "Utilities/DDA/DDA.h"
 #include "Utilities/Conventions.h"
 
 /*
@@ -48,11 +48,11 @@ typedef std::optional<texturePair_t> textureOverride_o;
 ================================
 */
 
-enum tileType_t {
-    TILE_TYPE_EMPTY,
-    TILE_TYPE_WALL,
-    TILE_TYPE_DOOR,
-    TILE_TYPE_SPRITE
+enum class tileType_t {
+    EMPTY,
+    WALL,
+    DOOR,
+    SPRITE
 };
 
 class Tile {
@@ -62,7 +62,7 @@ public:
     virtual bool PlayerTileHit() const = 0;
 
 public:
-    tileType_t type;
+    tileType_t tileType;
 
 protected:
     SDL_Texture* LightTexture(const texturePair_t& _texture_pair, HitInfo& hitInfo) const {
@@ -82,7 +82,7 @@ protected:
 class EmptyTile : public Tile {
 public:
     EmptyTile() {
-        type = TILE_TYPE_EMPTY;
+        tileType = tileType_t::EMPTY;
     }
 
     virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
@@ -103,7 +103,7 @@ public:
 class WallTile : public Tile {
 public:
     WallTile(const texturePair_t& _texture): texture(_texture) {
-        type = TILE_TYPE_WALL;
+        tileType = tileType_t::WALL;
     }
 
     virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
@@ -151,7 +151,7 @@ public:
         gate_texture          = doorTextures.first;
         gate_sidewall_texture = doorTextures.second;
 
-        type = TILE_TYPE_DOOR;
+        tileType = tileType_t::DOOR;
 
         // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
         doorStatus   = doorStatus_t::CLOSED;
@@ -207,7 +207,7 @@ private:
 class SpriteTile : public Tile {
 public:
     SpriteTile(const Point2& _center, const texturePair_t& _texture): texture(_texture) {
-        type = TILE_TYPE_SPRITE;
+        tileType = tileType_t::SPRITE;
         perpLine.origin = _center;
     }
     

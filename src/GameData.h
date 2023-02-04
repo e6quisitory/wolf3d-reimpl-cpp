@@ -24,10 +24,10 @@
 ================================
 */
 
-struct player {
+struct Player {
     Point2 location;
     Vec2 viewDir;
-    Vec2 east;
+    Vec2 eastDir;
 };
 
 /*
@@ -36,7 +36,7 @@ struct player {
 ================================
 */
 
-struct map {
+struct Map {
     Tile* operator [] (const int& index) const {
         return tiles[index];
     }
@@ -49,7 +49,7 @@ struct map {
         return (*this)(ipt.x(), ipt.y());
     }
 
-    bool within_map(const iPoint2& pt) {
+    bool WithinMap(const iPoint2& pt) {
         if((pt.x() >= 0 && pt.x() <= width) && (pt.y() >= 0 && pt.y() <= height))
             return true;
         else
@@ -105,7 +105,7 @@ struct spriteSheetParams_t {
     int          numTextures;
 };
 
-struct multimedia {
+struct Multimedia {
     SDL_Texture* get_texture(const textureType_t& _texture_type, const int& texture_id) const {
         return textures.at(_texture_type)[texture_id-1];
     }
@@ -157,8 +157,8 @@ struct multimedia {
 
 struct GameData {
 
-    player Player;
-    map Map;
-    multimedia Multimedia;
+    Player player;
+    Map map;
+    Multimedia multimedia;
 
 };

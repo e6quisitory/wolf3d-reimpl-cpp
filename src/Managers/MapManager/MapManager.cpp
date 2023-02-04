@@ -1,8 +1,8 @@
 #include <string>
 
 #include "MapManager.h"
-#include "../MapFile.h"
-#include "../Utilities/Conventions.h"
+#include "../../MapFile.h"
+#include "../../Utilities/Conventions.h"
 
 /*
 ================================
@@ -15,22 +15,22 @@ void MapManager::Init(GameData* _gameData) {
 }
 
 void MapManager::Exit() const {
-    for (Tile* tile : gameData->Map.tiles)
+    for (Tile* tile : gameData->map.tiles)
         delete tile;
 }
 
 void MapManager::LoadMap(const std::string& file) const {
     MapFile mapFile(file);
 
-    gameData->Map.width    = mapFile.columns;
-    gameData->Map.height   = mapFile.rows;
-    gameData->Map.numTiles = mapFile.numCells;
+    gameData->map.width    = mapFile.columns;
+    gameData->map.height   = mapFile.rows;
+    gameData->map.numTiles = mapFile.numCells;
 
     // Grab door textures to feed into DoorTiles
-    texturePairsPair_t door_textures = {gameData->Multimedia.get_wall_texture_pair(99), gameData->Multimedia.get_wall_texture_pair(101)};
+    texturePairsPair_t door_textures = {gameData->multimedia.get_wall_texture_pair(99), gameData->multimedia.get_wall_texture_pair(101)};
 
     // Allocate enough memory and fill map with tiles corresponding to mapFile data
-    gameData->Map.tiles.reserve(mapFile.numCells);
+    gameData->map.tiles.reserve(mapFile.numCells);
 
     // Iterate through map csv file data and fill gameData->Map.tiles accordingly
     for (auto parsedTile : mapFile.tiles) {
@@ -42,30 +42,30 @@ void MapManager::LoadMap(const std::string& file) const {
             switch (textureType) {
                 case textureType_t::WALLS:
                     if (textureID == 99)
-                        gameData->Map.tiles.push_back(new DoorTile(door_textures));
+                        gameData->map.tiles.push_back(new DoorTile(door_textures));
                     else {
-                        auto wallTexturePair = gameData->Multimedia.get_wall_texture_pair(textureID);
-                        gameData->Map.tiles.push_back(new WallTile(wallTexturePair));
+                        auto wallTexturePair = gameData->multimedia.get_wall_texture_pair(textureID);
+                        gameData->map.tiles.push_back(new WallTile(wallTexturePair));
                     }
                     break;
                 case textureType_t::OBJECTS:
                 case textureType_t::GUARD:
                     Point2         tileCenterPt   = GetTileCenterPt(tileIndex, mapFile.columns);
-                    texturePair_t  spriteTexture  = gameData->Multimedia.get_texture_pair(tileTextureInfo.value());
+                    texturePair_t  spriteTexture  = gameData->multimedia.get_texture_pair(tileTextureInfo.value());
                     SpriteTile     *s             = new SpriteTile(tileCenterPt, spriteTexture);
-                    gameData->Map.tiles.push_back(s);
-                    gameData->Map.sprites.push_back(s);
+                    gameData->map.tiles.push_back(s);
+                    gameData->map.sprites.push_back(s);
                     break;
             }
 
         } else
-            gameData->Map.tiles.push_back(new EmptyTile());
+            gameData->map.tiles.push_back(new EmptyTile());
     }
 }
 
 void MapManager::UpdateSpritePerpLines() {
-    for (SpriteTile* s : gameData->Map.sprites)
-        s->CalculatePerpLine(gameData->Player.viewDir);
+    for (SpriteTile* s : gameData->map.sprites)
+        s->CalculatePerpLine(gameData->player.viewDir);
 }
 
 /*

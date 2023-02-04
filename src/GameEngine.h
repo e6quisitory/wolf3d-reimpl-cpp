@@ -13,10 +13,10 @@
 #include <cstring>
 
 #include "InputParser.h"
-#include "Managers/PlayerManager.h"
-#include "Managers/MapManager.h"
-#include "Managers/MultimediaManager.h"
-#include "Managers/DoorManager.h"
+#include "Managers/PlayerManager/PlayerManager.h"
+#include "Managers/MapManager/MapManager.h"
+#include "Managers/MultimediaManager/MultimediaManager.h"
+#include "Managers/DoorManager/DoorManager.h"
 #include "Renderer.h"
 
 class GameEngine {
@@ -24,7 +24,7 @@ public:
     void Init() {
         // Allocate new Inputs objects (to pass to some managers)
         inputs = new Inputs;
-        inputs->quit_flag = false;
+        inputs->quitGameFlag = false;
 
         // Allocate game data object (shared across managers & renderer)
         gameData = new GameData;
@@ -69,7 +69,7 @@ public:
         inputParser.ParseInputs();
         doorManager.Update();
 
-        running = inputs->AnyActiveInputs() || gameData->Map.anyDoorsAwaitingRendering;
+        running = inputs->AnyActiveInputs() || gameData->map.anyDoorsAwaitingRendering;
     }
 
 public:

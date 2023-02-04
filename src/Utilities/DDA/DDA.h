@@ -1,7 +1,7 @@
 #pragma once
 
 #include <optional>
-#include "Ray.h"
+#include "../Ray/Ray.h"
 
 enum class wallType_t {
     HORIZONTAL,
@@ -23,9 +23,10 @@ private:
 public:
     HitInfo(const Ray& _ray, const Point2& _hitPoint, const iPoint2& _hitTile);
     HitInfo(const Ray& _ray, const Point2& _hitPoint);
+    HitInfo(const Ray& _ray);
 
     void           GoToNextHit();
-    HitInfo        GetNextHit() const;
+    HitInfo        GetNextHit()        const;
     HitInfo        GetNextCenterHit();
     double         GetDistToHitPoint() const;
     wallType_t     GetWallType();

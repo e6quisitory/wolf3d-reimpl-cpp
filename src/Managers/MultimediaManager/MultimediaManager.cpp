@@ -1,5 +1,5 @@
 #include "MultimediaManager.h"
-#include "../Utilities/Conventions.h"
+#include "../../Utilities/Conventions.h"
 
 /*
 ================================
@@ -15,19 +15,19 @@ void MultimediaManager::Init(GameData* _gameData) {
     // Extract refresh rate of display
     SDL_DisplayMode displayMode;
     SDL_GetCurrentDisplayMode(0, &displayMode);
-    gameData->Multimedia.refreshRate = displayMode.refresh_rate;
+    gameData->multimedia.refreshRate = displayMode.refresh_rate;
 }
 
 void MultimediaManager::Exit() const {
     // Destroy all stored SDL_Textures out of memory
-    for (const auto& [textureType, textureVec] : gameData->Multimedia.textures) {
+    for (const auto& [textureType, textureVec] : gameData->multimedia.textures) {
         for (SDL_Texture* t : textureVec)
             SDL_DestroyTexture(t);
     }
 
     // Free all SDL-related memory
-    SDL_DestroyRenderer(gameData->Multimedia.sdlRenderer);
-    SDL_DestroyWindow(gameData->Multimedia.sdlWindow);
+    SDL_DestroyRenderer(gameData->multimedia.sdlRenderer);
+    SDL_DestroyWindow(gameData->multimedia.sdlWindow);
 
     // Exit SDL globally
     SDL_Quit();
@@ -37,15 +37,15 @@ void MultimediaManager::CreateWindowRenderer(const int& screenWidth, const int& 
     // Make sure screen_width and screen_height are even numbers
     assert(screenWidth % 2 == 0 && screenHeight % 2 == 0);
 
-    gameData->Multimedia.screenWidth  = screenWidth;
-    gameData->Multimedia.screenHeight = screenHeight;
+    gameData->multimedia.screenWidth  = screenWidth;
+    gameData->multimedia.screenHeight = screenHeight;
 
-    gameData->Multimedia.sdlWindow  = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
-    gameData->Multimedia.sdlRenderer = SDL_CreateRenderer(gameData->Multimedia.sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // VSYNC is important
+    gameData->multimedia.sdlWindow  = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+    gameData->multimedia.sdlRenderer = SDL_CreateRenderer(gameData->multimedia.sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // VSYNC is important
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 
     // Lock mouse to within window and hide pointer
-    SDL_SetWindowMouseGrab(gameData->Multimedia.sdlWindow, SDL_TRUE);
+    SDL_SetWindowMouseGrab(gameData->multimedia.sdlWindow, SDL_TRUE);
     SDL_ShowCursor(SDL_DISABLE);
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
@@ -60,7 +60,7 @@ void MultimediaManager::LoadTextures(const textureType_t& texturesType, const sp
     // Then extract all textures from texture sheet and store in array
     for (int textureID = 1; textureID <= spriteSheetParams.numTextures; ++textureID) {
         SDL_Texture* extracted = ExtractTexture(textureSheet, spriteSheetParams.pitch, textureID);
-        gameData->Multimedia.AddTexture(texturesType, extracted);
+        gameData->multimedia.AddTexture(texturesType, extracted);
     }
 
     // Free texture sheet SDL_Surface, as all textures from it have been extracted and stored as SDL_Textures
@@ -90,7 +90,7 @@ SDL_Texture* MultimediaManager::ExtractTexture(SDL_Surface* const textureSheet, 
     SDL_BlitSurface(textureSheet, &textureRect, extractedTextureSurface, nullptr);
 
     // Convert temporary SDL_Surface into an SDL_Texture
-    SDL_Texture* extractedTexture = SDL_CreateTextureFromSurface(gameData->Multimedia.sdlRenderer, extractedTextureSurface);
+    SDL_Texture* extractedTexture = SDL_CreateTextureFromSurface(gameData->multimedia.sdlRenderer, extractedTextureSurface);
 
     // Free temporary SDL_Surface
     SDL_FreeSurface(extractedTextureSurface);

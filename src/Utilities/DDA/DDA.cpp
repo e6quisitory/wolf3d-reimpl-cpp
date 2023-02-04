@@ -1,5 +1,5 @@
 #include "DDA.h"
-#include "MiscMath.h"
+#include "../MiscMath/MiscMath.h"
 
 /*
 ================================
@@ -12,6 +12,10 @@ HitInfo::HitInfo(const Ray& _ray, const Point2& _hitPoint, const iPoint2& _hitTi
 
 HitInfo::HitInfo(const Ray& _ray, const Point2& _hitPoint):
         ray(_ray), hitPoint(_hitPoint), hitTile(_hitPoint) {}
+
+HitInfo::HitInfo(const Ray& _ray) {
+    (*this) = HitInfo(_ray, _ray.origin);
+}
 
 /*
 ================================

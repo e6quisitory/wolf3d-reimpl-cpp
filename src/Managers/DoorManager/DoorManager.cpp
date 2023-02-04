@@ -10,11 +10,11 @@ void DoorManager::Init(GameData* _gameData) {
     gameData = _gameData;
 
     // No doors active at beginning
-    gameData->Map.anyDoorsAwaitingRendering = false;
+    gameData->map.anyDoorsAwaitingRendering = false;
 
     // Set door movement and timer speeds based on fps / display refresh rate
-    movementIncrement = gameData->Multimedia.refreshRate / 3000.0;
-    timerIncrement    = gameData->Multimedia.refreshRate / 6000.0;
+    movementIncrement = gameData->multimedia.refreshRate / 3000.0;
+    timerIncrement    = gameData->multimedia.refreshRate / 6000.0;
 
     // Set initial value for to_erase
     ClearActiveDoorForRemoval();
@@ -22,17 +22,17 @@ void DoorManager::Init(GameData* _gameData) {
 
 void DoorManager::Update() {
     // Check if doors even need updating; if not, then player is idle, so better not waste CPU for nothing
-    bool noActiveDoors = gameData->Map.activeDoors.empty();
-    auto oneActiveDoor = gameData->Map.GetLoneActiveDoor();
+    bool noActiveDoors = gameData->map.activeDoors.empty();
+    auto oneActiveDoor = gameData->map.GetLoneActiveDoor();
 
     if (noActiveDoors)
-        gameData->Map.anyDoorsAwaitingRendering = false;
+        gameData->map.anyDoorsAwaitingRendering = false;
     else if (oneActiveDoor.has_value() && InsideAnyDoor()) {
         ResetTimer(oneActiveDoor.value());
-        gameData->Map.anyDoorsAwaitingRendering = false;
+        gameData->map.anyDoorsAwaitingRendering = false;
     } else {
         // Cycle through list (std::map) of active doors
-        for (auto const& [activeDoor, _activeDoor] : gameData->Map.activeDoors) {
+        for (auto const& [activeDoor, _activeDoor] : gameData->map.activeDoors) {
             switch (activeDoor->doorStatus) {
                 case doorStatus_t::OPEN:          // If door is open, update (decrement) timer, but only if player is not inside that door
                     if (!InsideDoor(activeDoor)) {
@@ -50,7 +50,7 @@ void DoorManager::Update() {
         // If any door is done closing, it must be erased from gameData->Map.activeDoors;
         RemoveActiveDoorIfAnyAwaiting();
 
-        gameData->Map.anyDoorsAwaitingRendering = true;
+        gameData->map.anyDoorsAwaitingRendering = true;
     }
 }
 
@@ -85,11 +85,11 @@ void DoorManager::MoveDoor(DoorTile* const doorTile) {
 }
 
 bool DoorManager::InsideDoor(DoorTile* const doorTile) const {
-    return gameData->Map.GetTile(gameData->Player.location) == doorTile ? true : false;
+    return gameData->map.GetTile(gameData->player.location) == doorTile ? true : false;
 }
 
 bool DoorManager::InsideAnyDoor() const {
-    return gameData->Map.GetTile(gameData->Player.location)->type == TILE_TYPE_DOOR;
+    return gameData->map.GetTile(gameData->player.location)->tileType == tileType_t::DOOR;
 }
 
 bool DoorManager::ActiveDoorAwaitingRemoval() const {
@@ -110,7 +110,7 @@ void DoorManager::ClearActiveDoorForRemoval() {
 
 void DoorManager::RemoveActiveDoorIfAnyAwaiting() {
     if (ActiveDoorAwaitingRemoval()) {
-        gameData->Map.RemoveActiveDoor(activeDoorToErase.second);
+        gameData->map.RemoveActiveDoor(activeDoorToErase.second);
         ClearActiveDoorForRemoval();
     }
 }
