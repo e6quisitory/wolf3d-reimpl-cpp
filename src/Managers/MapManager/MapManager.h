@@ -1,6 +1,9 @@
 #pragma once
 
-#include "../../GameData.h"
+#include <string>
+
+#include "../../Utilities/Vec2D.h"
+#include "../../State/GameData/GameData.h"
 
 class MapManager {
 private:
@@ -13,5 +16,5 @@ public:
     void    UpdateSpritePerpLines();
 
 private:
-    Point2  GetTileCenterPt            (const int& index, const int& map_width)   const;
+    Point2  GetTileCenterPt            (const int& index, const int& mapWidth)   const;
 };

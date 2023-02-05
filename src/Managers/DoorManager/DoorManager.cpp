@@ -32,7 +32,7 @@ void DoorManager::Update() {
         gameData->map.anyDoorsAwaitingRendering = false;
     } else {
         // Cycle through list (std::map) of active doors
-        for (auto const& [activeDoor, _activeDoor] : gameData->map.activeDoors) {
+        for (auto const [activeDoor, _activeDoor] : gameData->map.activeDoors) {
             switch (activeDoor->doorStatus) {
                 case doorStatus_t::OPEN:          // If door is open, update (decrement) timer, but only if player is not inside that door
                     if (!InsideDoor(activeDoor)) {

@@ -11,8 +11,8 @@
 #include <algorithm>
 #include <SDL2/SDL.h>
 
-#include "Inputs.h"
-#include "GameData.h"
+#include "State/Inputs.h"
+#include "State/GameData/GameData.h"
 
 class InputParser {
 public:

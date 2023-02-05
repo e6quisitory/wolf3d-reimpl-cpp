@@ -24,11 +24,12 @@
 
 /*
 =========================================================
- Texture-related typedefs
+ Texture-related type definitions
 =========================================================
 */
 
 typedef std::pair<SDL_Texture*, SDL_Texture*> texturePair_t;
+typedef std::optional<std::pair<SDL_Texture*, SDL_Texture*>> texturePair_o;
 typedef std::pair<texturePair_t, texturePair_t> texturePairsPair_t;
 
 struct textureSlice_t {
@@ -40,7 +41,6 @@ struct textureSlice_t {
 };
 
 typedef std::optional<std::pair<textureSlice_t, double>> textureSliceDistPair_o;
-typedef std::optional<texturePair_t> textureOverride_o;
 
 /*
 ================================
@@ -58,7 +58,7 @@ enum class tileType_t {
 class Tile {
 public:
     virtual ~Tile() {}
-    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const = 0;
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const = 0;
     virtual bool PlayerTileHit() const = 0;
 
 public:
@@ -85,7 +85,7 @@ public:
         tileType = tileType_t::EMPTY;
     }
 
-    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const override {
         return std::nullopt;
     }
 
@@ -106,7 +106,7 @@ public:
         tileType = tileType_t::WALL;
     }
 
-    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const override {
         SDL_Texture* litTexture = textureOverride.has_value() ? LightTexture(textureOverride.value(), hitInfo) : LightTexture(texture, hitInfo);
         SDL_Rect textureRect = {static_cast<int>(hitInfo.GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
         textureSlice_t textureSlice(litTexture, textureRect);
@@ -159,7 +159,7 @@ public:
         doorTimerVal = static_cast<double>(doorTimerVal_t::FULL_TIME_LEFT);
     }
 
-    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const override {
 
         // Center hit point
         HitInfo centeredHitInfo = hitInfo.GetNextCenterHit();
@@ -211,7 +211,7 @@ public:
         perpLine.origin = _center;
     }
     
-    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const textureOverride_o& textureOverride) const override {
+    virtual textureSliceDistPair_o RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const override {
         HitInfo_o perpLineHitInfo = PerpLineHit(hitInfo);
         
         if (perpLineHitInfo.has_value()) {

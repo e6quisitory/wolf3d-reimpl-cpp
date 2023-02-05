@@ -1,6 +1,12 @@
 #pragma once
 
-#include "../../GameData.h"
+#include "../../State/GameData/GameData.h"
+
+struct spriteSheetParams_t {
+    std::string  fileName;
+    int          pitch;
+    int          numTextures;
+};
 
 class MultimediaManager {
 private:

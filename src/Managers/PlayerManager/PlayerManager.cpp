@@ -145,7 +145,8 @@ void PlayerManager::OpenDoor() const {
                 {
                     DoorTile* currentDoor = static_cast<DoorTile*>(currentTile);
                     switch (currentDoor->doorStatus) {
-                        case doorStatus_t::CLOSED:  gameData->map.add_active_door(currentDoor);
+                        case doorStatus_t::CLOSED:
+                            gameData->map.AddActiveDoor(currentDoor);
                         case doorStatus_t::CLOSING: currentDoor->doorStatus = doorStatus_t::OPENING;
                     }
                 }

@@ -12,7 +12,7 @@
 #include <utility>
 
 #include "Utilities/Ray/Ray.h"
-#include "GameData.h"
+#include "State/GameData/GameData.h"
 #include "Utilities/DDA/DDA.h"
 #include "Utilities/Conventions.h"
 #include "Utilities/MiscMath/MiscMath.h"
@@ -26,7 +26,7 @@ private:
     std::vector<textureSliceScreenRectPair_t> spriteBackups;
     const double fov = 72.0;
 
-    textureOverride_o gateSidewallTexture_o;
+    texturePair_t gateSidewallTexture;
 
 public:
     void Init(GameData* _game_data) {
@@ -40,7 +40,7 @@ public:
             // However, it's entirely possible to have a single casted ray encounter more than one sprite, in which case
             // sprite_backups vector may need to be extended.
 
-        gateSidewallTexture_o = gameData->multimedia.get_wall_texture_pair(101);
+        gateSidewallTexture = gameData->multimedia.GetTexturePair(textureType_t::WALLS, 101);
     }
 
     // Renders a single frame and outputs it to the window/screen
@@ -65,23 +65,28 @@ private:
     }
 
     void DrawWalls() {
-        for (int i = 0; i < gameData->multimedia.screenWidth; ++i) {
-            HitInfo rayCursor(GetRay(i));
+        for (int rayNum = 0; rayNum < gameData->multimedia.screenWidth; ++rayNum) {
+            HitInfo rayCursor(GetRay(rayNum));
 
             while (gameData->map.WithinMap(rayCursor.hitTile)) {
                 Tile* prevTile = gameData->map.GetTile(rayCursor.hitTile);
                     rayCursor.GoToNextHit();
-                Tile* nextTile = gameData->map.GetTile(rayCursor.hitTile);
+                Tile* currTile = gameData->map.GetTile(rayCursor.hitTile);
 
-                auto textureOverride = prevTile->tileType == tileType_t::DOOR ? gateSidewallTexture_o : std::nullopt;
-                auto rayTileHitResult = nextTile->RayTileHit(rayCursor, textureOverride);
+                texturePair_o textureOverride;
+                if (prevTile->tileType == tileType_t::DOOR)
+                    textureOverride = gateSidewallTexture;
+                else
+                    textureOverride = std::nullopt;
+
+                auto rayTileHitResult = currTile->RayTileHit(rayCursor, textureOverride);
 
                 if (rayTileHitResult.has_value()) {
                     auto [textureSlice, hitDistance] = rayTileHitResult.value();
 
-                    SDL_Rect textureRect = textureSlice.textureRect;
-                    int renderHeight = GetRenderHeight(hitDistance, castingRayAngles[i].second);
-                    SDL_Rect screenRect = {i, gameData->multimedia.screenHeight / 2 - renderHeight / 2, 1, renderHeight};
+                    SDL_Rect textureRect  =  textureSlice.textureRect;
+                    int      renderHeight =  GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
+                    SDL_Rect screenRect   =  GetScreenRect(renderHeight, rayNum);
 
                     // If sprite is hit, store the rendering info for later, as we first need to render the walls + doors behind the sprites.
                     if (gameData->map.GetTile(rayCursor.hitTile)->tileType == tileType_t::SPRITE) {
@@ -110,14 +115,19 @@ private:
     }
 
     // Returns ray corresponding to a vertical column of pixels (0 is leftmost column of pixels)
-    Ray GetRay(const int& ray_num) {
+    Ray GetRay(const int& ray_num) const {
         return Ray(gameData->player.location, gameData->player.viewDir.Rotate(castingRayAngles[ray_num].first));
     }
 
     // Given hit distance and ray angle cosine, calculate how high the column of pixels to render should be
-    int GetRenderHeight(const double& hit_dist, const double& angle_cosine) {
+    int GetRenderHeight(const double& hit_dist, const double& angle_cosine) const {
         static double coeff = 1.3 * gameData->multimedia.screenWidth / ((16.0 / 9.0) * (fov / 72.0));  // must account for screen aspect ratio
         return static_cast<int>(coeff/(hit_dist*angle_cosine));
+    }
+
+    SDL_Rect GetScreenRect(double renderHeight, int rayNum) const {
+        SDL_Rect screenRect = {rayNum, static_cast<int>(gameData->multimedia.screenHeight / 2 - renderHeight / 2), 1, static_cast<int>(renderHeight)};
+        return screenRect;
     }
 
     void CalculateCastingRayAngles() {

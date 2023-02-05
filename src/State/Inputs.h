@@ -34,7 +34,7 @@ enum class inputCommand_t {
 
 struct Inputs {
     bool AnyActiveInputs() {
-        for (const auto& [commandType, command] : currentCommands)
+        for (const auto [commandType, command] : currentCommands)
             if (command != inputCommand_t::NONE)
                 return true;
         return false;

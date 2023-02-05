@@ -21,7 +21,7 @@ void MultimediaManager::Init(GameData* _gameData) {
 void MultimediaManager::Exit() const {
     // Destroy all stored SDL_Textures out of memory
     for (const auto& [textureType, textureVec] : gameData->multimedia.textures) {
-        for (SDL_Texture* t : textureVec)
+        for (SDL_Texture* const t : textureVec)
             SDL_DestroyTexture(t);
     }
 
@@ -40,7 +40,7 @@ void MultimediaManager::CreateWindowRenderer(const int& screenWidth, const int& 
     gameData->multimedia.screenWidth  = screenWidth;
     gameData->multimedia.screenHeight = screenHeight;
 
-    gameData->multimedia.sdlWindow  = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+    gameData->multimedia.sdlWindow   = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
     gameData->multimedia.sdlRenderer = SDL_CreateRenderer(gameData->multimedia.sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // VSYNC is important
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 

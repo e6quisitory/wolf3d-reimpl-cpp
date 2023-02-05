@@ -10,11 +10,17 @@
 #pragma once
 
 #include <fstream>
-#include <vector>
-#include <string>
-#include <cmath>
-#include <utility>
-#include <optional>
+
+struct parsedTileInfo_t {
+    int            index;
+    textureType_t  textureType;
+    int            textureID;
+};
+
+typedef std::optional<parsedTileInfo_t> parsedTileInfo_o;
+
+typedef std::pair<textureType_t, int> parsedTextureInfo_t;
+typedef std::optional<parsedTextureInfo_t> parsedTextureInfo_o;
 
 class MapFile {
 public:
@@ -60,35 +66,40 @@ private:
         numCells = rows * columns;
     };
 
-    void push_val(bool& num_in_progress, int& index, std::string& cell_value) {
+    void push_val(bool& num_in_progress, int& tileIndex, std::string& cell_value) {
         num_in_progress = false;
-        tiles.push_back({index, parse_tile_code(cell_value)});
-        cell_value.clear();
-        ++index;
+        if (cell_value.empty())
+            tiles.push_back(std::nullopt);
+        else {
+            auto parsedTextureInfo = parse_tile_code(cell_value);
+            if (parsedTextureInfo.has_value()) {
+                auto [textureType, textureID] = parsedTextureInfo.value();
+                parsedTileInfo_t currTileInfo = {tileIndex, textureType, textureID};
+                tiles.push_back(currTileInfo);
+            } else
+                tiles.push_back(std::nullopt);  // invalid format ; default to empty tile
+
+            cell_value.clear();
+        }
+        ++tileIndex;
     }
 
-    typedef std::pair<textureType_t, int> tileTextureInfo_t;
+    parsedTextureInfo_o parse_tile_code(const std::string& texture_code) const {
+        std::string type_code = texture_code.substr(0, texture_code.find("-"));
+        int id = std::stoi(texture_code.substr(texture_code.find("-") + 1));
 
-    std::optional<tileTextureInfo_t> parse_tile_code(const std::string& texture_code) const {
-        if (texture_code == "")
-            return {};  // empty tile
-        else {
-            std::string type_code = texture_code.substr(0, texture_code.find("-"));
-            int id = std::stoi(texture_code.substr(texture_code.find("-") + 1));
-
-            if (type_code == "W")
-                return std::pair(textureType_t::WALLS, id);
-            else if (type_code == "O")
-                return std::pair(textureType_t::OBJECTS, id);
-            else if (type_code == "G1")
-                return std::pair(textureType_t::GUARD, id);
-            else
-                return {};  // invalid format ; default to empty tile
-        }
+        if (type_code == "W")
+            return std::pair(textureType_t::WALLS, id);
+        else if (type_code == "O")
+            return std::pair(textureType_t::OBJECTS, id);
+        else if (type_code == "G1")
+            return std::pair(textureType_t::GUARD, id);
+        else
+            return std::nullopt;  // invalid format ; default to empty tile
     }
 
 public:
-    std::vector<std::pair<int, std::optional<tileTextureInfo_t>>> tiles;
+    std::vector<parsedTileInfo_o> tiles;
     int columns;
     int rows;
     int numCells;
