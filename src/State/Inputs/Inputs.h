@@ -1,10 +1,3 @@
-/*
- * inputs.h:
- *
- * Stores the current inputs commands (for each frame/cycle of the game loop)
- *
- */
-
 #pragma once
 
 #include <map>
@@ -32,16 +25,12 @@ enum class inputCommand_t {
     OPEN_DOOR
 };
 
-struct Inputs {
-    bool AnyActiveInputs() {
-        for (const auto [commandType, command] : currentCommands)
-            if (command != inputCommand_t::NONE)
-                return true;
-        return false;
-    }
-
+class Inputs {
+public:
     std::map<inputCommandType_t, inputCommand_t> currentCommands;
-    int mouseAbsXrel;
+    int   mouseAbsXrel;
+    bool  quitGameFlag;
 
-    bool quitGameFlag;
+public:
+    bool  AnyActiveInputs() const;
 };

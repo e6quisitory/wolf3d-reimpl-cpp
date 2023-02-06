@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../State/GameData/GameData.h"
-#include "../../State/Inputs.h"
+#include "../../State/Inputs/Inputs.h"
 
 class PlayerManager {
 private:
