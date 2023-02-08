@@ -69,15 +69,15 @@ private:
     void push_val(bool& num_in_progress, int& tileIndex, std::string& cell_value) {
         num_in_progress = false;
         if (cell_value.empty())
-            tiles.push_back(std::nullopt);
+            tiles.emplace_back(std::nullopt);
         else {
             auto parsedTextureInfo = parse_tile_code(cell_value);
             if (parsedTextureInfo.has_value()) {
                 auto [textureType, textureID] = parsedTextureInfo.value();
                 parsedTileInfo_t currTileInfo = {tileIndex, textureType, textureID};
-                tiles.push_back(currTileInfo);
+                tiles.emplace_back(currTileInfo);
             } else
-                tiles.push_back(std::nullopt);  // invalid format ; default to empty tile
+                tiles.emplace_back(std::nullopt);  // invalid format ; default to empty tile
 
             cell_value.clear();
         }

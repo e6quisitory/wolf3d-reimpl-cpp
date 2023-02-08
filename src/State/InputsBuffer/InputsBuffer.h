@@ -25,7 +25,7 @@ enum class inputCommand_t {
     OPEN_DOOR
 };
 
-class Inputs {
+class InputsBuffer {
 public:
     std::map<inputCommandType_t, inputCommand_t> currentCommands;
     int   mouseAbsXrel;

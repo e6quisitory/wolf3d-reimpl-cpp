@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../State/GameData/GameData.h"
-#include "../../State/Inputs/Inputs.h"
+#include "../../State/GameState/GameState.h"
+#include "../../State/InputsBuffer/InputsBuffer.h"
 
 class PlayerManager {
 private:
-    Inputs*     inputs;
-    GameData*   gameData;
+    InputsBuffer*  inputs;
+    GameState*     gameState;
 
     double      movementIncrement;
     double      swivelIncrement;
@@ -18,7 +18,7 @@ private:
     };
 
 public:
-    void        Init                   (Inputs* _inputs, GameData* _gameData);
+    void        Init                   (InputsBuffer* const _inputs, GameState* const _gameState, const int  _screenRefreshRate);
     void        SetPlayer              (const Point2& location, const Vec2& viewDir);
     void        Update()                                                               const;
 

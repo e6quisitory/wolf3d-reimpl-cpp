@@ -1,4 +1,4 @@
-#include "Inputs.h"
+#include "InputsBuffer.h"
 
 /*
 ================================
@@ -6,7 +6,7 @@
 ================================
 */
 
-bool Inputs::AnyActiveInputs() const {
+bool InputsBuffer::AnyActiveInputs() const {
     for (const auto [commandType, command] : currentCommands)
         if (command != inputCommand_t::NONE)
             return true;

@@ -1,18 +1,18 @@
 #pragma once
 
 #include <utility>
-#include "../../State/GameData/GameData.h"
+#include "../../State/GameState/GameState.h"
 #include "../../Tile.h"
 
 class DoorManager {
 private:
-    GameData*                   gameData;
+    GameState*                   gameState;
     double                      movementIncrement;  // Units of door movement per frame
     double                      timerIncrement;     // Timer units per frame
     std::pair<bool, DoorTile*>  activeDoorToErase;  // Only one door can be opened at once; thus only one door can have closed at any given time
 
 public:
-    void       Init                             (GameData* _gameData);
+    void       Init                             (GameState *const _gameState, const int _screenRefreshRate);
     void       Update();
 
 private:

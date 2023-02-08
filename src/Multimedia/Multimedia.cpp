@@ -1,6 +1,7 @@
 #include "Multimedia.h"
 
 #include <vector>
+#include <array>
 
 SDL_Texture* Multimedia::GetTexture(const textureType_t& textureType, const int& textureID) const {
     return textures.at(textureType)[textureID - 1];
@@ -17,7 +18,7 @@ texturePair_t Multimedia::GetTexturePair(const textureType_t& textureType, const
 }
 
 texturePair_t Multimedia::GetWallTexturePair(int textureID) const {
-    static const std::vector<int> noLightingIDList = {31, 32, 41, 42, 43, 44, 107, 108, 109, 110};
+    static const std::array<int, 10> noLightingIDList = {31, 32, 41, 42, 43, 44, 107, 108, 109, 110};
 
     // Check if textureID is part of no lighting list ; if so, make pair have same texture
     for (const auto NoLightingID : noLightingIDList) {

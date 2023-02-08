@@ -3,18 +3,19 @@
 #include <string>
 
 #include "../../Utilities/Vec2D.h"
-#include "../../State/GameData/GameData.h"
+#include "../../State/GameState/GameState.h"
 
 class MapManager {
 private:
-    GameData* gameData;
+    GameState*   gameState;
+    Multimedia*  multimedia;
 
 public:
-    void    Init                       (GameData* _gameData);
-    void    Exit()                                                                const;
-    void    LoadMap                    (const std::string& file)                  const;
+    void    Init                       (GameState* const _gameState, Multimedia* const _multimedia);
+    void    Exit()                                                                                   const;
+    void    LoadMap                    (const std::string& file)                                     const;
     void    UpdateSpritePerpLines();
 
 private:
-    Point2  GetTileCenterPt            (const int& index, const int& mapWidth)   const;
+    Point2  GetTileCenterPt            (const int& index, const int& mapWidth)                       const;
 };

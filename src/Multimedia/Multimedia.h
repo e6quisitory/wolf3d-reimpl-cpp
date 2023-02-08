@@ -3,7 +3,7 @@
 #include <map>
 #include <SDL2/SDL.h>
 
-#include "../../../Tile.h"
+#include "../Tile.h"
 
 /*
 =========================================================
@@ -20,6 +20,12 @@ enum class textureType_t {
 
 #define NUM_TEXTURE_TYPES 4
 
+struct WindowParams {
+    int screenWidth;
+    int screenHeight;
+    int refreshRate;
+};
+
 /*
 =========================================================
     Multimedia (state)
@@ -28,12 +34,9 @@ enum class textureType_t {
 
 class Multimedia {
 public:
-
     SDL_Window*     sdlWindow;
+    WindowParams    windowParams;
     SDL_Renderer*   sdlRenderer;
-    int             screenWidth;
-    int             screenHeight;
-    int             refreshRate;
     std::map<textureType_t, std::vector<SDL_Texture*>>  textures;
 
 public:

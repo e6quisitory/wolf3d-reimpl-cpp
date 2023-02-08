@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../State/GameData/GameData.h"
+#include "../../State/GameState/GameState.h"
 
 struct spriteSheetParams_t {
     std::string  fileName;
@@ -10,11 +10,11 @@ struct spriteSheetParams_t {
 
 class MultimediaManager {
 private:
-    GameData* gameData;
+    Multimedia*  multimedia;
 
 public:
-    void         Init                 (GameData* _gameData);
-    void         Exit()                                                                                                                                    const;
+    void         Init                 (Multimedia* const _multimedia);
+    void         Exit()                                                                                                 const;
     void         CreateWindowRenderer (const int& screenWidth, const int& screenHeight)                                 const;
     void         LoadTextures         (const textureType_t& texturesType, const spriteSheetParams_t& spriteSheetParams) const;
 

@@ -11,20 +11,16 @@
 #include <algorithm>
 #include <SDL2/SDL.h>
 
-#include "State/Inputs/Inputs.h"
-#include "State/GameData/GameData.h"
+#include "State/InputsBuffer/InputsBuffer.h"
+#include "State/GameState/GameState.h"
 
 class InputParser {
 public:
-    void Init(Inputs* _inputs) {
-        Inputs = _inputs;
-
-        // Initialize current commands std::map in GameData->Inputs
-        for (int inputCommandType = 0; inputCommandType < NUM_COMMAND_TYPES; ++inputCommandType)
-            Inputs->currentCommands[static_cast<inputCommandType_t>(inputCommandType)] = inputCommand_t::NONE;
+    void Init(InputsBuffer* _inputsBuffer) {
+        inputsBuffer = _inputsBuffer;
 
         // Mouse not moving at start
-        Inputs->mouseAbsXrel = 0;
+        inputsBuffer->mouseAbsXrel = 0;
 
         keyboard_state = SDL_GetKeyboardState(nullptr);
     }
@@ -38,7 +34,7 @@ public:
         ====================================================
         */
 
-        inputCommand_t& currentLookingCommand = Inputs->currentCommands[inputCommandType_t::LOOKING];
+        inputCommand_t& currentLookingCommand = inputsBuffer->currentCommands[inputCommandType_t::LOOKING];
 
         SDL_Event e;
         while (SDL_PollEvent(&e)){
@@ -49,7 +45,7 @@ public:
                 else if (curr_xrel < 0)
                     currentLookingCommand = inputCommand_t::LOOK_LEFT;
 
-                Inputs->mouseAbsXrel = abs(curr_xrel);
+                inputsBuffer->mouseAbsXrel = abs(curr_xrel);
             }
         }
 
@@ -57,14 +53,14 @@ public:
         static int prev_xrel = 0;
         static int cutoff_counter = 0;
 
-        int curr_xrel = Inputs->mouseAbsXrel;
+        int curr_xrel = inputsBuffer->mouseAbsXrel;
 
         if (curr_xrel == prev_xrel && get_xrel() == 0)
             ++cutoff_counter;
 
         if (cutoff_counter >= 5) {
             cutoff_counter = 0;
-            Inputs->mouseAbsXrel = 0;
+            inputsBuffer->mouseAbsXrel = 0;
             currentLookingCommand = inputCommand_t::NONE;
         }
 
@@ -85,7 +81,7 @@ public:
         bool back_right = back && right;
         bool back_left  = back && left;
 
-        inputCommand_t& currentMovementCommand = Inputs->currentCommands[inputCommandType_t::MOVEMENT];
+        inputCommand_t& currentMovementCommand = inputsBuffer->currentCommands[inputCommandType_t::MOVEMENT];
 
         if      (up_right)   currentMovementCommand = inputCommand_t::MOVE_NORTHEAST;
         else if (up_left)    currentMovementCommand = inputCommand_t::MOVE_NORTHWEST;
@@ -103,7 +99,7 @@ public:
         ===========================
         */
 
-        Inputs->currentCommands[inputCommandType_t::DOORS] = keyboard_state[SDL_SCANCODE_SPACE] ? inputCommand_t::OPEN_DOOR : inputCommand_t::NONE;
+        inputsBuffer->currentCommands[inputCommandType_t::DOORS] = keyboard_state[SDL_SCANCODE_SPACE] ? inputCommand_t::OPEN_DOOR : inputCommand_t::NONE;
         
         /*
         ===========================
@@ -112,7 +108,7 @@ public:
         */
 
         if (keyboard_state[SDL_SCANCODE_ESCAPE])
-            Inputs->quitGameFlag = true;
+            inputsBuffer->quitGameFlag = true;
         
     }
 
@@ -125,6 +121,6 @@ private:
     }
 
 private:
-    Inputs* Inputs;
+    InputsBuffer* inputsBuffer;
     const Uint8* keyboard_state;
 };

@@ -5,7 +5,7 @@ int main() {
     GameEngine gameEngine;
     gameEngine.Init();
 
-    while (gameEngine.inputs->quitGameFlag == false)
+    while (gameEngine.inputsBuffer->quitGameFlag == false)
         gameEngine.GameLoop();
 
     gameEngine.Exit();
