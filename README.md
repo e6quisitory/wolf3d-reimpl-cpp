@@ -31,7 +31,7 @@ brew install sdl2
 ```
 I'm compiling and running like so:
 ```
-cd src; g++ -std=c++17 main.cpp Utilities/MiscMath/MiscMath.cpp Utilities/Ray/Ray.cpp Utilities/DDA/DDA.cpp Managers/DoorManager/DoorManager.cpp Managers/MapManager/MapManager.cpp Managers/MultimediaManager/MultimediaManager.cpp Managers/PlayerManager/PlayerManager.cpp State/GameState/Map/Map.cpp Multimedia/Multimedia.cpp State/InputsBuffer/InputsBuffer.cpp InputsParser/InputsParser.cpp Utilities/MapFile/MapFile.cpp State/GameState/Map/Tile/Tile.cpp State/GameState/Map/Tile/EmptyTile/EmptyTile.cpp State/GameState/Map/Tile/WallTile/WallTile.cpp State/GameState/Map/Tile/DoorTile/DoorTile.cpp State/GameState/Map/Tile/SpriteTile/SpriteTile.cpp -o wolf3d-clone Renderer/Renderer.cpp -lSDL2 -Wno-switch; ./wolf3d-clone; rm wolf3d-clone; cd ..
+cd src/GameEngine; g++ -std=c++17 ../main.cpp Utilities/MiscMath/MiscMath.cpp Utilities/Ray/Ray.cpp Utilities/DDA/DDA.cpp Managers/DoorManager/DoorManager.cpp Managers/MapManager/MapManager.cpp Managers/MultimediaManager/MultimediaManager.cpp Managers/PlayerManager/PlayerManager.cpp State/GameState/Map/Map.cpp Multimedia/Multimedia.cpp State/InputsBuffer/InputsBuffer.cpp InputsParser/InputsParser.cpp Utilities/MapFile/MapFile.cpp State/GameState/Map/Tile/Tile.cpp State/GameState/Map/Tile/EmptyTile/EmptyTile.cpp State/GameState/Map/Tile/WallTile/WallTile.cpp State/GameState/Map/Tile/DoorTile/DoorTile.cpp State/GameState/Map/Tile/SpriteTile/SpriteTile.cpp Renderer/Renderer.cpp GameEngine.cpp -o ../wolf3d-clone -lSDL2 -Wno-switch; cd ..; ./wolf3d-clone; rm wolf3d-clone; cd ..
 ```
 (yes i know this is hideous; I will write a proper Cmake script soon...)
 
@@ -43,7 +43,6 @@ The map file is `map.csv` and is ASCII encoded, not UTF-8 encoded. I find that e
 As for how to construct the map, i.e. what the values in the `csv` file mean, I have yet to type up a new guide; I will get to that soon. In the mean time, you can read [this](https://github.com/e6quisitory/wolf3d-clone/commit/3f9f9e308629098a29df2e3ec8103fddd3fc51c0#commitcomment-88618626) old guide.
 
 ## Immediate Goals
-- Project restructuring (proper headers + implementation files)
 - Precompiled header
 - Refactoring according to [idTech4 style guidelines](https://github.com/e6quisitory/wolf3d-clone/files/10593839/CodeStyleConventions.pdf)
 - Shifting to Cmake instead of compiling from terminal

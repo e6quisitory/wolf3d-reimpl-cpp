@@ -7,6 +7,12 @@
 #include "../Multimedia/Multimedia.h"
 #include "../State/GameState/Map/Tile/Tile.h"
 
+/*
+=========================================================
+    Renderer
+=========================================================
+*/
+
 class Renderer {
 private:
     typedef std::pair<textureSlice_t, SDL_Rect> textureSliceScreenRectPair_t;
