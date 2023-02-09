@@ -3,6 +3,7 @@
 #include <string>
 
 #include "../../Utilities/Vec2D.h"
+#include "../../Multimedia/Multimedia.h"
 #include "../../State/GameState/GameState.h"
 
 /*

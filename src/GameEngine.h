@@ -8,7 +8,7 @@
 #include "Managers/MapManager/MapManager.h"
 #include "Managers/MultimediaManager/MultimediaManager.h"
 #include "Managers/DoorManager/DoorManager.h"
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
 
 class GameEngine {
 public:

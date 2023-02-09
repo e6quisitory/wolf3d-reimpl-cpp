@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../State/GameState/GameState.h"
+#include "../../Multimedia/Multimedia.h"
 
 /*
 =========================================================
