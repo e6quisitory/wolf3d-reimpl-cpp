@@ -2,7 +2,13 @@
 
 #include <utility>
 #include "../../State/GameState/GameState.h"
-#include "../../Tile.h"
+#include "../../State/GameState/Map/Tile/Tile.h"
+
+/*
+=========================================================
+    DoorManager
+=========================================================
+*/
 
 class DoorManager {
 private:

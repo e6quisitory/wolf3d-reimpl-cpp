@@ -5,6 +5,12 @@
 #include "../../Utilities/Vec2D.h"
 #include "../../State/GameState/GameState.h"
 
+/*
+=========================================================
+    MapManager
+=========================================================
+*/
+
 class MapManager {
 private:
     GameState*   gameState;

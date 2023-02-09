@@ -3,7 +3,7 @@
 #include <map>
 #include <SDL2/SDL.h>
 
-#include "../Tile.h"
+#include "../State/GameState/Map/Tile/Tile.h"
 
 /*
 =========================================================

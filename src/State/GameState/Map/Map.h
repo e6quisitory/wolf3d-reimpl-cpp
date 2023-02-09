@@ -4,7 +4,16 @@
 #include <map>
 
 #include "../../../Utilities/Vec2D.h"
-#include "../../../Tile.h"
+#include "Tile/Tile.h"
+#include "Tile/DoorTile/DoorTile.h"
+#include "Tile/SpriteTile/SpriteTile.h"
+
+
+/*
+=========================================================
+    Map
+=========================================================
+*/
 
 class Map {
 public:

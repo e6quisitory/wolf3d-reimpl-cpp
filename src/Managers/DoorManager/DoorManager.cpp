@@ -47,7 +47,7 @@ void DoorManager::Update() {
             }
         }
 
-        // If any door is done closing, it must be erased from gameData->Map.activeDoors;
+        // If any door is done closing, it must be erased from gameState->Map.activeDoors;
         RemoveActiveDoorIfAnyAwaiting();
 
         gameState->map.anyDoorsAwaitingRendering = true;

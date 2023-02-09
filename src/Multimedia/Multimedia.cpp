@@ -3,6 +3,12 @@
 #include <vector>
 #include <array>
 
+/*
+=========================================================
+    Public methods
+=========================================================
+*/
+
 SDL_Texture* Multimedia::GetTexture(const textureType_t& textureType, const int& textureID) const {
     return textures.at(textureType)[textureID - 1];
 }

@@ -3,12 +3,24 @@
 #include <optional>
 #include "../Ray/Ray.h"
 
+/*
+=========================================================
+    Relevant type definitions
+=========================================================
+*/
+
 enum class wallType_t {
     HORIZONTAL,
     VERTICAL,
     CORNER,
     SPRITE_PERPLINE
 };
+
+/*
+=========================================================
+    HitInfo (DDA algorithm encapsulated within)
+=========================================================
+*/
 
 class HitInfo {
 public:

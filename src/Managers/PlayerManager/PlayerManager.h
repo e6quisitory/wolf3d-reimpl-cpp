@@ -3,6 +3,12 @@
 #include "../../State/GameState/GameState.h"
 #include "../../State/InputsBuffer/InputsBuffer.h"
 
+/*
+=========================================================
+    PlayerManager
+=========================================================
+*/
+
 class PlayerManager {
 private:
     InputsBuffer*  inputs;

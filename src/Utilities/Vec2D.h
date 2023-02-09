@@ -6,6 +6,12 @@
 
 #include "Conventions.h"
 
+/*
+=========================================
+    Vec2D (2D int or double vector)
+=========================================
+*/
+
 template<typename T>
 class Vec2D {
 public:

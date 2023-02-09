@@ -2,11 +2,23 @@
 
 #include "../../State/GameState/GameState.h"
 
+/*
+=========================================================
+    Relevant type definitions
+=========================================================
+*/
+
 struct spriteSheetParams_t {
     std::string  fileName;
     int          pitch;
     int          numTextures;
 };
+
+/*
+=========================================================
+    MultimediaManager
+=========================================================
+*/
 
 class MultimediaManager {
 private:

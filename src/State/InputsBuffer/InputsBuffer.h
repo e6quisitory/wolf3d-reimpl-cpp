@@ -2,6 +2,12 @@
 
 #include <map>
 
+/*
+=========================================================
+    Relevant type definitions
+=========================================================
+*/
+
 enum class inputCommandType_t {
     MOVEMENT,
     LOOKING,
@@ -24,6 +30,12 @@ enum class inputCommand_t {
     LOOK_LEFT,
     OPEN_DOOR
 };
+
+/*
+=========================================================
+    InputsBuffer
+=========================================================
+*/
 
 class InputsBuffer {
 public:

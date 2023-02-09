@@ -6,6 +6,12 @@
 #include "../State/InputsBuffer/InputsBuffer.h"
 #include "../State/GameState/GameState.h"
 
+/*
+=========================================================
+    InputsParser
+=========================================================
+*/
+
 class InputsParser {
 private:
           InputsBuffer*  inputsBuffer;

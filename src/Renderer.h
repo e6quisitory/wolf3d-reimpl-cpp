@@ -93,7 +93,7 @@ private:
 
                     // If sprite is hit, store the rendering info for later, as we first need to render the walls + doors behind the sprites.
                     if (gameState->map.GetTile(rayCursor.hitTile)->tileType == tileType_t::SPRITE) {
-                        spriteBackups.emplace_back(std::pair(textureSlice_t(textureSlice.texture, textureRect), screenRect));
+                        spriteBackups.emplace_back(textureSlice, screenRect);
                         continue;
                     } else {
                         // If wall or door is hit, render immediately.

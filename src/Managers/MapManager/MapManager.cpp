@@ -1,12 +1,17 @@
 #include <string>
 
 #include "MapManager.h"
-#include "../../MapFile.h"
+#include "../../Utilities/MapFile/MapFile.h"
 #include "../../Utilities/Conventions.h"
+
+#include "../../State/GameState/Map/Tile/EmptyTile/EmptyTile.h"
+#include "../../State/GameState/Map/Tile/WallTile/WallTile.h"
+#include "../../State/GameState/Map/Tile/DoorTile/DoorTile.h"
+#include "../../State/GameState/Map/Tile/SpriteTile/SpriteTile.h"
 
 /*
 ================================
-Public Methods
+    Public Methods
 ================================
 */
 
@@ -34,7 +39,7 @@ void MapManager::LoadMap(const std::string& file) const {
     // Allocate enough memory and fill map with tiles corresponding to mapFile data
     gameState->map.tiles.reserve(mapFile.numCells);
 
-    // Iterate through map csv file data and fill gameData->Map.tiles accordingly (by tile type)
+    // Iterate through map csv file data and fill gameState->Map.tiles accordingly (by tile type)
     for (const auto& parsedTile : mapFile.tiles) {
         if (parsedTile.has_value()) {
             switch (parsedTile->textureType) {
@@ -52,7 +57,7 @@ void MapManager::LoadMap(const std::string& file) const {
                 /* Sprite Tile */
                 case textureType_t::OBJECTS:
                 case textureType_t::GUARD:
-                    Point2         tileCenterPt   = GetTileCenterPt(parsedTile->index, mapFile.columns);
+                    Point2         tileCenterPt   = GetTileCenterPt(parsedTile->tileIndex, mapFile.columns);
                     texturePair_t  spriteTexture  = multimedia->GetTexturePair(parsedTile->textureType, parsedTile->textureID);
                     SpriteTile     *s             = new SpriteTile(tileCenterPt, spriteTexture);
                     gameState->map.tiles.push_back(s);
