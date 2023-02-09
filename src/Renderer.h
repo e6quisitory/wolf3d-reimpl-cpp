@@ -39,8 +39,8 @@ public:
         CalculateCastingRayAngles();
 
         spriteBackups.reserve(multimedia->windowParams.screenWidth);
-            // One sprite encountered per casted ray is a good initial assumption to allocate memory according to.
-            // However, it's entirely possible to have a single casted ray encounter more than one sprite, in which case
+            // One sprite encountered per cast ray is a good initial assumption to allocate memory according to.
+            // However, it's entirely possible to have a single cast ray encounter more than one sprite, in which case
             // sprite_backups vector may need to be extended.
 
         gateSidewallTexture = multimedia->GetTexturePair(textureType_t::WALLS, 101);

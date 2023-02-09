@@ -1,18 +1,9 @@
-/*
- * game_engine.h:
- *
- * The top level block that houses the main game_data object, the various managers, and the renderer.
- * Initializes and exits the managers, as well as contains the main game_loop to be continuously executed
- * in the main function (in main.cpp).
- *
- */
-
 #pragma once
 
 #include <string>
 #include <cstring>
 
-#include "InputParser.h"
+#include "InputsParser/InputsParser.h"
 #include "Managers/PlayerManager/PlayerManager.h"
 #include "Managers/MapManager/MapManager.h"
 #include "Managers/MultimediaManager/MultimediaManager.h"
@@ -22,14 +13,9 @@
 class GameEngine {
 public:
     void Init() {
-        // Allocate new Inputs objects (to pass to some managers)
+        // Allocate shared objects
         inputsBuffer = new InputsBuffer;
-        inputsBuffer->quitGameFlag = false;
-
-        // Allocate game data object (shared across managers & renderer)
         gameState = new GameState;
-
-        // Allocate new multimedia object (used to store game assets in memory)
         multimedia = new Multimedia;
 
         // Initialize managers & InputParser
@@ -74,12 +60,15 @@ public:
         doorManager.Update();
 
         running = inputsBuffer->AnyActiveInputs() || gameState->map.anyDoorsAwaitingRendering;
+
+        quitGameFlag = inputsBuffer->quitGameFlag;
     }
 
 public:
-    InputsBuffer* inputsBuffer;
+    bool quitGameFlag;
 
 private:
+    InputsBuffer* inputsBuffer;
     GameState*   gameState;
     Multimedia*  multimedia;
 
@@ -87,7 +76,7 @@ private:
     PlayerManager playerManager;
     MapManager mapManager;
     DoorManager doorManager;
-    InputParser inputParser;
+    InputsParser inputParser;
 
     Renderer renderer;
 };

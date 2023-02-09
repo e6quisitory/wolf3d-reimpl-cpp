@@ -6,7 +6,7 @@
 
 class DoorManager {
 private:
-    GameState*                   gameState;
+    GameState*                  gameState;
     double                      movementIncrement;  // Units of door movement per frame
     double                      timerIncrement;     // Timer units per frame
     std::pair<bool, DoorTile*>  activeDoorToErase;  // Only one door can be opened at once; thus only one door can have closed at any given time
