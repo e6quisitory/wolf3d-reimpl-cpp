@@ -1,6 +1,6 @@
 # Wolfenstein 3D Clone
 
-<p><i>🚧🚧  Work in Progress  🚧🚧</i></p>
+<p><i><b>🚧🚧  Work in Progress  🚧🚧</b></i></p>
 
 I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game from scratch is the goal, including rendering the game world, enemies, weapons, sound system, etc. So far, I've implemented the following functionality:
 - Raycasting
@@ -43,7 +43,7 @@ Then run the following to build:
 mkdir build
 cd build
 cmake -G "Ninja" ../src
-ninja
+ninja -j $(sysctl -n hw.physicalcpu)
 ```
 
 And run the executable like so:
