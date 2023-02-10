@@ -18,12 +18,12 @@ void GameEngine::Init() {
     // Initialize input parser, managers, and renderer
     multimediaManager.Init(multimedia);
     multimediaManager.CreateWindowRenderer(1280 , 720);
-    multimediaManager.LoadTextures(textureType_t::WALLS,   {"wall_textures.bmp", 6, 110});
-    multimediaManager.LoadTextures(textureType_t::GUARD,   {"guard.bmp", 8, 51});
-    multimediaManager.LoadTextures(textureType_t::OBJECTS, {"objects.bmp", 5, 50});
+    multimediaManager.LoadTextures(textureType_t::WALLS,   {"../assets/wall_textures.bmp", 6, 110});
+    multimediaManager.LoadTextures(textureType_t::GUARD,   {"../assets/guard.bmp", 8, 51});
+    multimediaManager.LoadTextures(textureType_t::OBJECTS, {"../assets/objects.bmp", 5, 50});
     playerManager.Init(inputsBuffer, gameState, multimedia->windowParams.refreshRate);
     mapManager.Init(gameState, multimedia);
-    mapManager.LoadMap("map.csv");
+    mapManager.LoadMap("../assets/map.csv");
     doorManager.Init(gameState, multimedia->windowParams.refreshRate);
     inputParser.Init(inputsBuffer);
     renderer.Init(gameState, multimedia);
