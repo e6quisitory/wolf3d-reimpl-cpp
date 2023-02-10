@@ -1,8 +1,8 @@
 # Wolfenstein 3D Clone
 
-🚧🚧  Work in Progress  🚧🚧
+<p><i>🚧🚧  Work in Progress  🚧🚧</i></p>
 
-I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game is the goal, including enemies, weapons, sound system, etc. So far, I've implemented the following functionality:
+I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game from scratch is the goal, including rendering the game world, enemies, weapons, sound system, etc. So far, I've implemented the following functionality:
 - Raycasting
 - Selectively textured walls with lighting
 - Sprites
@@ -18,20 +18,38 @@ Here is a short video of what the engine is currently capable of:
   <video src="https://user-images.githubusercontent.com/25702188/213652164-ee0d2622-4c79-4e63-87d3-8f52f17b8080.mp4" width=852/>
 </div>
 
+The only dependacy of the project thus far is SDL2, used to open a window and render pixels into it, hardware-based texture scaling, reading keyboard and mouse inputs, and VSYNC.
+
 The comments in the commits are full of detailed explanations on the implementation of parts of the engine, how I encountered and fixed bugs, etc. Worth looking at if you're building something like this yourself.
 
 ## Build Instructions
-The game engine is coded completely from scratch. The only dependancy this project has is the windowing and multimedia library, SDL2, to draw pixels onto the screen as well as to do the texture scaling on the GPU. Suffice to say, coding a multimedia library from scratch is beyond my scope of knoweldge at the moment! So I'm using SDL2.
+The following instructions are for macOS. I will update the build procedure to accommodate other platforms soon.
 
-I'm doing this project on a 2020 M1 MacBook Air, and have installed SDL2 using Homebrew:
+Firstly, ensure `CMake`, `Ninja`, and `SDL2` are installed on your Mac through Homebrew:
 ```
+brew install cmake
+brew install ninja
 brew install sdl2
 ```
-I'm compiling and running like so:
+
+Now, clone this repo and `cd` into it:
 ```
-cd src/GameEngine; g++ -std=c++17 ../main.cpp Utilities/MiscMath/MiscMath.cpp Utilities/Ray/Ray.cpp Utilities/DDA/DDA.cpp Managers/DoorManager/DoorManager.cpp Managers/MapManager/MapManager.cpp Managers/MultimediaManager/MultimediaManager.cpp Managers/PlayerManager/PlayerManager.cpp State/GameState/Map/Map.cpp Multimedia/Multimedia.cpp State/InputsBuffer/InputsBuffer.cpp InputsParser/InputsParser.cpp Utilities/MapFile/MapFile.cpp State/GameState/Map/Tile/Tile.cpp State/GameState/Map/Tile/EmptyTile/EmptyTile.cpp State/GameState/Map/Tile/WallTile/WallTile.cpp State/GameState/Map/Tile/DoorTile/DoorTile.cpp State/GameState/Map/Tile/SpriteTile/SpriteTile.cpp Renderer/Renderer.cpp GameEngine.cpp -O3 -o ../wolf3d-clone -lSDL2 -Wno-switch; cd ..; ./wolf3d-clone; rm wolf3d-clone; cd ..
+git clone https://github.com/e6quisitory/wolf3d-clone.git
+cd wolf3d-clone
 ```
-(yes i know this is hideous; I will write a proper Cmake script soon...)
+
+Then run the following to build:
+```
+mkdir build
+cd build
+cmake -G "Ninja" ../src
+ninja
+```
+
+And run the executable like so:
+```
+./wolf3d-clone
+```
 
 ## Controls & Map Loading
 `W`, `A`, `S`, `D` to move, mouse to look around, `spacebar` for opening doors, `Esc` to exit game.
@@ -42,9 +60,8 @@ As for how to construct the map, i.e. what the values in the `csv` file mean, I 
 
 ## Immediate Goals
 - Precompiled header
-- Refactoring according to [idTech4 style guidelines](https://github.com/e6quisitory/wolf3d-clone/files/10593839/CodeStyleConventions.pdf)
-- Shifting to Cmake instead of compiling from terminal
-- Character animation
+- Updating Cmake script to accommodate building on Windows and Linux
+- Character/sprite animation
 - Weapons
 - Enemy AI
 
