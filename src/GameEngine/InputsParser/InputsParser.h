@@ -18,9 +18,9 @@ private:
     const Uint8*         keyboardState;
 
 public:
-    void   Init(InputsBuffer* _inputsBuffer);
-    void   ParseInputs()                        const;
+    void   Init            (InputsBuffer* const _inputsBuffer);
+    void   ParseInputs()                                          const;
 
 private:
-    int    GetXrel()                            const;
+    int    GetXrel()                                              const;
 };

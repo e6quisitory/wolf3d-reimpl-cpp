@@ -7,6 +7,12 @@
 #include "Managers/DoorManager/DoorManager.h"
 #include "Renderer/Renderer.h"
 
+/*
+=========================================================
+    GameEngine
+=========================================================
+*/
+
 class GameEngine {
 public:
     bool quitGameFlag;

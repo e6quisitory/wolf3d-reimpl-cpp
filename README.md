@@ -1,8 +1,6 @@
 # Wolfenstein 3D Clone
 
-<p align="center"><b><i>
 🚧🚧  Work in Progress  🚧🚧
-</i></b></p>
 
 I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game is the goal, including enemies, weapons, sound system, etc. So far, I've implemented the following functionality:
 - Raycasting
@@ -31,7 +29,7 @@ brew install sdl2
 ```
 I'm compiling and running like so:
 ```
-cd src/GameEngine; g++ -std=c++17 ../main.cpp Utilities/MiscMath/MiscMath.cpp Utilities/Ray/Ray.cpp Utilities/DDA/DDA.cpp Managers/DoorManager/DoorManager.cpp Managers/MapManager/MapManager.cpp Managers/MultimediaManager/MultimediaManager.cpp Managers/PlayerManager/PlayerManager.cpp State/GameState/Map/Map.cpp Multimedia/Multimedia.cpp State/InputsBuffer/InputsBuffer.cpp InputsParser/InputsParser.cpp Utilities/MapFile/MapFile.cpp State/GameState/Map/Tile/Tile.cpp State/GameState/Map/Tile/EmptyTile/EmptyTile.cpp State/GameState/Map/Tile/WallTile/WallTile.cpp State/GameState/Map/Tile/DoorTile/DoorTile.cpp State/GameState/Map/Tile/SpriteTile/SpriteTile.cpp Renderer/Renderer.cpp GameEngine.cpp -o ../wolf3d-clone -lSDL2 -Wno-switch; cd ..; ./wolf3d-clone; rm wolf3d-clone; cd ..
+cd src/GameEngine; g++ -std=c++17 ../main.cpp Utilities/MiscMath/MiscMath.cpp Utilities/Ray/Ray.cpp Utilities/DDA/DDA.cpp Managers/DoorManager/DoorManager.cpp Managers/MapManager/MapManager.cpp Managers/MultimediaManager/MultimediaManager.cpp Managers/PlayerManager/PlayerManager.cpp State/GameState/Map/Map.cpp Multimedia/Multimedia.cpp State/InputsBuffer/InputsBuffer.cpp InputsParser/InputsParser.cpp Utilities/MapFile/MapFile.cpp State/GameState/Map/Tile/Tile.cpp State/GameState/Map/Tile/EmptyTile/EmptyTile.cpp State/GameState/Map/Tile/WallTile/WallTile.cpp State/GameState/Map/Tile/DoorTile/DoorTile.cpp State/GameState/Map/Tile/SpriteTile/SpriteTile.cpp Renderer/Renderer.cpp GameEngine.cpp -O3 -o ../wolf3d-clone -lSDL2 -Wno-switch; cd ..; ./wolf3d-clone; rm wolf3d-clone; cd ..
 ```
 (yes i know this is hideous; I will write a proper Cmake script soon...)
 

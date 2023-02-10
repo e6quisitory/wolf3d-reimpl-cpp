@@ -6,5 +6,5 @@
 =========================================================
 */
 
-bool    IsInteger         (double d);
-double  DegreesToRadians  (double degrees);
+bool    IsInteger         (const double d);
+double  DegreesToRadians  (const double degrees);

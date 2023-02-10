@@ -16,7 +16,7 @@ private:
 public:
     SpriteTile(const Point2& _center, const texturePair_t& _texture);
     
-    virtual textureSliceDistPair_o  RayTileHit          (HitInfo& hitInfo, const texturePair_o& textureOverride)  const override;
+    virtual textureSliceDistPair_o  RayTileHit          (HitInfo& hitInfo, const texturePair_o textureOverride)   const override;
     virtual bool                    PlayerTileHit()                                                               const override;
             void                    CalculatePerpLine   (const Vec2& view_dir);
     

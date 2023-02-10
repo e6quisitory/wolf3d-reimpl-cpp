@@ -43,7 +43,7 @@ public:
     double         GetDistToHitPoint() const;
     wallType_t     GetWallType();
     double         GetWidthPercent();
-    void           InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPair_t& wallTypeWidthPercentPair);
+    void           InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPair_t wallTypeWidthPercentPair);
 
 private:
     void           CalculateWallTypeWidthPercentPair();

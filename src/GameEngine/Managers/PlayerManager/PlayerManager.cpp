@@ -7,8 +7,8 @@
 ================================
 */
 
-void PlayerManager::Init(InputsBuffer* const _inputs, GameState* const _gameState, const int _screenRefreshRate) {
-    inputs = _inputs;
+void PlayerManager::Init(InputsBuffer* const _inputsBuffer, GameState* const _gameState, const int _screenRefreshRate) {
+    inputsBuffer = _inputsBuffer;
     gameState = _gameState;
 
     // Set movement and swivel speeds based on display refresh rate (assumed that fps = refresh rate)
@@ -30,7 +30,7 @@ void PlayerManager::SetPlayer(const Point2& location, const Vec2& viewDir) {
 
 void PlayerManager::Update() const {
 
-    inputCommand_t currentLookingCommand = inputs->currentCommands[inputCommandType_t::LOOKING];
+    inputCommand_t currentLookingCommand = inputsBuffer->currentCommands[inputCommandType_t::LOOKING];
 
     switch(currentLookingCommand) {
         case inputCommand_t::LOOK_RIGHT:
@@ -40,7 +40,7 @@ void PlayerManager::Update() const {
             Swivel(swivelDir_t::COUNTER_CLOCKWISE); break;
     }
 
-    inputCommand_t currentMovementCommand = inputs->currentCommands[inputCommandType_t::MOVEMENT];
+    inputCommand_t currentMovementCommand = inputsBuffer->currentCommands[inputCommandType_t::MOVEMENT];
 
     switch(currentMovementCommand) {
         case inputCommand_t::MOVE_EAST:
@@ -80,7 +80,7 @@ void PlayerManager::Update() const {
             break;
     }
 
-    inputCommand_t currentDoorsCommand = inputs->currentCommands[inputCommandType_t::DOORS];
+    inputCommand_t currentDoorsCommand = inputsBuffer->currentCommands[inputCommandType_t::DOORS];
 
     if (currentDoorsCommand == inputCommand_t::OPEN_DOOR)
         OpenDoor();
@@ -92,29 +92,29 @@ void PlayerManager::Update() const {
 ================================
 */
 
-double PlayerManager::GetPlayerSpeedCoeff(playerSpeed_t playerSpeed) const {
+double PlayerManager::GetPlayerSpeedCoeff(const playerSpeed_t playerSpeed) const {
     switch (playerSpeed) {
         case playerSpeed_t::FULL: return movementIncrement;
         case playerSpeed_t::HALF: return 0.70711 * movementIncrement;  // Reduce speed in each direction if going diagonally (45-45 triangle)
     }
 }
 
-void PlayerManager::MoveX(xDir_t xDir, playerSpeed_t playerSpeed) const {
+void PlayerManager::MoveX(const xDir_t xDir, const playerSpeed_t playerSpeed) const {
     Vec2 moveVec       = static_cast<int>(xDir) * GetPlayerSpeedCoeff(playerSpeed) * gameState->player.eastDir;
     Point2 proposedLoc = gameState->player.location + moveVec;
 
     MovePlayerIfValid(proposedLoc);
 }
 
-void PlayerManager::MoveY(yDir_t yDir, playerSpeed_t playerSpeed) const {
+void PlayerManager::MoveY(const yDir_t yDir, const playerSpeed_t playerSpeed) const {
     Vec2 movVec        = static_cast<int>(yDir) * GetPlayerSpeedCoeff(playerSpeed) * gameState->player.viewDir;
     Point2 proposedLoc = gameState->player.location + movVec;
 
     MovePlayerIfValid(proposedLoc);
 }
 
-void PlayerManager::Swivel(swivelDir_t swivelDir) const {
-    gameState->player.viewDir = gameState->player.viewDir.Rotate(swivelIncrement * inputs->mouseAbsXrel * static_cast<int>(swivelDir));
+void PlayerManager::Swivel(const swivelDir_t swivelDir) const {
+    gameState->player.viewDir = gameState->player.viewDir.Rotate(swivelIncrement * inputsBuffer->mouseAbsXrel * static_cast<int>(swivelDir));
     gameState->player.eastDir = gameState->player.viewDir.Rotate(-PI / 2);
 }
 

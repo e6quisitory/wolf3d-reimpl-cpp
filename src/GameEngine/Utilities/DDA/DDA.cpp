@@ -24,8 +24,8 @@ Public Methods
 */
 
 void HitInfo::GoToNextHit() {
-    Point2 nextX = ray.NextXIntersection(hitPoint);
-    Point2 nextY = ray.NextYIntersection(hitPoint);
+    Point2 nextX = ray.NextXIntrscPoint(hitPoint);
+    Point2 nextY = ray.NextYIntrscPoint(hitPoint);
 
     double distNextX = ray.DistToPoint(nextX);
     double distNextY = ray.DistToPoint(nextY);
@@ -78,7 +78,7 @@ double HitInfo::GetWidthPercent() {
     return wallTypeWidthPercentPair_o->second;
 }
 
-void HitInfo::InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPair_t& wallTypeWidthPercentPair) {
+void HitInfo::InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPair_t wallTypeWidthPercentPair) {
     wallTypeWidthPercentPair_o = wallTypeWidthPercentPair;
 }
 

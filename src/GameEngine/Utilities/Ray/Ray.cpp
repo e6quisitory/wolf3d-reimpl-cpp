@@ -31,18 +31,18 @@ Ray::Ray() {}
 ================================
 */
 
-Point2 Ray::NextXIntersection(const Point2& pt) const {
-    int next_x = nextX(pt);
-    return Point2(next_x, yAt(next_x));
+Point2 Ray::NextXIntrscPoint(const Point2& currPoint) const {
+    int nextXVal = nextX(currPoint);
+    return Point2(nextXVal, yAt(nextXVal));
 }
 
-Point2 Ray::NextYIntersection(const Point2& pt) const {
-    int next_y = nextY(pt);
-    return Point2(xAt(next_y), next_y);
+Point2 Ray::NextYIntrscPoint(const Point2& currPoint) const {
+    int nextYVal = nextY(currPoint);
+    return Point2(xAt(nextYVal), nextYVal);
 }
 
-double Ray::DistToPoint(const Point2& p) const {
-    return RayDist_dx(p.x() - origin.x());
+double Ray::DistToPoint(const Point2& point) const {
+    return RayDist_dx(point.x() - origin.x());
 }
 
 /*
@@ -51,11 +51,11 @@ double Ray::DistToPoint(const Point2& p) const {
 ================================
 */
 
-double Ray::yAt(double x) const {
+double Ray::yAt(const double x) const {
     return origin.y() + ((x-origin.x())/direction.x())*direction.y();
 }
 
-double Ray::xAt(double y) const {
+double Ray::xAt(const double y) const {
     return origin.x() + ((y-origin.y())/direction.y())*direction.x();
 }
 
@@ -81,11 +81,11 @@ int Ray::nextY(const Point2& pt) const {
     }
 }
 
-double Ray::RayDist_dx(double dx) const {
+double Ray::RayDist_dx(const double dx) const {
     return abs(dx) * dxConst;
 }
 
-double Ray::RayDist_dy(double dy) const {
+double Ray::RayDist_dy(const double dy) const {
     return abs(dy) * dyConst;
 }
 

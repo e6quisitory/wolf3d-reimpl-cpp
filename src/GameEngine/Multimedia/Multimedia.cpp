@@ -9,21 +9,21 @@
 =========================================================
 */
 
-SDL_Texture* Multimedia::GetTexture(const textureType_t& textureType, const int& textureID) const {
+SDL_Texture* Multimedia::GetTexture(const textureType_t textureType, const int textureID) const {
     return textures.at(textureType)[textureID - 1];
 }
 
-void Multimedia::AddTexture(const textureType_t& textureType, SDL_Texture* const texture) {
+void Multimedia::AddTexture(const textureType_t textureType, SDL_Texture* const texture) {
     textures[textureType].push_back(texture);
 }
 
-texturePair_t Multimedia::GetTexturePair(const textureType_t& textureType, const int& textureID) const {
+texturePair_t Multimedia::GetTexturePair(const textureType_t textureType, const int textureID) const {
     SDL_Texture* t = GetTexture(textureType, textureID);
     return texturePair_t(t, t);
 
 }
 
-texturePair_t Multimedia::GetWallTexturePair(int textureID) const {
+texturePair_t Multimedia::GetWallTexturePair(const int textureID) const {
     static const std::array<int, 10> noLightingIDList = {31, 32, 41, 42, 43, 44, 107, 108, 109, 110};
 
     // Check if textureID is part of no lighting list ; if so, make pair have same texture

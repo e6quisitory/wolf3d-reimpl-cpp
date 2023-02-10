@@ -6,7 +6,7 @@
 ================================
 */
 
-void InputsParser::Init(InputsBuffer* _inputsBuffer) {
+void InputsParser::Init(InputsBuffer* const _inputsBuffer) {
     inputsBuffer = _inputsBuffer;
     _inputsBuffer->quitGameFlag = false;
 

@@ -39,10 +39,10 @@ enum class inputCommand_t {
 
 class InputsBuffer {
 public:
-    std::map<inputCommandType_t, inputCommand_t> currentCommands;
-    int   mouseAbsXrel;
-    bool  quitGameFlag;
+    std::map<inputCommandType_t, inputCommand_t>  currentCommands;
+    int                                           mouseAbsXrel;
+    bool                                          quitGameFlag;
 
 public:
-    bool  AnyActiveInputs() const;
+    bool AnyActiveInputs() const;
 };

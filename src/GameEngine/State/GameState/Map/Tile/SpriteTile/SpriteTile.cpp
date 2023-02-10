@@ -17,7 +17,7 @@ SpriteTile::SpriteTile(const Point2& _center, const texturePair_t& _texture): te
 ================================
 */
 
-textureSliceDistPair_o SpriteTile::RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const {
+textureSliceDistPair_o SpriteTile::RayTileHit(HitInfo& hitInfo, const texturePair_o textureOverride) const {
     HitInfo_o perpLineHitInfo = RayPerpLineHit(hitInfo.ray);
 
     if (perpLineHitInfo.has_value()) {

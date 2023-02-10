@@ -18,7 +18,7 @@ private:
     std::pair<bool, DoorTile*>  activeDoorToErase;  // Only one door can be opened at once; thus only one door can have closed at any given time
 
 public:
-    void       Init                             (GameState *const _gameState, const int _screenRefreshRate);
+    void       Init                             (GameState* const _gameState, const int _screenRefreshRate);
     void       Update();
 
 private:
@@ -29,7 +29,7 @@ private:
 
     bool       ActiveDoorAwaitingRemoval()                                     const;
     DoorTile*  GetActiveDoorAwaitingRemove()                                   const;
-    void       SetActiveDoorForRemoval          (DoorTile* const _door);
+    void       SetActiveDoorForRemoval          (DoorTile* const doorTile);
     void       ClearActiveDoorForRemoval();
     void       RemoveActiveDoorIfAnyAwaiting();
 

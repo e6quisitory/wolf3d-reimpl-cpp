@@ -15,11 +15,11 @@
 */
 
 struct textureSlice_t {
-    textureSlice_t(SDL_Texture* t, SDL_Rect r);
+    textureSlice_t(SDL_Texture* const t, SDL_Rect r);
     textureSlice_t();
 
-    SDL_Texture* texture;
-    SDL_Rect textureRect;
+    SDL_Texture*  texture;
+    SDL_Rect      textureRect;
 };
 
 typedef std::optional   <std::pair<textureSlice_t, double>>      textureSliceDistPair_o;
@@ -46,9 +46,9 @@ public:
 
 public:
     virtual                          ~Tile();
-    virtual textureSliceDistPair_o   RayTileHit        (HitInfo& hitInfo, const texturePair_o& textureOverride)  const = 0;
-    virtual bool                     PlayerTileHit()                                                             const = 0;
+    virtual textureSliceDistPair_o   RayTileHit        (HitInfo& hitInfo, const texturePair_o textureOverride)  const = 0;
+    virtual bool                     PlayerTileHit()                                                            const = 0;
 
 protected:
-    SDL_Texture* LightTexture(const texturePair_t& _texturePair, HitInfo& hitInfo) const;
+    SDL_Texture*                     LightTexture      (const texturePair_t _texturePair, HitInfo& hitInfo)     const;
 };

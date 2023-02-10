@@ -8,7 +8,6 @@
 #include "Tile/DoorTile/DoorTile.h"
 #include "Tile/SpriteTile/SpriteTile.h"
 
-
 /*
 =========================================================
     Map
@@ -31,12 +30,12 @@ public:
     std::vector<SpriteTile*>         sprites;
 
 public:
-    Tile*                             operator []           (const int& tileIndex)              const;
-    Tile*                             operator ()           (const int& tileCoordX, const int& tileCoordY)    const;
+    Tile*                             operator []           (const int tileIndex)                          const;
+    Tile*                             operator ()           (const int tileCoordX, const int tileCoordY)   const;
 
-    Tile*                             GetTile               (const iPoint2& tileCoord)            const;
-    bool                              WithinMap             (const iPoint2& tileCoord)             const;
+    Tile*                             GetTile               (const iPoint2& tileCoord)                     const;
+    bool                              WithinMap             (const iPoint2& tileCoord)                     const;
     void                              AddActiveDoor         (DoorTile* const door);
     void                              RemoveActiveDoor      (DoorTile* const door);
-    std::optional<DoorTile*>          GetLoneActiveDoor()                                   const;
+    std::optional<DoorTile*>          GetLoneActiveDoor()                                                  const;
 };

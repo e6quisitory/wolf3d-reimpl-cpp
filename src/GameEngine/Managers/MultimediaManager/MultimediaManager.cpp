@@ -27,7 +27,7 @@ void MultimediaManager::Exit() const {
     SDL_Quit();
 }
 
-void MultimediaManager::CreateWindowRenderer(const int& screenWidth, const int& screenHeight) const {
+void MultimediaManager::CreateWindowRenderer(const int screenWidth, const int screenHeight) const {
     // Make sure screen_width and screen_height are even numbers
     assert(screenWidth % 2 == 0 && screenHeight % 2 == 0);
 
@@ -48,17 +48,17 @@ void MultimediaManager::CreateWindowRenderer(const int& screenWidth, const int& 
     SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
-void MultimediaManager::LoadTextures(const textureType_t& texturesType, const spriteSheetParams_t& spriteSheetParams) const {
+void MultimediaManager::LoadTextures(const textureType_t textureType, const spriteSheetParams_t spriteSheetParams) const {
     SDL_Surface* textureSheet = BmpToSurface(spriteSheetParams.fileName.c_str());
 
     // Must take out transparency pixels from sprite sheets
-    if (texturesType != textureType_t::WALLS)
+    if (textureType != textureType_t::WALLS)
         SDL_SetColorKey(textureSheet, SDL_TRUE, TRANSPARENCY_COLOR);
 
     // Then extract all textures from texture sheet and store in array
     for (int textureID = 1; textureID <= spriteSheetParams.numTextures; ++textureID) {
         SDL_Texture* extracted = ExtractTexture(textureSheet, spriteSheetParams.pitch, textureID);
-        multimedia->AddTexture(texturesType, extracted);
+        multimedia->AddTexture(textureType, extracted);
     }
 
     // Free texture sheet SDL_Surface, as all textures from it have been extracted and stored as SDL_Textures
@@ -78,7 +78,7 @@ SDL_Surface* MultimediaManager::BmpToSurface(const char* const fileName) const {
     return bmpSurface_ARGB8888;
 }
 
-SDL_Texture* MultimediaManager::ExtractTexture(SDL_Surface* const textureSheet, const int& textureSheetPitch, int textureID) const {
+SDL_Texture* MultimediaManager::ExtractTexture(SDL_Surface* const textureSheet, const int textureSheetPitch, const int textureID) const {
     int topleftPixel_x = ((textureID - 1) % textureSheetPitch ) * TEXTURE_PITCH;
     int topleftPixel_y = ((textureID - 1) / textureSheetPitch ) * TEXTURE_PITCH;
     SDL_Rect textureRect = {topleftPixel_x, topleftPixel_y, TEXTURE_PITCH, TEXTURE_PITCH};

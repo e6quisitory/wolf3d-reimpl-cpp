@@ -42,5 +42,5 @@ public:
 private:
     void                 ParseCSV      (const std::string& mapFileName);
     void                 PushTileInfo  (int& tileIndex, std::string& cellString);
-    parsedTextureInfo_o  ParseTileCode (const std::string& textureCode) const;
+    parsedTextureInfo_o  ParseTileCode (const std::string& textureCode)             const;
 };

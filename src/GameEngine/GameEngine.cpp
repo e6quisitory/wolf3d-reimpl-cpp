@@ -3,6 +3,12 @@
 
 #include "GameEngine.h"
 
+/*
+=========================================================
+    Public Methods
+=========================================================
+*/
+
 void GameEngine::Init() {
     // Allocate shared objects
     inputsBuffer = new InputsBuffer;

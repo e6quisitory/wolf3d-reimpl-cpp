@@ -100,8 +100,8 @@ DoorTile* DoorManager::GetActiveDoorAwaitingRemove() const {
     return activeDoorToErase.second;
 }
 
-void DoorManager::SetActiveDoorForRemoval(DoorTile* const _door) {
-    activeDoorToErase = {true, _door};
+void DoorManager::SetActiveDoorForRemoval(DoorTile* const doorTile) {
+    activeDoorToErase = {true, doorTile};
 }
 
 void DoorManager::ClearActiveDoorForRemoval() {

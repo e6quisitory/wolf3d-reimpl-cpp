@@ -25,7 +25,7 @@ void MapManager::Exit() const {
         delete tile;
 }
 
-void MapManager::LoadMap(const std::string& file) const {
+void MapManager::LoadMap(const std::string file) const {
     MapFile mapFile(file);
 
     gameState->map.mapWidth    = mapFile.columns;
@@ -85,7 +85,7 @@ void MapManager::UpdateSpritePerpLines() {
 ================================
 */
 
-Point2 MapManager::GetTileCenterPt(const int& index, const int& mapWidth) const {
+Point2 MapManager::GetTileCenterPt(const int index, const int mapWidth) const {
     int x = index % mapWidth;
     int y = index / mapWidth;
     return Point2(x + 0.5, y + 0.5);

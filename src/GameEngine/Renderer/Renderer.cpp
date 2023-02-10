@@ -111,13 +111,13 @@ void Renderer::DrawSprites() {
     }
 }
 
-Ray Renderer::GetRay(const int& ray_num) const {
-    return Ray(gameState->player.location, gameState->player.viewDir.Rotate(castingRayAngles[ray_num].first));
+Ray Renderer::GetRay(const int rayNum) const {
+    return Ray(gameState->player.location, gameState->player.viewDir.Rotate(castingRayAngles[rayNum].first));
 }
 
-int Renderer::GetRenderHeight(const double& hit_dist, const double& angle_cosine) const {
+int Renderer::GetRenderHeight(const double hitDist, const double angleCosine) const {
     static double proportionalityConstant = 1.3 * multimedia->windowParams.screenWidth / ((16.0 / 9.0) * (fov / 72.0));
-    return static_cast<int>(proportionalityConstant / (hit_dist * angle_cosine));
+    return static_cast<int>(proportionalityConstant / (hitDist * angleCosine));
 }
 
 SDL_Rect Renderer::GetScreenRect(double renderHeight, int rayNum) const {

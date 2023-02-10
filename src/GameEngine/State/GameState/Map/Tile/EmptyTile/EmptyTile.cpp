@@ -16,7 +16,7 @@ EmptyTile::EmptyTile() {
 =========================================================
 */
 
-textureSliceDistPair_o EmptyTile::RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const {
+textureSliceDistPair_o EmptyTile::RayTileHit(HitInfo& hitInfo, const texturePair_o textureOverride) const {
     return std::nullopt;
 }
 

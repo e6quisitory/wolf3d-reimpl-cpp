@@ -6,11 +6,11 @@
 ================================
 */
 
-Tile* Map::operator [] (const int& tileIndex) const {
+Tile* Map::operator [] (const int tileIndex) const {
     return tiles[tileIndex];
 }
 
-Tile* Map::operator () (const int& tileCoordX, const int& tileCoordY) const {
+Tile* Map::operator () (const int tileCoordX, const int tileCoordY) const {
     return tiles[tileCoordY * mapWidth + tileCoordX];
 }
 

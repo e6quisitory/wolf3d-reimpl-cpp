@@ -40,8 +40,8 @@ public:
     std::map<textureType_t, std::vector<SDL_Texture*>>  textures;
 
 public:
-    SDL_Texture*    GetTexture           (const textureType_t& textureType, const int& textureID)         const;
-    void            AddTexture           (const textureType_t& textureType, SDL_Texture* const texture);
-    texturePair_t   GetTexturePair       (const textureType_t& textureType, const int& textureID)         const;  // Temporary ; will get removed
-    texturePair_t   GetWallTexturePair   (int textureID)                                                  const;  // Performs lighting
+    SDL_Texture*    GetTexture           (const textureType_t textureType, const int textureID)           const;
+    void            AddTexture           (const textureType_t textureType, SDL_Texture* const texture);
+    texturePair_t   GetTexturePair       (const textureType_t textureType, const int textureID)           const;  // Temporary ; will get removed
+    texturePair_t   GetWallTexturePair   (const int textureID)                                            const;  // Performs lighting
 };

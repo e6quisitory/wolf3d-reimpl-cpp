@@ -30,17 +30,17 @@ private:
     SDL_Rect floorScreenRect;
 
 public:
-    void Init            (GameState* const _gameState, Multimedia* const _multimedia);
-    void RenderFrame();
+    void      Init                           (GameState* const _gameState, Multimedia* const _multimedia);
+    void      RenderFrame();
 
 private:
-    void      DrawCeilingFloor()                                                                   const;
+    void      DrawCeilingFloor()                                                                              const;
     void      DrawWalls();
     void      DrawSprites();
 
-    Ray       GetRay                         (const int& ray_num)                                  const;
-    int       GetRenderHeight                (const double& hit_dist, const double& angle_cosine)  const;
-    SDL_Rect  GetScreenRect                  (double renderHeight, int rayNum)                     const;
+    Ray       GetRay                         (const int rayNum)                                               const;
+    int       GetRenderHeight                (const double hitDist, const double angleCosine)                 const;
+    SDL_Rect  GetScreenRect                  (double renderHeight, int rayNum)                                const;
 
     void      CalculateCastingRayAngles();
 };

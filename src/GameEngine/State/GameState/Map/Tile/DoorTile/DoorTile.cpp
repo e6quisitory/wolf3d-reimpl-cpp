@@ -6,7 +6,7 @@
 ================================
 */
 
-DoorTile::DoorTile(const texturePairsPair_t& doorTextures) {
+DoorTile::DoorTile(const texturePairsPair_t doorTextures) {
     auto [_gateTexture, _gateSidewallTexture] = doorTextures;
     gateTexture         = _gateTexture;
     gateSidewallTexture = _gateSidewallTexture;
@@ -25,7 +25,7 @@ DoorTile::DoorTile(const texturePairsPair_t& doorTextures) {
 ================================
 */
 
-textureSliceDistPair_o DoorTile::RayTileHit(HitInfo& hitInfo, const texturePair_o& textureOverride) const {
+textureSliceDistPair_o DoorTile::RayTileHit(HitInfo& hitInfo, const texturePair_o textureOverride) const {
     // Center hit point
     HitInfo centeredHitInfo = hitInfo.GetNextCenterHit();
 
