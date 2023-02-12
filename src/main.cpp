@@ -1,6 +1,18 @@
 #include "GameEngine/GameEngine.h"
 
-int main() {
+#if _WIN64
+
+    #include "Windows.h"
+
+    INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow){
+
+#elif __APPLE__ && __MACH__
+
+    int main() {
+        
+#else
+    #error "Unknown platform"
+#endif
 
     GameEngine gameEngine;
     gameEngine.Init();

@@ -1,4 +1,7 @@
 #include "MultimediaManager.h"
+
+#include <cassert>
+
 #include "../../Utilities/Conventions.h"
 
 /*
