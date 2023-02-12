@@ -1,6 +1,6 @@
-<p><i><b>🚧🚧🚧🚧  Work in Progress  🚧🚧🚧🚧</b></i></p>
-
 # Wolfenstein 3D Clone
+
+<img src="https://user-images.githubusercontent.com/25702188/218297410-8b732b32-b8dc-4e6c-910e-b3732e5346de.png" width=300/>
 
 1. [Introduction & Demo](#introduction)
 2. [Build Instructions](#build)
@@ -186,7 +186,7 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 <a name="credits"/>
 
 ## Credits
-All textures used are the official Wolfenstein 3D textures that shipped in the game back in 1992. I found them [here](https://www.spriters-resource.com/pc_computer/wolfenstein3d/).
+All wall and sprite textures + the logo at the top of this README are from the official Wolfenstein 3D artwork that shipped in the game back in 1992. I found them [here](https://www.spriters-resource.com/pc_computer/wolfenstein3d/).
 
 </a>
 
