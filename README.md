@@ -1,7 +1,20 @@
+<p><i><b>🚧🚧🚧🚧  Work in Progress  🚧🚧🚧🚧</b></i></p>
+
 # Wolfenstein 3D Clone
 
-<p><i><b>🚧🚧  Work in Progress  🚧🚧</b></i></p>
+1. [Introduction & Demo](#introduction)
+2. [Build Instructions](#build)
+    - [Windows](#windows)
+    - [macOS](#macos)
+3. [Controls & Map Loading](#controls)
+4. [Immediate Goals](#igoals)
+5. [Later Goals](#lgoals)
+6. [Credits](#credits)
+7. [Resources Used](#resources)
 
+<a name="introduction"/>
+
+## Introduction
 I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game from scratch is the goal, including rendering the game world, enemies, weapons, sound system, etc. So far, I've implemented the following functionality:
 - Raycasting
 - Selectively textured walls with lighting
@@ -22,7 +35,16 @@ The only dependacy of the project thus far is SDL2, used to open a window and re
 
 The comments in the commits are full of detailed explanations on the implementation of parts of the engine, how I encountered and fixed bugs, etc. Worth looking at if you're building something like this yourself.
 
+</a>
+
+<a name="build"/>
+
 ## Build Instructions
+
+</a>
+
+<a name="windows"/>
+
 ### Windows
 The following instructions assume you're running on an x86-64 Windows machine.
 
@@ -90,6 +112,11 @@ wolf3d-clone/
     ├── SDL2.dll (if not made accessible through PATH)
     └── libc++.dll (if not made accessible through PATH)
 ```
+
+</a>
+
+<a name="macos"/>
+
 ### macOS
 1. Ensure `CMake`, `Ninja`, and `SDL2` are installed on your Mac through [Homebrew](https://brew.sh/):
 
@@ -117,6 +144,12 @@ wolf3d-clone/
     ```
     ./wolf3d-clone
     ```
+    
+</a>
+
+
+<a name="controls"/>
+
 ## Controls & Map Loading
 `W`, `A`, `S`, `D` to move, mouse to look around, `spacebar` for opening doors, `Esc` to exit game.
 
@@ -124,12 +157,20 @@ The map file is `map.csv`, located in the `assets` folder. It is ASCII encoded, 
 
 As for how to construct the map, i.e. what the values in the `map.csv` file mean, I have yet to type up a new guide; I will get to that soon. In the mean time, you can read [this](https://github.com/e6quisitory/wolf3d-clone/commit/3f9f9e308629098a29df2e3ec8103fddd3fc51c0#commitcomment-88618626) old guide and look at the values in the included `map.csv` and try to piece things together.
 
+</a>
+
+<a name="igoals"/>
+
 ## Immediate Goals
 - Build instructions for Linux
 - Setup precompiler header
 - Character/sprite animation
 - Weapons
 - Enemy AI
+
+</a>
+
+<a name="lgoals"/>
 
 ## Later Goals
 - Darken distant walls (shadow/depth effect)
@@ -140,11 +181,21 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 - Proper map editor _(aspirational)_
 - Port to iOS?
 
+</a>
+
+<a name="credits"/>
+
 ## Credits
 All textures used are the official Wolfenstein 3D textures that shipped in the game back in 1992. I found them [here](https://www.spriters-resource.com/pc_computer/wolfenstein3d/).
+
+</a>
+
+<a name="resources"/>
 
 ## Resources Used
 - _Game Engine Blackbook - Wolfenstein 3D_ by Fabien Sanglard
 - [Wolfenstein 3D's map renderer](https://www.youtube.com/watch?v=eOCQfxRQ2pY) (video)
 - [Super Fast Ray Casting in Tiled Worlds using DDA](https://www.youtube.com/watch?v=NbSee-XM7WA) (video)
 - [Make Your Own Raycaster Series](https://www.youtube.com/watch?v=gYRrGTC7GtA) (video)
+
+</a>
