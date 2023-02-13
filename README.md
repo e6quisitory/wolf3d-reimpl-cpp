@@ -40,6 +40,9 @@ The comments in the commits are full of detailed explanations on the implementat
 <a name="build"/>
 
 ## Build Instructions
+Please view the [Releases](https://github.com/e6quisitory/wolf3d-clone/releases) section for pre-compiled binaries that you can simply run without the hassle of compiling the source code yourself.
+
+Currently I only have a Windows executable available for download. I will add a macOS binary and (maybe) and Linux binary once I figure out how to generate those.
 
 </a>
 
@@ -163,7 +166,7 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 
 ## Immediate Goals
 - Build instructions for Linux
-- Setup precompiler header
+- Setup precompiled header in CMake script
 - Character/sprite animation
 - Weapons
 - Enemy AI

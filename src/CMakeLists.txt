@@ -4,7 +4,7 @@ project                  (wolf3d-clone)
 set                      (CMAKE_CXX_STANDARD 17)
 
 # Specify cpp files
-file    			     (GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/*.cpp")
+file                     (GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/*.cpp")
 
 # Add cpp files into executable
 add_executable           (wolf3d-clone ${SRC_FILES})
