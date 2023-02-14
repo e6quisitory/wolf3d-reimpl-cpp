@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <utility>
-
 #include "../State/GameState/GameState.h"
 #include "../Multimedia/Multimedia.h"
 #include "../State/GameState/Map/Tile/Tile.h"

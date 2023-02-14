@@ -1,14 +1,6 @@
 #include "Renderer.h"
 
-#include <cmath>
-#include <vector>
-#include <utility>
-
-#include "../Utilities/Ray/Ray.h"
 #include "../State/GameState/GameState.h"
-#include "../Utilities/DDA/DDA.h"
-#include "../Utilities/Conventions.h"
-#include "../Utilities/MiscMath/MiscMath.h"
 
 /*
 =========================================================

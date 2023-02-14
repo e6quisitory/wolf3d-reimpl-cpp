@@ -1,9 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <map>
-
-#include "../../../Utilities/Vec2D.h"
 #include "Tile/Tile.h"
 #include "Tile/DoorTile/DoorTile.h"
 #include "Tile/SpriteTile/SpriteTile.h"

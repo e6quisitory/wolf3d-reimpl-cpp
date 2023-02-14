@@ -1,5 +1,3 @@
-#include "MiscMath.h"
-#include "../Conventions.h"
 
 bool IsInteger(const double d) {
     if (d - static_cast<int>(d) != 0.0)

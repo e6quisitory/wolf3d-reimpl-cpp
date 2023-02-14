@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cmath>
-#include <iostream>
-#include <iterator>
+#include "COMMON_HEADERS.h"
 
 #include "Conventions.h"
 

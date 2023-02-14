@@ -1,8 +1,5 @@
 #pragma once
 
-#include <map>
-#include <SDL2/SDL.h>
-
 #include "../State/GameState/Map/Tile/Tile.h"
 
 /*

@@ -1,8 +1,4 @@
-#include <string>
-
 #include "MapManager.h"
-#include "../../Utilities/MapFile/MapFile.h"
-#include "../../Utilities/Conventions.h"
 
 #include "../../State/GameState/Map/Tile/EmptyTile/EmptyTile.h"
 #include "../../State/GameState/Map/Tile/WallTile/WallTile.h"

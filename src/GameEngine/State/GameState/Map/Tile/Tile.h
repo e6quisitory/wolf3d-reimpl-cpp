@@ -1,13 +1,5 @@
 #pragma once
 
-#include <optional>
-#include <SDL2/SDL.h>
-
-#include "../../../../Utilities/Vec2D.h"
-#include "../../../../Utilities/Ray/Ray.h"
-#include "../../../../Utilities/DDA/DDA.h"
-#include "../../../../Utilities/Conventions.h"
-
 /*
 =========================================================
     Relevant type definitions

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <algorithm>
-#include <SDL2/SDL.h>
-
 #include "../State/InputsBuffer/InputsBuffer.h"
 #include "../State/GameState/GameState.h"
 

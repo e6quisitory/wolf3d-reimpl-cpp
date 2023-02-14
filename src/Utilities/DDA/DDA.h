@@ -1,6 +1,8 @@
 #pragma once
 
-#include <optional>
+#include "../COMMON_HEADERS.h"
+
+#include "../Vec2D.h"
 #include "../Ray/Ray.h"
 
 /*

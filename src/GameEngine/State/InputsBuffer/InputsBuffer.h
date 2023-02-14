@@ -1,7 +1,5 @@
 #pragma once
 
-#include <map>
-
 /*
 =========================================================
     Relevant type definitions

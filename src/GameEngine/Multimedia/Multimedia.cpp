@@ -1,8 +1,5 @@
 #include "Multimedia.h"
 
-#include <vector>
-#include <array>
-
 /*
 =========================================================
     Public methods

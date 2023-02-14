@@ -1,9 +1,8 @@
 #pragma once
 
-#include <fstream>
-#include <optional>
-#include <vector>
-#include "../../Multimedia/Multimedia.h"
+#include "../COMMON_HEADERS.h"
+
+#include "../../GameEngine/Multimedia/Multimedia.h"
 
 /*
 =========================================================

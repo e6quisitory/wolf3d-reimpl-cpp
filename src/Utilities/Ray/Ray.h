@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Vec2D.h"
 #include "../Conventions.h"
+#include "../Vec2D.h"
 
 /*
 =========================================================

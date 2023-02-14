@@ -1,7 +1,3 @@
-#include "Ray.h"
-#include "../MiscMath/MiscMath.h"
-#include <cmath>
-
 /*
 ================================
     Constructors
