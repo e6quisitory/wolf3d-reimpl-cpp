@@ -8,14 +8,14 @@
 
 #elif __APPLE__ && __MACH__
 
-    int main() {
+    int main(int argc, char** argv) {
         
 #else
     #error "Unknown platform"
 #endif
 
     GameEngine gameEngine;
-    gameEngine.Init();
+    gameEngine.Init(argv[0]);
 
     while (gameEngine.quitGameFlag == false)
         gameEngine.GameLoop();

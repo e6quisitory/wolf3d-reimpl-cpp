@@ -31,7 +31,11 @@ private:
     Renderer           renderer;
 
 public:
+    #if __APPLE__ && __MACH__
+    void Init(const std::string& executablePath);
+    #else
     void Init();
+    #endif
     void Exit();
     void GameLoop();
 };
