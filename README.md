@@ -6,6 +6,7 @@
 2. [Build Instructions](#build)
     - [Windows](#windows)
     - [macOS](#macos)
+    - [Linux (Debian-based)](#linux)
 3. [Controls & Map Loading](#controls)
 4. [Immediate Goals](#igoals)
 5. [Later Goals](#lgoals)
@@ -142,14 +143,81 @@ wolf3d-clone/
     cmake -G "Ninja" ../src
     ninja -j $(sysctl -n hw.physicalcpu)
     ```
-4. Finally, run the executable like so:
+4. Now a clickable `.app` executable should be present in this build directory. It cannot be run from terminal, so navigate in Finder to wherever your build folder is (run `pwd` in terminal to get the location if you're unsure), and then double click on `wolf3d-clone` and the game should launch.
+    
+</a>
+
+<a name="linux"/>
+
+### Linux (Debain-based)
+Note that the below instructions have been tested on Ubuntu, and should work on other Debian-based distros as well (ex. Linux Mint, etc.). I cannot ensure that they'll work on non-Debian based distros, like Arch, CentOS, etc.
+
+1. Update your package lists
+
+    ```
+    sudo apt update
+    ```
+2. Install the following packages
+
+    ```
+    sudo apt install clang
+    sudo apt install cmake
+    sudo apt install ninja-build
+    sudo apt install libsdl2-dev
+    sudo apt install git
+    ```
+3. Clone this repo and `cd` into it:
+
+    ```
+    git clone https://github.com/e6quisitory/wolf3d-clone.git
+    cd wolf3d-clone
+    ```
+4. Run the following to build:
+
+    ```
+    mkdir build
+    cd build
+    cmake -G "Ninja" ../src -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+    ninja
+    ```
+5. Now run the compiled executable like so:
 
     ```
     ./wolf3d-clone
     ```
-    
-</a>
+**Aside**
 
+If after running `ninja`, you get compilation errors of C++ standard library headers not being found (like `<iostream>` etc.), run the following command:
+
+```
+clang -v
+```
+Now check the following two lines of the output:
+
+```
+Found candidate GCC installation: ...
+Selected GCC installation: ...
+```
+Now here, make sure that the _selected_ GCC version is one of the ones _found_. It is possible for the selected version to be one that is not even present on your system, which will cause the standard library headers to not be found. If in your case the selected version is not one of the ones found, you can simply install that version of GCC with the following command:
+
+```
+sudo apt install g++-n
+```
+Where `n` is the version you wish to install. So, for example, if the selected version is GCC 12 and it's not one of the versions found, you can install it like so:
+
+```
+sudo apt install g++-12
+```
+After the GCC installation is finished, make sure you're still in the `build` directory, then run the following set of commands to rebuild the project and run the compiled executable. Now there should be no missing STL header errors that get thrown.
+
+```
+rm -r *
+cmake -G "Ninja" ../src -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+ninja
+./wolf3d-clone
+```
+
+</a>
 
 <a name="controls"/>
 
