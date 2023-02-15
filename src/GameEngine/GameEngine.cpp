@@ -20,7 +20,6 @@ void GameEngine::Init() {
     multimediaManager.Init(multimedia);
     multimediaManager.CreateWindowRenderer(1280 , 720);
 
-
     #if __APPLE__ && __MACH__
     auto parentDirPath      = executablePath.substr(0, executablePath.find_last_of("/\\"));
     auto grandParentDirPath = parentDirPath.substr(0, parentDirPath.find_last_of("/\\"));
