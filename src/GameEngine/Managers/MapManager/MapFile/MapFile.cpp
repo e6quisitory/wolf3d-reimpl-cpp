@@ -1,3 +1,5 @@
+#include "MapFile.h"
+
 /*
 =========================================================
     Relevant type definitions

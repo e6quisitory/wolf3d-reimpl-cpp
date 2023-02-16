@@ -1,6 +1,6 @@
 #pragma once
 
-#include "COMMON_HEADERS.h"
+#include <SDL2/SDL.h>
 
 /*
 ================================

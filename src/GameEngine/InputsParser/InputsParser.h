@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../State/InputsBuffer/InputsBuffer.h"
-#include "../State/GameState/GameState.h"
 
 /*
 =========================================================
@@ -11,8 +10,8 @@
 
 class InputsParser {
 private:
-          InputsBuffer*  inputsBuffer;
-    const Uint8*         keyboardState;
+    InputsBuffer*  inputsBuffer;
+    const Uint8*   keyboardState;
 
 public:
     void   Init            (InputsBuffer* const _inputsBuffer);

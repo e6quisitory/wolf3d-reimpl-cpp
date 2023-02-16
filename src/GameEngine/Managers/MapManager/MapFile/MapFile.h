@@ -1,8 +1,6 @@
 #pragma once
 
-#include "../COMMON_HEADERS.h"
-
-#include "../../GameEngine/Multimedia/Multimedia.h"
+#include "../../../Multimedia/Multimedia.h"
 
 /*
 =========================================================

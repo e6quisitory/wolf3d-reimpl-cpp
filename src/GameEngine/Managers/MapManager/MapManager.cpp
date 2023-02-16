@@ -1,5 +1,6 @@
 #include "MapManager.h"
 
+#include "MapFile/MapFile.h"
 #include "../../State/GameState/Map/Tile/EmptyTile/EmptyTile.h"
 #include "../../State/GameState/Map/Tile/WallTile/WallTile.h"
 #include "../../State/GameState/Map/Tile/DoorTile/DoorTile.h"

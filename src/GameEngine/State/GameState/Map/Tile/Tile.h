@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../../Multimedia/Multimedia.h"
+
 /*
 =========================================================
     Relevant type definitions
@@ -14,10 +16,7 @@ struct textureSlice_t {
     SDL_Rect      textureRect;
 };
 
-typedef std::optional   <std::pair<textureSlice_t, double>>      textureSliceDistPair_o;
-typedef std::pair       <SDL_Texture*, SDL_Texture*>             texturePair_t;
-typedef std::optional   <std::pair<SDL_Texture*, SDL_Texture*>>  texturePair_o;
-typedef std::pair       <texturePair_t, texturePair_t>           texturePairsPair_t;
+typedef std::optional<std::pair<textureSlice_t, double>> textureSliceDistPair_o;
 
 enum class tileType_t {
     EMPTY,

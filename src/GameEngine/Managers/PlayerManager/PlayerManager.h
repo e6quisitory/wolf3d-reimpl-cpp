@@ -14,8 +14,8 @@ private:
     InputsBuffer*  inputsBuffer;
     GameState*     gameState;
 
-    double      movementIncrement;
-    double      swivelIncrement;
+    double  movementIncrement;
+    double  swivelIncrement;
 
 private:
     enum class playerSpeed_t {

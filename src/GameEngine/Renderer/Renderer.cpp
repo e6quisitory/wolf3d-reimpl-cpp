@@ -1,7 +1,5 @@
 #include "Renderer.h"
 
-#include "../State/GameState/GameState.h"
-
 /*
 =========================================================
     Public methods

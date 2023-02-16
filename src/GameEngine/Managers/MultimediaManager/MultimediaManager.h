@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../Multimedia/Multimedia.h"
+
 /*
 =========================================================
     Relevant type definitions
@@ -22,7 +24,7 @@ typedef std::tuple<int, int, int> displayParams_t;
 
 class MultimediaManager {
 private:
-    Multimedia*  multimedia;
+    Multimedia* multimedia;
 
 public:
     void             Init                     (Multimedia* const _multimedia);
