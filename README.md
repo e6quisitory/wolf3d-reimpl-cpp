@@ -233,8 +233,9 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 <a name="igoals"/>
 
 ## Immediate Goals
-- Build instructions for Linux
-- Setup precompiled header in CMake script
+- macOS & Linux pre-compiled binaries
+  - Figure out how to bundle SDL2 _within_ binary package and link against it
+- Get CMake script to automatically download correct SDL2 version (depending on platform) and link against it
 - Character/sprite animation
 - Weapons
 - Enemy AI

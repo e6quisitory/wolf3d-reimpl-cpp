@@ -26,25 +26,24 @@ void MultimediaManager::Exit() const {
     SDL_Quit();
 }
 
-void MultimediaManager::CreateWindowRenderer(const int screenWidth, const int screenHeight) const {
-    // Make sure screen_width and screen_height are even numbers
-    assert(screenWidth % 2 == 0 && screenHeight % 2 == 0);
+void MultimediaManager::CreateWindowRenderer(const int customScreenWidth, const int customScreenHeight) const {
+    assert(customScreenWidth % 2 == 0 && customScreenHeight % 2 == 0);
 
-    multimedia->sdlWindow   = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
-    multimedia->sdlRenderer = SDL_CreateRenderer(multimedia->sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // VSYNC is important
-    SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+    CreateSdlWindowRenderer(customScreenWidth, customScreenHeight, false);
 
-    // Set WindowParams
-    multimedia->windowParams.screenHeight = screenHeight;
-    multimedia->windowParams.screenWidth = screenWidth;
-    SDL_DisplayMode displayMode;
-    SDL_GetCurrentDisplayMode(0, &displayMode);
-    multimedia->windowParams.refreshRate = displayMode.refresh_rate;
+    multimedia->windowParams.screenHeight = customScreenHeight;
+    multimedia->windowParams.screenWidth  = customScreenWidth;
+    multimedia->windowParams.refreshRate  = std::get<2>(GetDisplayParams());
 
-    // Lock mouse to within window and hide pointer
-    SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
-    SDL_ShowCursor(SDL_DISABLE);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    LockMouseToWindow();
+}
+
+void MultimediaManager::CreateWindowRenderer() const {
+    auto [displayWidth, displayHeight, displayRefreshRate] = GetDisplayParams();
+    multimedia->windowParams = {displayWidth, displayHeight, displayRefreshRate};
+
+    CreateSdlWindowRenderer(displayWidth, displayHeight, true);
+    LockMouseToWindow();
 }
 
 void MultimediaManager::LoadTextures(const textureType_t textureType, const spriteSheetParams_t spriteSheetParams) const {
@@ -69,6 +68,26 @@ void MultimediaManager::LoadTextures(const textureType_t textureType, const spri
     Private Methods
 ================================
 */
+
+displayParams_t MultimediaManager::GetDisplayParams() const {
+    SDL_DisplayMode displayMode;
+    SDL_GetCurrentDisplayMode(0, &displayMode);
+    return displayParams_t(displayMode.w, displayMode.h, displayMode.refresh_rate);
+}
+
+void MultimediaManager::CreateSdlWindowRenderer(const int screenWidth, const int screenHeight, const bool fullScreen) const {
+    multimedia->sdlWindow   = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+    multimedia->sdlRenderer = SDL_CreateRenderer(multimedia->sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+
+    SDL_SetWindowFullscreen(multimedia->sdlWindow, fullScreen ? SDL_WINDOW_FULLSCREEN : 0);
+}
+
+void MultimediaManager::LockMouseToWindow() const {
+    SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
+    SDL_ShowCursor(SDL_DISABLE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+}
 
 SDL_Surface* MultimediaManager::BmpToSurface(const char* const fileName) const {
     SDL_Surface* bmpSurface          = SDL_LoadBMP(fileName);
