@@ -43,11 +43,13 @@ void GameEngine::Init() {
     #endif
 
     doorManager.Init(gameState, multimedia->windowParams.refreshRate);
-    inputParser.Init(inputsBuffer);
+    inputsParser.Init(inputsBuffer);
     renderer.Init(gameState, multimedia);
 
     // Set player location & view direction
     playerManager.SetPlayer(Point2(4.8, 28.1), Vec2(1, 1));
+
+    quitGameFlag = false;
 }
 
 void GameEngine::Exit() {
@@ -70,7 +72,7 @@ void GameEngine::GameLoop() {
     } else
         SDL_Delay(20);
 
-    inputParser.ParseInputs();
+    inputsParser.ParseInputs();
     doorManager.Update();
 
     running = inputsBuffer->AnyActiveInputs() || gameState->map.anyDoorsAwaitingRendering;

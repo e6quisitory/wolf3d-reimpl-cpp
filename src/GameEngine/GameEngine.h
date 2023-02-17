@@ -23,7 +23,7 @@ private:
     GameState*         gameState;
     Multimedia*        multimedia;
 
-    InputsParser       inputParser;
+    InputsParser       inputsParser;
     MultimediaManager  multimediaManager;
     PlayerManager      playerManager;
     MapManager         mapManager;
