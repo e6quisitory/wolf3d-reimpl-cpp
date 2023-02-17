@@ -3,15 +3,16 @@
 <img src="https://user-images.githubusercontent.com/25702188/218297410-8b732b32-b8dc-4e6c-910e-b3732e5346de.png" width=300/>
 
 1. [Introduction & Demo](#introduction)
-2. [Build Instructions](#build)
-    - [Windows](#windows)
+2. [Pre-compiled Binaries](#binaries)
+3. [Build Instructions](#build)
+    - [Windows](#windows-build)
     - [macOS](#macos)
     - [Linux (Debian-based)](#linux)
-3. [Controls & Map Loading](#controls)
-4. [Immediate Goals](#igoals)
-5. [Later Goals](#lgoals)
-6. [Credits](#credits)
-7. [Resources Used](#resources)
+4. [Controls & Map Loading](#controls)
+5. [Immediate Goals](#igoals)
+6. [Later Goals](#lgoals)
+7. [Credits](#credits)
+8. [Resources Used](#resources)
 
 <a name="introduction"/>
 
@@ -38,16 +39,37 @@ The comments in the commits are full of detailed explanations on the implementat
 
 </a>
 
-<a name="build"/>
+<a name="binaries"/>
 
-## Build Instructions
-Please view the [Releases](https://github.com/e6quisitory/wolf3d-clone/releases) section for pre-compiled binaries that you can simply run without the hassle of compiling the source code yourself.
+## Pre-compiled Binaries
+Head on over to the [Releases](https://github.com/e6quisitory/wolf3d-clone/releases) section. There you'll find archives with pre-compiled binaries for Windows and macOS (Linux `.deb` coming soon). Below are instructions on how to run the binary on each respective platform.
 
-Currently I only have a Windows executable available for download. I will add a macOS binary and (maybe) and Linux binary once I figure out how to generate those.
+### Windows
+Unzip the archive, go into the `bin` folder, then double-click on `wolf3d-clone.exe`.
+
+If you're running Windows 11, there is a chance SmartScreen might flag the executable as being potentially malicious. This is due to the code not being signed (I still gotta figure that out). So for now, either turn off SmartScreen temporarily or allow the executable to bypass it (if the option is present).
+
+### macOS (x86 & ARM)
+Unzip the archive. Inside you'll find a `run.command` script. Double click it to launch the game. It is expected that macOS will initially not allow you to run the script; there'll be a pop up saying:
+```
+"run.command” cannot be opened because it is from an unidentified developer
+```
+This is due to the code not being signed (I have yet to figure that out). So, for now, close that pop up, then go to:
+```
+System Settings -> Privacy & Security
+```
+There, at the bottom you'll see something along the lines of **_"run.command" was blocked..."_** and next to it a button that says `Open Anyway`. Hit that, after which it'll likely prompt you for your password/fingerprint, after which there'll be another dialog, hit enter on that as well, and finally the game should launch.
 
 </a>
 
-<a name="windows"/>
+<a name="build"/>
+
+## Build Instructions
+If you'd like to compile/build the project yourself, below are instructions on how to do so for each major platform.
+
+</a>
+
+<a name="windows-build"/>
 
 ### Windows
 The following instructions assume you're running on an x86-64 Windows machine.
@@ -122,13 +144,18 @@ wolf3d-clone/
 <a name="macos"/>
 
 ### macOS
-1. Ensure `CMake`, `Ninja`, and `SDL2` are installed on your Mac through [Homebrew](https://brew.sh/):
+1. Ensure `CMake` and `Ninja` are installed on your Mac through [Homebrew](https://brew.sh/):
 
     ```
     brew install cmake
     brew install ninja
-    brew install sdl2
     ```
+2. Head on over to the [SDL releases page](https://github.com/libsdl-org/SDL/releases) and download the latest SDL release for macOS (with a `.dmg` extension).
+    - After download, mount the `.dmg` archive (open it)
+    - Inside you'll see a macOS framework bundle named `SDL2.framework`. Copy it.
+    - Open a Finder window, hit `Command`+`Shift`+`G` and type in `/Library/Frameworks`
+    - Now paste the copied `SDL2.framework` into this folder
+    
 2. Clone this repo and `cd` into it:
 
     ```
@@ -143,7 +170,11 @@ wolf3d-clone/
     cmake -G "Ninja" ../src
     ninja -j $(sysctl -n hw.physicalcpu)
     ```
-4. Now a clickable `.app` executable should be present in this build directory. It cannot be run from terminal, so navigate in Finder to wherever your build folder is (run `pwd` in terminal to get the location if you're unsure), and then double click on `wolf3d-clone` and the game should launch.
+4. Now a clickable `.app` executable should be present in this build directory. You can run it from the terminal with the below command, and you can also navigate to it and simply double-click it as well to launch.
+
+    ```
+    open -n ./wolf3d-clone.app
+    ```
     
 </a>
 
@@ -233,9 +264,11 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 <a name="igoals"/>
 
 ## Immediate Goals
-- macOS & Linux pre-compiled binaries
-  - Figure out how to bundle SDL2 _within_ binary package and link against it
-- Get CMake script to automatically download correct SDL2 version (depending on platform) and link against it
+- Linux pre-compiled binary
+- Write a more sophisticated CMake script that:
+    - Automatically detects platform and downloads the correct version of SDL2
+    - Puts SDL2 inside binary package and links against that local copy (changes `RPATH`)
+    - Creates appropriate package automatically (`.app` for macOS, `.deb` for Linux, folder for Windows)
 - Character/sprite animation
 - Weapons
 - Enemy AI
