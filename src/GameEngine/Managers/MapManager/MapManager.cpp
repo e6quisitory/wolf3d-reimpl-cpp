@@ -25,13 +25,12 @@ void MapManager::Exit() const {
 void MapManager::LoadMap(const std::string file) const {
     MapFile mapFile(file);
 
-    worldState->map.mapWidth    = mapFile.columns;
-    worldState->map.mapHeight   = mapFile.rows;
-    worldState->map.numTiles    = mapFile.numCells;
+    worldState->map.mapWidth  = mapFile.columns;
+    worldState->map.mapHeight = mapFile.rows;
+    worldState->map.numTiles  = mapFile.numCells;
 
     // Grab door textures to feed into DoorTiles
-    texturePairsPair_t door_textures = {multimedia->GetWallTexturePair(99),
-                                        multimedia->GetWallTexturePair(101)};
+    texturePairsPair_t door_textures = {multimedia->GetWallTexturePair(99), multimedia->GetWallTexturePair(101)};
 
     // Allocate enough memory and fill map with tiles corresponding to mapFile data
     worldState->map.tiles.reserve(mapFile.numCells);
@@ -63,16 +62,14 @@ void MapManager::LoadMap(const std::string file) const {
 
             }
         } else {
-
-                /* Empty tile */
-                worldState->map.tiles.push_back(new EmptyTile());
-
+            /* Empty tile */
+            worldState->map.tiles.push_back(new EmptyTile());
         }
     }
 }
 
 void MapManager::UpdateSpritePerplines() const {
-    static double negNinetyDeg = -PI / 2;
+    static const double negNinetyDeg = -PI / 2;
     Vec2 playerViewDirPerp = worldState->player.viewDir.Rotate(negNinetyDeg);
     SpriteTile::perplinesDir = playerViewDirPerp;
 }

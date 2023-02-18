@@ -18,6 +18,7 @@ void PlayerManager::Init(InputsBuffer* const _inputsBuffer, WorldState* const _w
 void PlayerManager::SetPlayer(const Point2& location, const Vec2& viewDir) {
     worldState->player.location = location;
     worldState->player.viewDir  = UnitVector(viewDir);
+    worldState->player.eastDir = worldState->player.viewDir.Rotate(-PI/2);
 
     // If spawn is set for a perfect grid corner (i.e. x and y vals are both integers), there is some weird clipping that happens when you first move
     // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
@@ -113,8 +114,9 @@ void PlayerManager::MoveY(const yDir_t yDir, const playerSpeed_t playerSpeed) co
 }
 
 void PlayerManager::Swivel(const swivelDir_t swivelDir) const {
+    static const double negNinetyDeg = -PI/2;
     worldState->player.viewDir = worldState->player.viewDir.Rotate(swivelIncrement * inputsBuffer->mouseAbsXrel * static_cast<int>(swivelDir));
-    worldState->player.eastDir = worldState->player.viewDir.Rotate(-PI / 2);
+    worldState->player.eastDir = worldState->player.viewDir.Rotate(negNinetyDeg);
 }
 
 void PlayerManager::MovePlayerIfValid(const Point2& proposedLoc) const {
