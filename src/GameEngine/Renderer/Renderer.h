@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../State/GameState/GameState.h"
+#include "../State/WorldState/WorldState.h"
 #include "../Multimedia/Multimedia.h"
 
 /*
@@ -13,7 +13,7 @@ class Renderer {
 private:
     typedef std::pair<textureSlice_t, SDL_Rect> textureSliceScreenRectPair_t;
 
-    GameState*     gameState;
+    WorldState*    worldState;
     Multimedia*    multimedia;
 
     std::vector    <std::pair<double, double>>     castingRayAngles;  // {angle, cosine(angle)}
@@ -26,7 +26,7 @@ private:
     SDL_Rect floorScreenRect;
 
 public:
-    void      Init                           (GameState* const _gameState, Multimedia* const _multimedia);
+    void      Init                           (WorldState* const _worldState, Multimedia* const _multimedia);
     void      RenderFrame();
 
 private:

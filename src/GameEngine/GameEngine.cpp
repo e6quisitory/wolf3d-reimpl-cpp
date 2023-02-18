@@ -13,7 +13,7 @@ void GameEngine::Init() {
 #endif
     // Allocate shared objects
     inputsBuffer = new InputsBuffer;
-    gameState    = new GameState;
+    worldState   = new WorldState;
     multimedia   = new Multimedia;
 
     // Initialize input parser, managers, and renderer
@@ -33,8 +33,8 @@ void GameEngine::Init() {
     multimediaManager.LoadTextures(textureType_t::OBJECTS, {"../assets/objects.bmp", 5, 50});
     #endif
 
-    playerManager.Init(inputsBuffer, gameState, multimedia->windowParams.refreshRate);
-    mapManager.Init(gameState, multimedia);
+    playerManager.Init(inputsBuffer, worldState, multimedia->windowParams.refreshRate);
+    mapManager.Init(worldState, multimedia);
 
     #if __APPLE__ && __MACH__ 
     mapManager.LoadMap(assetsDirPath + "map.csv");
@@ -42,9 +42,9 @@ void GameEngine::Init() {
     mapManager.LoadMap("../assets/map.csv");
     #endif
 
-    doorManager.Init(gameState, multimedia->windowParams.refreshRate);
+    doorManager.Init(worldState, multimedia->windowParams.refreshRate);
     inputsParser.Init(inputsBuffer);
-    renderer.Init(gameState, multimedia);
+    renderer.Init(worldState, multimedia);
 
     // Set player location & view direction
     playerManager.SetPlayer(Point2(4.8, 28.1), Vec2(1, 1));
@@ -58,7 +58,7 @@ void GameEngine::Exit() {
     multimediaManager.Exit();
 
     delete inputsBuffer;
-    delete gameState;
+    delete worldState;
     delete multimedia;
 }
 
@@ -67,7 +67,7 @@ void GameEngine::GameLoop() {
 
     if (running) {
         playerManager.Update();
-        mapManager.UpdateSpritePerpLines();
+        mapManager.UpdateSpritePerplines();
         renderer.RenderFrame();
     } else
         SDL_Delay(20);
@@ -75,7 +75,7 @@ void GameEngine::GameLoop() {
     inputsParser.ParseInputs();
     doorManager.Update();
 
-    running = inputsBuffer->AnyActiveInputs() || gameState->map.anyDoorsAwaitingRendering;
+    running = inputsBuffer->AnyActiveInputs() || worldState->map.anyDoorsAwaitingRendering;
 
     quitGameFlag = inputsBuffer->quitGameFlag;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../State/GameState/GameState.h"
+#include "../../State/WorldState/WorldState.h"
 #include "../../Multimedia/Multimedia.h"
 
 /*
@@ -11,15 +11,15 @@
 
 class MapManager {
 private:
-    GameState*   gameState;
+    WorldState*  worldState;
     Multimedia*  multimedia;
 
 public:
-    void    Init                       (GameState* const _gameState, Multimedia* const _multimedia);
-    void    Exit()                                                                                   const;
-    void    LoadMap                    (const std::string file)                                      const;
-    void    UpdateSpritePerpLines()                                                                  const;
+    void    Init                       (WorldState* const _worldState, Multimedia* const _multimedia);
+    void    Exit()                                                                                      const;
+    void    LoadMap                    (const std::string file)                                         const;
+    void    UpdateSpritePerplines()                                                                     const;
 
 private:
-    Point2  GetTileCenterPt            (const int index, const int mapWidth)                         const;
+    Point2  GetTileCenterPt            (const int index, const int mapWidth)                            const;
 };

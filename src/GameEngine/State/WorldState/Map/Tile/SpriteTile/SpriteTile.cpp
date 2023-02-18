@@ -8,8 +8,16 @@
 
 SpriteTile::SpriteTile(const Point2& _center, const texturePair_t& _texture): texture(_texture) {
     tileType = tileType_t::SPRITE;
-    perpLine.origin = _center;
+    perplineOrigin = _center;
 }
+
+/*
+================================
+    Static members
+================================
+*/
+
+Vec2 SpriteTile::perplinesDir;
 
 /*
 ================================
@@ -18,7 +26,9 @@ SpriteTile::SpriteTile(const Point2& _center, const texturePair_t& _texture): te
 */
 
 textureSliceDistPair_o SpriteTile::RayTileHit(HitInfo& hitInfo, const texturePair_o textureOverride) const {
-    HitInfo_o perpLineHitInfo = RayPerpLineHit(hitInfo.ray);
+    // Get intersection of incoming ray with perpline
+    Ray incomingRay = hitInfo.ray;
+    HitInfo_o perpLineHitInfo = RayPerplineHit(incomingRay);
 
     if (perpLineHitInfo.has_value()) {
         SDL_Rect textureRect = {static_cast<int>(perpLineHitInfo.value().GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
@@ -29,11 +39,7 @@ textureSliceDistPair_o SpriteTile::RayTileHit(HitInfo& hitInfo, const texturePai
 }
 
 bool SpriteTile::PlayerTileHit() const {
-        return true;
-}
-
-void SpriteTile::setPerplineDirection(const Vec2& playerViewDirPerp) {
-    perpLine.direction = playerViewDirPerp;
+    return true;
 }
 
 /*
@@ -42,11 +48,11 @@ void SpriteTile::setPerplineDirection(const Vec2& playerViewDirPerp) {
 ================================
 */
 
-HitInfo_o SpriteTile::RayPerpLineHit(const Ray& incomingRay) const {
-    Vec2 O1 = incomingRay.origin;
-    Vec2 D1 = incomingRay.direction;
-    Vec2 O2 = perpLine.origin;
-    Vec2 D2 = perpLine.direction;
+HitInfo_o SpriteTile::RayPerplineHit(const Ray& incomingRay) const {
+    Point2 O1 = incomingRay.origin;
+    Vec2   D1 = incomingRay.direction;
+    Point2 O2 = perplineOrigin;
+    Vec2   D2 = perplinesDir;
 
     double denominator = D2.x()*D1.y()-D2.y()*D1.x();
     if (denominator == 0)

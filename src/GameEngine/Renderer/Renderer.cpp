@@ -6,8 +6,8 @@
 =========================================================
 */
 
-void Renderer::Init(GameState* const _gameState, Multimedia* const _multimedia) {
-    gameState = _gameState;
+void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia) {
+    worldState = _worldState;
     multimedia = _multimedia;
 
     // Pre-calculate the ray angles and their cosines, as they do not change
@@ -55,10 +55,10 @@ void Renderer::DrawWalls() {
     for (int rayNum = 0; rayNum < multimedia->windowParams.screenWidth; ++rayNum) {
         HitInfo rayCursor(GetRay(rayNum));
 
-        while (gameState->map.WithinMap(rayCursor.hitTile)) {
-            Tile* prevTile = gameState->map.GetTile(rayCursor.hitTile);
+        while (worldState->map.WithinMap(rayCursor.hitTile)) {
+            Tile* prevTile = worldState->map.GetTile(rayCursor.hitTile);
                 rayCursor.GoToNextHit();
-            Tile* currTile = gameState->map.GetTile(rayCursor.hitTile);
+            Tile* currTile = worldState->map.GetTile(rayCursor.hitTile);
 
             texturePair_o textureOverride;
             if (prevTile->tileType == tileType_t::DOOR)
@@ -76,7 +76,7 @@ void Renderer::DrawWalls() {
                 SDL_Rect screenRect   =  GetScreenRect(renderHeight, rayNum);
 
                 // If sprite is hit, store the rendering info for later, as we first need to render the walls + doors behind the sprites.
-                if (gameState->map.GetTile(rayCursor.hitTile)->tileType == tileType_t::SPRITE) {
+                if (worldState->map.GetTile(rayCursor.hitTile)->tileType == tileType_t::SPRITE) {
                     spriteBackups.emplace_back(textureSlice, screenRect);
                     continue;
                 } else {
@@ -102,7 +102,7 @@ void Renderer::DrawSprites() {
 }
 
 Ray Renderer::GetRay(const int rayNum) const {
-    return Ray(gameState->player.location, gameState->player.viewDir.Rotate(castingRayAngles[rayNum].first));
+    return Ray(worldState->player.location, worldState->player.viewDir.Rotate(castingRayAngles[rayNum].first));
 }
 
 int Renderer::GetRenderHeight(const double hitDist, const double angleCosine) const {

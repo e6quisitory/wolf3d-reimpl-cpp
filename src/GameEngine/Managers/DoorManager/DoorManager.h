@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../State/GameState/GameState.h"
-#include "../../State/GameState/Map/Tile/DoorTile/DoorTile.h"
+#include "../../State/WorldState/WorldState.h"
+#include "../../State/WorldState/Map/Tile/DoorTile/DoorTile.h"
 
 /*
 =========================================================
@@ -11,13 +11,13 @@
 
 class DoorManager {
 private:
-    GameState*                  gameState;
+    WorldState*                 worldState;
     double                      movementIncrement;  // Units of door movement per frame
     double                      timerIncrement;     // Timer units per frame
     std::pair<bool, DoorTile*>  activeDoorToErase;  // Only one door can be opened at once; thus only one door can have closed at any given time
 
 public:
-    void       Init                             (GameState* const _gameState, const int _screenRefreshRate);
+    void       Init                             (WorldState* const _worldState, const int _screenRefreshRate);
     void       Update();
 
 private:

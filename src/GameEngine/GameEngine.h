@@ -20,7 +20,7 @@ public:
 
 private:
     InputsBuffer*      inputsBuffer;
-    GameState*         gameState;
+    WorldState*        worldState;
     Multimedia*        multimedia;
 
     InputsParser       inputsParser;

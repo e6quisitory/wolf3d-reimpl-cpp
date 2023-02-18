@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../State/GameState/GameState.h"
+#include "../../State/WorldState/WorldState.h"
 #include "../../State/InputsBuffer/InputsBuffer.h"
 
 /*
@@ -12,7 +12,7 @@
 class PlayerManager {
 private:
     InputsBuffer*  inputsBuffer;
-    GameState*     gameState;
+    WorldState*    worldState;
 
     double  movementIncrement;
     double  swivelIncrement;
@@ -24,7 +24,7 @@ private:
     };
 
 public:
-    void        Init                   (InputsBuffer* const _inputsBuffer, GameState* const _gameState, const int _screenRefreshRate);
+    void        Init                   (InputsBuffer* const _inputsBuffer, WorldState* const _worldState, const int _screenRefreshRate);
     void        SetPlayer              (const Point2& location, const Vec2& viewDir);
     void        Update()                                                                      const;
 

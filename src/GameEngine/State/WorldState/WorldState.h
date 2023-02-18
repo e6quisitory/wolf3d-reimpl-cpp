@@ -5,11 +5,11 @@
 
 /*
 =========================================================
-    GameState
+    WorldState
 =========================================================
 */
 
-struct GameState {
+struct WorldState {
     Player  player;
     Map     map;
 };

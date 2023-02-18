@@ -266,8 +266,6 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 <a name="igoals"/>
 
 ## Immediate Goals
-- Make all sprites have a single, global perpline instead of one for each
-    - Then, update only that perpline in `MapManager`
 - Character/sprite animation
 - Weapons
 - Enemy AI

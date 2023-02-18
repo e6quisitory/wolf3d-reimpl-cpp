@@ -6,9 +6,9 @@
 ================================
 */
 
-void PlayerManager::Init(InputsBuffer* const _inputsBuffer, GameState* const _gameState, const int _screenRefreshRate) {
+void PlayerManager::Init(InputsBuffer* const _inputsBuffer, WorldState* const _worldState, const int _screenRefreshRate) {
     inputsBuffer = _inputsBuffer;
-    gameState = _gameState;
+    worldState = _worldState;
 
     // Set movement and swivel speeds based on display refresh rate (assumed that fps = refresh rate)
     movementIncrement = 3.645 / _screenRefreshRate;
@@ -16,15 +16,15 @@ void PlayerManager::Init(InputsBuffer* const _inputsBuffer, GameState* const _ga
 }
 
 void PlayerManager::SetPlayer(const Point2& location, const Vec2& viewDir) {
-    gameState->player.location = location;
-    gameState->player.viewDir  = UnitVector(viewDir);
+    worldState->player.location = location;
+    worldState->player.viewDir  = UnitVector(viewDir);
 
     // If spawn is set for a perfect grid corner (i.e. x and y vals are both integers), there is some weird clipping that happens when you first move
     // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
     // avoid the bug
     for (int i = 0; i < 2; ++i)
-        if (IsInteger(gameState->player.location[i]))
-            gameState->player.location[i] += 0.01;
+        if (IsInteger(worldState->player.location[i]))
+            worldState->player.location[i] += 0.01;
 }
 
 void PlayerManager::Update() const {
@@ -99,43 +99,43 @@ double PlayerManager::GetPlayerSpeedCoeff(const playerSpeed_t playerSpeed) const
 }
 
 void PlayerManager::MoveX(const xDir_t xDir, const playerSpeed_t playerSpeed) const {
-    Vec2 moveVec       = static_cast<int>(xDir) * GetPlayerSpeedCoeff(playerSpeed) * gameState->player.eastDir;
-    Point2 proposedLoc = gameState->player.location + moveVec;
+    Vec2 moveVec       = static_cast<int>(xDir) * GetPlayerSpeedCoeff(playerSpeed) * worldState->player.eastDir;
+    Point2 proposedLoc = worldState->player.location + moveVec;
 
     MovePlayerIfValid(proposedLoc);
 }
 
 void PlayerManager::MoveY(const yDir_t yDir, const playerSpeed_t playerSpeed) const {
-    Vec2 movVec        = static_cast<int>(yDir) * GetPlayerSpeedCoeff(playerSpeed) * gameState->player.viewDir;
-    Point2 proposedLoc = gameState->player.location + movVec;
+    Vec2 movVec        = static_cast<int>(yDir) * GetPlayerSpeedCoeff(playerSpeed) * worldState->player.viewDir;
+    Point2 proposedLoc = worldState->player.location + movVec;
 
     MovePlayerIfValid(proposedLoc);
 }
 
 void PlayerManager::Swivel(const swivelDir_t swivelDir) const {
-    gameState->player.viewDir = gameState->player.viewDir.Rotate(swivelIncrement * inputsBuffer->mouseAbsXrel * static_cast<int>(swivelDir));
-    gameState->player.eastDir = gameState->player.viewDir.Rotate(-PI / 2);
+    worldState->player.viewDir = worldState->player.viewDir.Rotate(swivelIncrement * inputsBuffer->mouseAbsXrel * static_cast<int>(swivelDir));
+    worldState->player.eastDir = worldState->player.viewDir.Rotate(-PI / 2);
 }
 
 void PlayerManager::MovePlayerIfValid(const Point2& proposedLoc) const {
-    Tile* proposed_tile = gameState->map.GetTile(proposedLoc);
+    Tile* proposed_tile = worldState->map.GetTile(proposedLoc);
     if (!proposed_tile->PlayerTileHit())
-        gameState->player.location = proposedLoc;
+        worldState->player.location = proposedLoc;
 }
 
 Ray PlayerManager::GetPlayerViewDirRay() const {
-    return Ray(gameState->player.location, gameState->player.viewDir);
+    return Ray(worldState->player.location, worldState->player.viewDir);
 }
 
 void PlayerManager::OpenDoor() const {
     HitInfo rayCursor(GetPlayerViewDirRay());
 
-    while (gameState->map.WithinMap(rayCursor.hitTile)) {
+    while (worldState->map.WithinMap(rayCursor.hitTile)) {
         rayCursor.GoToNextHit();
         if (rayCursor.GetDistToHitPoint() > 4.0)
             break;
         else {
-            Tile* currentTile = gameState->map.GetTile(rayCursor.hitTile);
+            Tile* currentTile = worldState->map.GetTile(rayCursor.hitTile);
             switch (currentTile->tileType) {
                 case tileType_t::EMPTY:
                 case tileType_t::SPRITE:
@@ -145,7 +145,7 @@ void PlayerManager::OpenDoor() const {
                     DoorTile* currentDoor = static_cast<DoorTile*>(currentTile);
                     switch (currentDoor->doorStatus) {
                         case doorStatus_t::CLOSED:
-                            gameState->map.AddActiveDoor(currentDoor);
+                            worldState->map.AddActiveDoor(currentDoor);
                         case doorStatus_t::CLOSING: currentDoor->doorStatus = doorStatus_t::OPENING;
                     }
                 }
