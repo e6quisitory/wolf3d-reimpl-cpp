@@ -42,7 +42,9 @@ The comments in the commits are full of detailed explanations on the implementat
 <a name="binaries"/>
 
 ## Pre-compiled Binaries
-Head on over to the [Releases](https://github.com/e6quisitory/wolf3d-clone/releases) section. There you'll find archives with pre-compiled binaries for Windows and macOS (Linux `.deb` coming soon). Below are instructions on how to run the binary on each respective platform.
+I've made pre-compiled binaries for Windows and macOS. Head on over to the [Releases](https://github.com/e6quisitory/wolf3d-clone/releases) section to obtain them, and see the below instructions on how to run them.
+
+Linux users will have to resort to building the project themselves, instructions [here](#linux). Someday I'll get around to making a Linux binary as well, but for now, I've had enough of build systems and want to get back to coding.
 
 ### Windows
 Unzip the archive, go into the `bin` folder, then double-click on `wolf3d-clone.exe`.
@@ -264,11 +266,8 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 <a name="igoals"/>
 
 ## Immediate Goals
-- Linux pre-compiled binary
-- Write a more sophisticated CMake script that:
-    - Automatically detects platform and downloads the correct version of SDL2
-    - Puts SDL2 inside binary package and links against that local copy (changes `RPATH`)
-    - Creates appropriate package automatically (`.app` for macOS, `.deb` for Linux, folder for Windows)
+- Make all sprites have a single, global perpline instead of one for each
+    - Then, update only that perpline in `MapManager`
 - Character/sprite animation
 - Weapons
 - Enemy AI
@@ -278,6 +277,12 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 <a name="lgoals"/>
 
 ## Later Goals
+- Linux pre-compiled binary
+- Write a more sophisticated CMake script that:
+    - In `Debug` config simply compiles into executable
+    - In `Release` config makes a proper, signed, pre-compiled binary package for the platform (Windows, macOS, Linux) using CPack
+        - Downloads a copy of SDL2, puts it inside the package, and links executable to that local copy (changed `RPATH`)
+        - Puts `assets` folder inside binary package as well
 - Darken distant walls (shadow/depth effect)
 - Textured ceiling & floor
 - Add joystick support
