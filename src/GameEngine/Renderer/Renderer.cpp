@@ -14,12 +14,6 @@ void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia
     castingRayAngles.reserve(multimedia->windowParams.screenWidth);
     CalculateCastingRayAngles();
 
-    // Pre-allocate spriteBackups (so that array does not need to be extended / reallocated)
-    spriteBackups.reserve(multimedia->windowParams.screenWidth);
-        // One sprite encountered per cast ray is a good initial assumption to allocate memory according to.
-        // However, it's entirely possible to have a single cast ray encounter more than one sprite, in which case
-        // sprite_backups vector may need to be extended.
-
     // Grab copy of gate sidewall texture (used for injecting into rayMarker when prev hit tile was a door tile
     gateSidewallTexture = multimedia->GetTexturePair(textureType_t::WALLS, 101);
 
@@ -27,13 +21,27 @@ void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia
     ceilingScreenRect = {0, 0, multimedia->windowParams.screenWidth, multimedia->windowParams.screenHeight / 2};
     floorScreenRect   = {0, multimedia->windowParams.screenHeight / 2, multimedia->windowParams.screenWidth, multimedia->windowParams.screenHeight / 2};
 
+    // Multithreaded render related
+    assert(multimedia->windowParams.screenWidth % cores == 0);
+    int renderSecWidth = multimedia->windowParams.screenWidth / cores;
+    for (int i = 0; i < cores; ++i) {
+        startingPixels.push_back(i*renderSecWidth);
+        endingPixels.push_back(startingPixels[i] + renderSecWidth);
+    }
+    wallBackbuffer.resize(multimedia->windowParams.screenWidth);
+    spriteBackbuffers.resize(cores);
+
+    // Pre-allocate sprite back buffers (rough estimate)
+    for (int i = 0; i < cores; ++i)
+        spriteBackbuffers[i].reserve(renderSecWidth);
 }
 
 void Renderer::RenderFrame() {
     SDL_RenderClear(multimedia->sdlRenderer);
     DrawCeilingFloor();
-    DrawWalls();
-    DrawSprites();
+    FullRender();
+    FlipWallBackbuffer();
+    FlipSpriteBackbuffers();
     SDL_RenderPresent(multimedia->sdlRenderer);
 }
 
@@ -51,8 +59,8 @@ void Renderer::DrawCeilingFloor() const {
     SDL_RenderFillRect(multimedia->sdlRenderer, &floorScreenRect );
 }
 
-void Renderer::DrawWalls() {
-    for (int rayNum = 0; rayNum < multimedia->windowParams.screenWidth; ++rayNum) {
+void Renderer::PartialRender(const int startRayNum, const int endRayNum, const int renderSectionNum) {
+    for (int rayNum = startRayNum; rayNum < endRayNum; ++rayNum) {
         HitInfo rayCursor(GetRay(rayNum));
 
         while (worldState->map.WithinMap(rayCursor.hitTile)) {
@@ -67,21 +75,18 @@ void Renderer::DrawWalls() {
                 textureOverride = std::nullopt;
 
             auto rayTileHitResult = currTile->RayTileHit(rayCursor, textureOverride);
-
             if (rayTileHitResult.has_value()) {
                 auto [textureSlice, hitDistance] = rayTileHitResult.value();
 
-                SDL_Rect textureRect  =  textureSlice.textureRect;
-                int      renderHeight =  GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
-                SDL_Rect screenRect   =  GetScreenRect(renderHeight, rayNum);
+                SDL_Rect textureRect = textureSlice.textureRect;
+                int     renderHeight = GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
+                SDL_Rect screenRect  = GetScreenRect(renderHeight, rayNum);
 
-                // If sprite is hit, store the rendering info for later, as we first need to render the walls + doors behind the sprites.
                 if (worldState->map.GetTile(rayCursor.hitTile)->tileType == tileType_t::SPRITE) {
-                    spriteBackups.emplace_back(textureSlice, screenRect);
+                    spriteBackbuffers[renderSectionNum].emplace_back(std::pair(textureSlice, screenRect));
                     continue;
                 } else {
-                    // If wall or door is hit, render immediately.
-                    SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &textureRect, &screenRect);
+                    wallBackbuffer[rayNum] = std::pair(textureSlice, screenRect);
                     break;
                 }
             } else
@@ -90,14 +95,36 @@ void Renderer::DrawWalls() {
     }
 }
 
-void Renderer::DrawSprites() {
-    if (!spriteBackups.empty()) {
-        // Must render sprites in reverse of the order in which they were encountered
-        for (auto s = spriteBackups.rbegin(); s != spriteBackups.rend(); ++s) {
-            auto [textureSlice, screenRect] = *s;
-            SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+void Renderer::FullRender() {
+    std::thread renderThreads[cores];
+
+    // Launch a rendering thread for each CPU core
+    for (int i = 0; i < cores; ++i)
+        renderThreads[i] = std::thread(&Renderer::PartialRender, this, startingPixels[i], endingPixels[i], i);
+
+    // Wait for all threads to finish rendering their sections
+    for (int i = 0; i < cores; ++i)
+        renderThreads[i].join();
+}
+
+void Renderer::FlipWallBackbuffer() const {
+    for (const auto& w : wallBackbuffer) {
+        const auto& [textureSlice, screenRect] = w;
+        SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+    }
+}
+
+void Renderer::FlipSpriteBackbuffers() {
+    for (int i = 0; i < cores; ++i) {
+        // Flip sprite back buffers
+        if (!spriteBackbuffers[i].empty()) {
+            // Must render sprites in reverse of the order in which they were encountered
+            for (auto s = spriteBackbuffers[i].rbegin(); s != spriteBackbuffers[i].rend(); ++s) {
+                const auto& [textureSlice, screenRect] = *s;
+                SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+            }
+            spriteBackbuffers[i].clear();
         }
-        spriteBackups.clear();
     }
 }
 
