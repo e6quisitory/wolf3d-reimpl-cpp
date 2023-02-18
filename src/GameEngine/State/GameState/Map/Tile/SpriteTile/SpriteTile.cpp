@@ -32,9 +32,8 @@ bool SpriteTile::PlayerTileHit() const {
         return true;
 }
 
-void SpriteTile::CalculatePerpLine(const Vec2& view_dir) {
-    static double negNinetyDeg = -PI / 2;
-    perpLine.direction = view_dir.Rotate(negNinetyDeg);
+void SpriteTile::setPerplineDirection(const Vec2& playerViewDirPerp) {
+    perpLine.direction = playerViewDirPerp;
 }
 
 /*
@@ -60,7 +59,7 @@ HitInfo_o SpriteTile::RayPerpLineHit(const Ray& incomingRay) const {
             return std::nullopt;
         else {
             Point2 perpLineHitPoint = O2 + t * D2;
-            double perpLineWidthPercent = t > 0 ? 0.5 + t : 0.5 - abs(t);
+            double perpLineWidthPercent = 0.5 + t;
 
             HitInfo perpLineHitInfo(incomingRay, perpLineHitPoint);
             perpLineHitInfo.InsertCustomWallTypeWidthPercentPair({wallType_t::SPRITE_PERPLINE, perpLineWidthPercent});

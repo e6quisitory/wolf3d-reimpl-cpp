@@ -71,9 +71,11 @@ void MapManager::LoadMap(const std::string file) const {
     }
 }
 
-void MapManager::UpdateSpritePerpLines() {
+void MapManager::UpdateSpritePerpLines() const {
+    static double negNinetyDeg = -PI / 2;
+    auto playerViewDirPerp = gameState->player.viewDir.Rotate(negNinetyDeg);
     for (SpriteTile* const s : gameState->map.sprites)
-        s->CalculatePerpLine(gameState->player.viewDir);
+        s->setPerplineDirection(playerViewDirPerp);
 }
 
 /*

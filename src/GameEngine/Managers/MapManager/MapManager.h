@@ -18,7 +18,7 @@ public:
     void    Init                       (GameState* const _gameState, Multimedia* const _multimedia);
     void    Exit()                                                                                   const;
     void    LoadMap                    (const std::string file)                                      const;
-    void    UpdateSpritePerpLines();
+    void    UpdateSpritePerpLines()                                                                  const;
 
 private:
     Point2  GetTileCenterPt            (const int index, const int mapWidth)                         const;
