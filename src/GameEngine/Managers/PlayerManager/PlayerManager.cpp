@@ -130,7 +130,7 @@ Ray PlayerManager::GetPlayerViewDirRay() const {
 }
 
 void PlayerManager::OpenDoor() const {
-    HitInfo rayCursor(GetPlayerViewDirRay());
+    RayHitMarker rayCursor(GetPlayerViewDirRay());
 
     while (worldState->map.WithinMap(rayCursor.hitTile)) {
         rayCursor.GoToNextHit();

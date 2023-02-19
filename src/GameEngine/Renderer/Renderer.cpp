@@ -61,7 +61,7 @@ void Renderer::DrawCeilingFloor() const {
 
 void Renderer::PartialRender(const int startRayNum, const int endRayNum, const int renderSectionNum) {
     for (int rayNum = startRayNum; rayNum < endRayNum; ++rayNum) {
-        HitInfo rayCursor(GetRay(rayNum));
+        RayHitMarker rayCursor(GetRay(rayNum));
 
         while (worldState->map.WithinMap(rayCursor.hitTile)) {
             Tile* prevTile = worldState->map.GetTile(rayCursor.hitTile);

@@ -20,11 +20,11 @@ enum class wallType_t {
 
 /*
 =========================================================
-    HitInfo (DDA algorithm encapsulated within)
+    RayCursor (DDA algorithm encapsulated within)
 =========================================================
 */
 
-class HitInfo {
+class RayHitMarker {
 public:
     Ray     ray;
     Point2  hitPoint;
@@ -35,14 +35,14 @@ private:
     std::optional<wallTypeWidthPercentPair_t>   wallTypeWidthPercentPair_o;
 
 public:
-    HitInfo(const Ray& _ray, const Point2& _hitPoint, const iPoint2& _hitTile);
-    HitInfo(const Ray& _ray, const Point2& _hitPoint);
-    HitInfo(const Ray& _ray);
+    RayHitMarker(const Ray& _ray, const Point2& _hitPoint, const iPoint2& _hitTile);
+    RayHitMarker(const Ray& _ray, const Point2& _hitPoint);
+    RayHitMarker(const Ray& _ray);
 
     void           GoToNextHit();
-    HitInfo        GetNextHit()        const;
-    HitInfo        GetNextCenterHit();
-    double         GetDistToHitPoint() const;
+    RayHitMarker   GetNextHit()          const;
+    RayHitMarker   GetNextCenterHit();
+    double         GetDistToHitPoint()   const;
     wallType_t     GetWallType();
     double         GetWidthPercent();
     void           InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPair_t wallTypeWidthPercentPair);
@@ -51,4 +51,4 @@ private:
     void           CalculateWallTypeWidthPercentPair();
 };
 
-typedef std::optional<HitInfo> HitInfo_o;
+typedef std::optional<RayHitMarker> RayHitMarker_o;

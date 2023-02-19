@@ -22,6 +22,7 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 - Selectively textured walls with lighting
 - Sprites
 - GPU accelerated texture mapping
+- Multithreaded rendering
 - Doors w/ automatic closing
 - Map loading from a `csv` file
 - Smooth movement using VSYNC

@@ -37,9 +37,9 @@ public:
 
 public:
     virtual                          ~Tile();
-    virtual textureSliceDistPair_o   RayTileHit        (HitInfo& hitInfo, const texturePair_o textureOverride)  const = 0;
-    virtual bool                     PlayerTileHit()                                                            const = 0;
+    virtual textureSliceDistPair_o   RayTileHit        (RayHitMarker& hitInfo, const texturePair_o textureOverride) const = 0;
+    virtual bool                     PlayerTileHit()                                                                const = 0;
 
 protected:
-    SDL_Texture*                     LightTexture      (const texturePair_t _texturePair, HitInfo& hitInfo)     const;
+    SDL_Texture*                     LightTexture      (const texturePair_t _texturePair, RayHitMarker& hitInfo)    const;
 };

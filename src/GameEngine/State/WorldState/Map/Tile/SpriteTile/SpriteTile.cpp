@@ -25,10 +25,10 @@ Vec2 SpriteTile::perplinesDir;
 ================================
 */
 
-textureSliceDistPair_o SpriteTile::RayTileHit(HitInfo& hitInfo, const texturePair_o textureOverride) const {
+textureSliceDistPair_o SpriteTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {
     // Get intersection of incoming ray with perpline
     Ray incomingRay = hitInfo.ray;
-    HitInfo_o perpLineHitInfo = RayPerplineHit(incomingRay);
+    RayHitMarker_o perpLineHitInfo = RayPerplineHit(incomingRay);
 
     if (perpLineHitInfo.has_value()) {
         SDL_Rect textureRect = {static_cast<int>(perpLineHitInfo.value().GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};  // One vertical line of pixels from texture
@@ -48,7 +48,7 @@ bool SpriteTile::PlayerTileHit() const {
 ================================
 */
 
-HitInfo_o SpriteTile::RayPerplineHit(const Ray& incomingRay) const {
+RayHitMarker_o SpriteTile::RayPerplineHit(const Ray& incomingRay) const {
     Point2 O1 = incomingRay.origin;
     Vec2   D1 = incomingRay.direction;
     Point2 O2 = perplineOrigin;
@@ -67,7 +67,7 @@ HitInfo_o SpriteTile::RayPerplineHit(const Ray& incomingRay) const {
             Point2 perpLineHitPoint = O2 + t * D2;
             double perpLineWidthPercent = 0.5 + t;
 
-            HitInfo perpLineHitInfo(incomingRay, perpLineHitPoint);
+            RayHitMarker perpLineHitInfo(incomingRay, perpLineHitPoint);
             perpLineHitInfo.InsertCustomWallTypeWidthPercentPair({wallType_t::SPRITE_PERPLINE, perpLineWidthPercent});
 
             return perpLineHitInfo;

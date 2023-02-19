@@ -19,9 +19,9 @@ public:
 public:
     SpriteTile(const Point2& _center, const texturePair_t& _texture);
     
-    virtual textureSliceDistPair_o  RayTileHit             (HitInfo& hitInfo, const texturePair_o textureOverride)  const override;
+    virtual textureSliceDistPair_o  RayTileHit        (RayHitMarker& hitInfo, const texturePair_o textureOverride)  const override;
     virtual bool                    PlayerTileHit()                                                                 const override;
 
 private:
-    HitInfo_o RayPerplineHit(const Ray& incomingRay) const;  // Calculates intersection between incoming ray and perpline
+    RayHitMarker_o RayPerplineHit(const Ray& incomingRay) const;  // Calculates intersection between incoming ray and perpline
 };

@@ -23,7 +23,7 @@ Tile::~Tile() {};
 =========================================================
 */
 
-SDL_Texture* Tile::LightTexture(const texturePair_t _texturePair, HitInfo& hitInfo) const {
+SDL_Texture* Tile::LightTexture(const texturePair_t _texturePair, RayHitMarker& hitInfo) const {
     if (hitInfo.GetWallType() == wallType_t::VERTICAL)
         return _texturePair.first;
     else

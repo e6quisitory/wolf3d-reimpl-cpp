@@ -6,14 +6,14 @@
 ================================
 */
 
-HitInfo::HitInfo(const Ray& _ray, const Point2& _hitPoint, const iPoint2& _hitTile):
+RayHitMarker::RayHitMarker(const Ray& _ray, const Point2& _hitPoint, const iPoint2& _hitTile):
         ray(_ray), hitPoint(_hitPoint), hitTile(_hitTile) {}
 
-HitInfo::HitInfo(const Ray& _ray, const Point2& _hitPoint):
+RayHitMarker::RayHitMarker(const Ray& _ray, const Point2& _hitPoint):
         ray(_ray), hitPoint(_hitPoint), hitTile(_hitPoint) {}
 
-HitInfo::HitInfo(const Ray& _ray) {
-    (*this) = HitInfo(_ray, _ray.origin);
+RayHitMarker::RayHitMarker(const Ray& _ray) {
+    (*this) = RayHitMarker(_ray, _ray.origin);
 }
 
 /*
@@ -22,7 +22,7 @@ Public Methods
 ================================
 */
 
-void HitInfo::GoToNextHit() {
+void RayHitMarker::GoToNextHit() {
     Point2 nextX = ray.NextXIntrscPoint(hitPoint);
     Point2 nextY = ray.NextYIntrscPoint(hitPoint);
 
@@ -43,13 +43,13 @@ void HitInfo::GoToNextHit() {
     wallTypeWidthPercentPair_o.reset();
 }
 
-HitInfo HitInfo::GetNextHit() const {
-    HitInfo temp = (*this);
+RayHitMarker RayHitMarker::GetNextHit() const {
+    RayHitMarker temp = (*this);
     temp.GoToNextHit();
     return temp;
 }
 
-HitInfo HitInfo::GetNextCenterHit() {
+RayHitMarker RayHitMarker::GetNextCenterHit() {
     Vec2 vecToCenter;
     if (GetWallType() == wallType_t::VERTICAL) {
         vecToCenter.x() = static_cast<double>(ray.xDir) / 2;
@@ -58,26 +58,26 @@ HitInfo HitInfo::GetNextCenterHit() {
         vecToCenter.x() = static_cast<double>(ray.xDir) * (ray.xStep / 2);
         vecToCenter.y() = static_cast<double>(ray.yDir) / 2;
     }
-    return HitInfo(ray, hitPoint + vecToCenter);
+    return RayHitMarker(ray, hitPoint + vecToCenter);
 }
 
-double HitInfo::GetDistToHitPoint() const {
+double RayHitMarker::GetDistToHitPoint() const {
     return ray.DistToPoint(hitPoint);
 }
 
-wallType_t HitInfo::GetWallType() {
+wallType_t RayHitMarker::GetWallType() {
     if (!wallTypeWidthPercentPair_o.has_value())
         CalculateWallTypeWidthPercentPair();
     return wallTypeWidthPercentPair_o->first;
 }
 
-double HitInfo::GetWidthPercent() {
+double RayHitMarker::GetWidthPercent() {
     if (!wallTypeWidthPercentPair_o.has_value())
         CalculateWallTypeWidthPercentPair();
     return wallTypeWidthPercentPair_o->second;
 }
 
-void HitInfo::InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPair_t wallTypeWidthPercentPair) {
+void RayHitMarker::InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPair_t wallTypeWidthPercentPair) {
     wallTypeWidthPercentPair_o = wallTypeWidthPercentPair;
 }
 
@@ -87,7 +87,7 @@ void HitInfo::InsertCustomWallTypeWidthPercentPair(const wallTypeWidthPercentPai
 ================================
 */
 
-void HitInfo::CalculateWallTypeWidthPercentPair() {
+void RayHitMarker::CalculateWallTypeWidthPercentPair() {
     bool x_is_int = IsInteger(hitPoint.x());
     bool y_is_int = IsInteger(hitPoint.y());
     bool x_is_middle = (hitPoint.x() - static_cast<int>(hitPoint.x())) == 0.5;

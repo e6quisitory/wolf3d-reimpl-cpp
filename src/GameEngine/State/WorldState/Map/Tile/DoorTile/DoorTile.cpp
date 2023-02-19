@@ -25,9 +25,9 @@ DoorTile::DoorTile(const texturePairsPair_t doorTextures) {
 ================================
 */
 
-textureSliceDistPair_o DoorTile::RayTileHit(HitInfo& hitInfo, const texturePair_o textureOverride) const {
+textureSliceDistPair_o DoorTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {
     // Center hit point
-    HitInfo centeredHitInfo = hitInfo.GetNextCenterHit();
+    RayHitMarker centeredHitInfo = hitInfo.GetNextCenterHit();
 
     // First check if incoming ray actually intersects with middle of tile (the gate)
     if (centeredHitInfo.hitTile == hitInfo.hitTile) {
