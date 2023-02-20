@@ -34,10 +34,15 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
 
     // Define major map coordinates relative to screen
     origin = Pixel(tileSize, tileSize);
-    down = iVec2(0, tileSize);
-    right = iVec2(tileSize, 0);
+    down   = iVec2(0, tileSize);
+    right  = iVec2(tileSize, 0);
     bottomLeftCorner = origin + worldState->map.height*down;
     topRightCorner   = origin + worldState->map.width*right;
+
+    // Collect all non-empty tiles
+    CollectTileRectsFromMap(tileType_t::WALL, wallTileRects);
+    CollectTileRectsFromMap(tileType_t::DOOR, doorTileRects);
+    CollectTileRectsFromMap(tileType_t::SPRITE, spriteTileRects);
 }
 
 /*
@@ -49,6 +54,9 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
 Minimap::~Minimap() {
     SDL_DestroyRenderer(minimapRenderer);
     SDL_DestroyWindow(minimapWindow);
+
+    delete wallTileRects.first;
+    delete doorTileRects.first;
 }
 
 /*
@@ -60,6 +68,7 @@ Minimap::~Minimap() {
 void Minimap::Update() const {
     DrawBackground();
     DrawGridlines();
+    DrawNonEmptyTiles();
     DrawPlayerTile();
     SDL_RenderPresent(minimapRenderer);
 }
@@ -85,9 +94,42 @@ void Minimap::DrawGridlines() const {
         SDL_RenderDrawLine(minimapRenderer, p.x(), p.y(), p.x()+ worldState->map.width * tileSize, p.y());
 }
 
+void Minimap::DrawNonEmptyTiles() const {
+    // Draw wall tiles
+    SDL_SetRenderDrawColor(minimapRenderer, 150, 0, 0, 255);
+    SDL_RenderFillRects(minimapRenderer, wallTileRects.first, wallTileRects.second);
+
+    // Draw door tiles
+    SDL_SetRenderDrawColor(minimapRenderer, 150, 118, 2, 255);
+    SDL_RenderFillRects(minimapRenderer, doorTileRects.first, doorTileRects.second);
+
+    // Draw sprite tiles
+    SDL_SetRenderDrawColor(minimapRenderer, 176, 4, 164, 255);
+    SDL_RenderFillRects(minimapRenderer, spriteTileRects.first, spriteTileRects.second);
+}
+
 void Minimap::DrawPlayerTile() const {
-    iPoint2 playerTile  = iPoint2(worldState->player.location);
-    SDL_Rect playerRect = {origin.x()+playerTile.x()*tileSize, origin.y()+playerTile.y()*tileSize, tileSize, tileSize};
+    iPoint2  playerTile  = iPoint2(worldState->player.location);
+    SDL_Rect playerRect  = TileToRect(playerTile);
     SDL_SetRenderDrawColor(minimapRenderer, 255, 255, 255, 255);
     SDL_RenderFillRect(minimapRenderer, &playerRect);
+}
+
+SDL_Rect Minimap::TileToRect(const iPoint2 &tileCoord) const {
+    return {origin.x()+tileCoord.x()*tileSize, origin.y()+tileCoord.y()*tileSize, tileSize, tileSize};
+}
+
+void Minimap::CollectTileRectsFromMap(const tileType_t tileType, tileRects_t& tileRects) {
+    // First collect tiles of specified type from map
+    std::vector<iPoint2> tileCoords;
+    for (const auto& mapTile : worldState->map.tiles)
+        if (mapTile->type == tileType)
+            tileCoords.push_back(mapTile->coordinate);
+
+    // Then fill in corresponding SDL_Rects
+    auto& [rects, count] = tileRects;
+    count = tileCoords.size();
+    rects = new SDL_Rect[count];
+    for (int i = 0; i < count; ++i)
+        rects[i] = TileToRect(tileCoords[i]);
 }

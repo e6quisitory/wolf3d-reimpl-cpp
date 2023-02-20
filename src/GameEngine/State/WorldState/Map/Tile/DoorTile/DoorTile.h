@@ -42,7 +42,7 @@ private:
     texturePair_t  gateSidewallTexture;
 
 public:
-    DoorTile(const texturePairsPair_t doorTextures);
+    DoorTile(const iPoint2 &tileCoord, const texturePairsPair_t doorTextures);
 
     virtual textureSliceDistPair_o  RayTileHit      (RayHitMarker& hitInfo, const texturePair_o textureOverride) const override;
     virtual bool                    PlayerTileHit()                                                              const override;

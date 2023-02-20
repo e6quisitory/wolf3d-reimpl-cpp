@@ -19,7 +19,4 @@ public:
     void    Exit()                                                                                      const;
     void    LoadMap                    (const std::string file)                                         const;
     void    UpdateSpritePerplines()                                                                     const;
-
-private:
-    Point2  GetTileCenterPt            (const int index, const int mapWidth)                            const;
 };

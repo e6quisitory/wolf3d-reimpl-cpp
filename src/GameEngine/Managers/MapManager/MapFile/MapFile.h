@@ -12,6 +12,7 @@ struct parsedTileInfo_t {
     parsedTileInfo_t(const int _tileIndex, const textureType_t _textureType, const int _textureID);
 
     int            tileIndex;
+    iPoint2        tileCoord;
     textureType_t  textureType;
     int            textureID;
 };

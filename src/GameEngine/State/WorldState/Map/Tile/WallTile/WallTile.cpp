@@ -6,8 +6,9 @@
 ================================
 */
 
-WallTile::WallTile(const texturePair_t _texture): texture(_texture) {
-    tileType = tileType_t::WALL;
+WallTile::WallTile(const iPoint2 &tileCoord, const texturePair_t _texture) : texture(_texture) {
+    coordinate = tileCoord;
+    type = tileType_t::WALL;
 }
 
 /*

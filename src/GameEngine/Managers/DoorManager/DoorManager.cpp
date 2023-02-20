@@ -89,7 +89,7 @@ bool DoorManager::InsideDoor(DoorTile* const doorTile) const {
 }
 
 bool DoorManager::InsideAnyDoor() const {
-    return worldState->map.GetTile(worldState->player.location)->tileType == tileType_t::DOOR;
+    return worldState->map.GetTile(worldState->player.location)->type == tileType_t::DOOR;
 }
 
 bool DoorManager::ActiveDoorAwaitingRemoval() const {

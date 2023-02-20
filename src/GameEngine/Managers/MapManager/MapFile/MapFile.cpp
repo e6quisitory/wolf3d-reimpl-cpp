@@ -63,6 +63,10 @@ void MapFile::ParseCSV(const std::string& mapFileName) {
         Exit: {}
     }
     numCells = rows * columns;
+
+    // Fill in tile coordinates
+    for (auto& tileInfo : tiles)
+        tileInfo->tileCoord = iPoint2(tileInfo->tileIndex % columns, tileInfo->tileIndex / columns);
 };
 
 void MapFile::PushTileInfo(int& tileIndex, std::string& cellString) {

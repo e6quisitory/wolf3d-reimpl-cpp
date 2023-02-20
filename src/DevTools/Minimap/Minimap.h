@@ -3,6 +3,20 @@
 #include "../../GameEngine/State/WorldState/WorldState.h"
 #include "../../GameEngine/Multimedia/Multimedia.h"
 
+/*
+=========================================================
+    Relevant type definitions
+=========================================================
+*/
+
+typedef std::pair<SDL_Rect*, int> tileRects_t;
+
+/*
+=========================================================
+    Minimap
+=========================================================
+*/
+
 class Minimap {
 private:
     WorldState*   worldState;
@@ -20,6 +34,10 @@ private:
     Pixel bottomLeftCorner;
     Pixel topRightCorner;
 
+    tileRects_t wallTileRects;
+    tileRects_t doorTileRects;
+    tileRects_t spriteTileRects;
+
 public:
     Minimap(WorldState* const _worldState, Multimedia* const _multimedia, const int _tileSize);
     ~Minimap();
@@ -27,7 +45,10 @@ public:
     void Update()         const;
 
 private:
-    void DrawBackground() const;
-    void DrawGridlines()  const;
-    void DrawPlayerTile() const;
+    void       DrawBackground()                                                                const;
+    void       DrawGridlines()                                                                 const;
+    void       DrawNonEmptyTiles()                                                             const;
+    void       DrawPlayerTile()                                                                const;
+    SDL_Rect   TileToRect                (const iPoint2 &tileCoord)                            const;
+    void       CollectTileRectsFromMap   (const tileType_t tileType, tileRects_t& tileRects);
 };

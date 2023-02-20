@@ -6,12 +6,14 @@
 =========================================================
 */
 
-DoorTile::DoorTile(const texturePairsPair_t doorTextures) {
+DoorTile::DoorTile(const iPoint2 &tileCoord, const texturePairsPair_t doorTextures) {
+    coordinate = tileCoord;
+
     auto [_gateTexture, _gateSidewallTexture] = doorTextures;
     gateTexture         = _gateTexture;
     gateSidewallTexture = _gateSidewallTexture;
 
-    tileType = tileType_t::DOOR;
+    type = tileType_t::DOOR;
 
     // Gate initial status is closed, with timer reset to full-time left (to be decremented when door fully opens)
     doorStatus   = doorStatus_t::CLOSED;

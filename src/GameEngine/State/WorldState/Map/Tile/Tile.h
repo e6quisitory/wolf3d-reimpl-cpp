@@ -33,7 +33,8 @@ enum class tileType_t {
 
 class Tile {
 public:
-    tileType_t tileType;
+    tileType_t type;
+    iPoint2    coordinate;
 
 public:
     virtual                          ~Tile();

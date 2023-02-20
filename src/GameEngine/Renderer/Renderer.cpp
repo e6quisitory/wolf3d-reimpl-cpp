@@ -69,7 +69,7 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
             Tile* currTile = worldState->map.GetTile(rayCursor.hitTile);
 
             texturePair_o textureOverride;
-            if (prevTile->tileType == tileType_t::DOOR)
+            if (prevTile->type == tileType_t::DOOR)
                 textureOverride = gateSidewallTexture;
             else
                 textureOverride = std::nullopt;
@@ -82,7 +82,7 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
                 int     renderHeight = GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
                 SDL_Rect screenRect  = GetScreenRect(renderHeight, rayNum);
 
-                if (worldState->map.GetTile(rayCursor.hitTile)->tileType == tileType_t::SPRITE) {
+                if (worldState->map.GetTile(rayCursor.hitTile)->type == tileType_t::SPRITE) {
                     spriteBackbuffers[renderSectionNum].emplace_back(std::pair(textureSlice, screenRect));
                     continue;
                 } else {

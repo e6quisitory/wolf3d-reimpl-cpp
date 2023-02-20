@@ -6,9 +6,10 @@
 ================================
 */
 
-SpriteTile::SpriteTile(const Point2& _center, const texturePair_t& _texture): texture(_texture) {
-    tileType = tileType_t::SPRITE;
-    perplineOrigin = _center;
+SpriteTile::SpriteTile(const iPoint2 &tileCoord, const texturePair_t &_texture) : texture(_texture) {
+    coordinate = tileCoord;
+    type = tileType_t::SPRITE;
+    perplineOrigin = coordinate + Point2(0.5, 0.5);
 }
 
 /*

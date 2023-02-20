@@ -17,7 +17,7 @@ public:
     static Vec2   perplinesDir;      // Same for ALL SpriteTiles
 
 public:
-    SpriteTile(const Point2& _center, const texturePair_t& _texture);
+    SpriteTile(const iPoint2 &tileCoord, const texturePair_t &_texture);
     
     virtual textureSliceDistPair_o  RayTileHit        (RayHitMarker& hitInfo, const texturePair_o textureOverride)  const override;
     virtual bool                    PlayerTileHit()                                                                 const override;

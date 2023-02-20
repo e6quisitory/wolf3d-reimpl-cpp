@@ -177,6 +177,14 @@ template<typename T>
         return Vec2D<T>(v1.x() + v2.x(), v1.y() + v2.y());
     }
 
+inline Vec2D<double> operator + (const Vec2D<int>& v1, const Vec2D<double>& v2) {
+    return Vec2D<double>(static_cast<double>(v1.x()) + v2.x(), static_cast<double>(v1.y()) + v2.y());
+}
+
+inline Vec2D<double> operator + (const Vec2D<double>& v1, const Vec2D<int>& v2) {
+    return Vec2D<double>(static_cast<double>(v2.x()) + v1.x(), static_cast<double>(v2.y()) + v1.y());
+}
+
 template<typename T>
     inline Vec2D<T> operator - (const Vec2D<T>& v1, const Vec2D<T>& v2) {
         return v1 + (-v2);

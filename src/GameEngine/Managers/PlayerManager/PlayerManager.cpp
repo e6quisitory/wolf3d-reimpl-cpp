@@ -138,7 +138,7 @@ void PlayerManager::OpenDoor() const {
             break;
         else {
             Tile* currentTile = worldState->map.GetTile(rayCursor.hitTile);
-            switch (currentTile->tileType) {
+            switch (currentTile->type) {
                 case tileType_t::EMPTY:
                 case tileType_t::SPRITE:
                     continue;

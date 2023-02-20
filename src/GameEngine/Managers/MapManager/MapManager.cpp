@@ -43,19 +43,18 @@ void MapManager::LoadMap(const std::string file) const {
                 /* Wall tile */
                 case textureType_t::WALLS:
                     if (parsedTile->textureID == 99)
-                        worldState->map.tiles.push_back(new DoorTile(door_textures));
+                        worldState->map.tiles.push_back(new DoorTile(parsedTile->tileCoord, door_textures));
                     else {
                         auto wallTexturePair = multimedia->GetWallTexturePair(parsedTile->textureID);
-                        worldState->map.tiles.push_back(new WallTile(wallTexturePair));
+                        worldState->map.tiles.push_back(new WallTile(parsedTile->tileCoord, wallTexturePair));
                     }
                     break;
 
                 /* Sprite Tile */
                 case textureType_t::OBJECTS:
                 case textureType_t::GUARD:
-                    Point2         tileCenterPt   = GetTileCenterPt(parsedTile->tileIndex, mapFile.columns);
                     texturePair_t  spriteTexture  = multimedia->GetTexturePair(parsedTile->textureType, parsedTile->textureID);
-                    SpriteTile     *s             = new SpriteTile(tileCenterPt, spriteTexture);
+                    SpriteTile     *s             = new SpriteTile(parsedTile->tileCoord, spriteTexture);
                     worldState->map.tiles.push_back(s);
                     worldState->map.sprites.push_back(s);
                     break;
@@ -63,7 +62,7 @@ void MapManager::LoadMap(const std::string file) const {
             }
         } else {
             /* Empty tile */
-            worldState->map.tiles.push_back(new EmptyTile());
+            worldState->map.tiles.push_back(new EmptyTile(parsedTile->tileCoord));
         }
     }
 }
@@ -72,16 +71,4 @@ void MapManager::UpdateSpritePerplines() const {
     static const double negNinetyDeg = -PI / 2;
     Vec2 playerViewDirPerp = worldState->player.viewDir.Rotate(negNinetyDeg);
     SpriteTile::perplinesDir = playerViewDirPerp;
-}
-
-/*
-================================
-    Private Methods
-================================
-*/
-
-Point2 MapManager::GetTileCenterPt(const int index, const int mapWidth) const {
-    int x = index % mapWidth;
-    int y = index / mapWidth;
-    return Point2(x + 0.5, y + 0.5);
 }

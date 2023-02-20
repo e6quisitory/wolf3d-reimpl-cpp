@@ -6,8 +6,9 @@
 =========================================================
 */
 
-EmptyTile::EmptyTile() {
-    tileType = tileType_t::EMPTY;
+EmptyTile::EmptyTile(const iPoint2 &tileCoord) {
+    coordinate = tileCoord;
+    type = tileType_t::EMPTY;
 }
 
 /*
