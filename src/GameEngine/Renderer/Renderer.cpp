@@ -11,24 +11,24 @@ void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia
     multimedia = _multimedia;
 
     // Pre-calculate the ray angles and their cosines, as they do not change
-    castingRayAngles.reserve(multimedia->windowParams.screenWidth);
+    castingRayAngles.reserve(multimedia->windowParams.width);
     CalculateCastingRayAngles();
 
     // Grab copy of gate sidewall texture (used for injecting into rayMarker when prev hit tile was a door tile
     gateSidewallTexture = multimedia->GetTexturePair(textureType_t::WALLS, 101);
 
     // These do not change, so calculate once in advance
-    ceilingScreenRect = {0, 0, multimedia->windowParams.screenWidth, multimedia->windowParams.screenHeight / 2};
-    floorScreenRect   = {0, multimedia->windowParams.screenHeight / 2, multimedia->windowParams.screenWidth, multimedia->windowParams.screenHeight / 2};
+    ceilingScreenRect = {0, 0, multimedia->windowParams.width, multimedia->windowParams.height / 2};
+    floorScreenRect   = {0, multimedia->windowParams.height / 2, multimedia->windowParams.width, multimedia->windowParams.height / 2};
 
     // Multithreaded render related
-    assert(multimedia->windowParams.screenWidth % cores == 0);
-    int renderSecWidth = multimedia->windowParams.screenWidth / cores;
+    assert(multimedia->windowParams.width % cores == 0);
+    int renderSecWidth = multimedia->windowParams.width / cores;
     for (int i = 0; i < cores; ++i) {
         startingPixels.push_back(i*renderSecWidth);
         endingPixels.push_back(startingPixels[i] + renderSecWidth);
     }
-    wallBackbuffer.resize(multimedia->windowParams.screenWidth);
+    wallBackbuffer.resize(multimedia->windowParams.width);
     spriteBackbuffers.resize(cores);
 
     // Pre-allocate sprite back buffers (rough estimate)
@@ -133,20 +133,20 @@ Ray Renderer::GetRay(const int rayNum) const {
 }
 
 int Renderer::GetRenderHeight(const double hitDist, const double angleCosine) const {
-    static const double proportionalityConstant = 1.3 * multimedia->windowParams.screenWidth / ((16.0 / 9.0) * (fov / 72.0));
+    static const double proportionalityConstant = 1.3 * multimedia->windowParams.width / ((16.0 / 9.0) * (fov / 72.0));
     return static_cast<int>(proportionalityConstant / (hitDist * angleCosine));
 }
 
 SDL_Rect Renderer::GetScreenRect(double renderHeight, int rayNum) const {
-    return {rayNum, static_cast<int>(multimedia->windowParams.screenHeight / 2 - renderHeight / 2), 1, static_cast<int>(renderHeight)};
+    return {rayNum, static_cast<int>(multimedia->windowParams.height / 2 - renderHeight / 2), 1, static_cast<int>(renderHeight)};
 }
 
 void Renderer::CalculateCastingRayAngles() {
     double projectionPlaneWidth = 2 * std::tan(DegreesToRadians(fov / 2));
-    double segmentLength = projectionPlaneWidth / multimedia->windowParams.screenWidth;
+    double segmentLength = projectionPlaneWidth / multimedia->windowParams.width;
 
-    castingRayAngles.reserve(multimedia->windowParams.screenWidth);
-    for (int i = 0; i < multimedia->windowParams.screenWidth; ++i) {
+    castingRayAngles.reserve(multimedia->windowParams.width);
+    for (int i = 0; i < multimedia->windowParams.width; ++i) {
         double angle = std::atan(-(i * segmentLength - (projectionPlaneWidth / 2)));
         castingRayAngles.emplace_back(std::pair(angle, std::cos(angle)));
     }

@@ -20,7 +20,7 @@ enum class wallType_t {
 
 /*
 =========================================================
-    RayCursor (DDA algorithm encapsulated within)
+    RayHitMarker (DDA algorithm encapsulated within)
 =========================================================
 */
 

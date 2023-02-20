@@ -7,7 +7,13 @@ set (CMAKE_CXX_STANDARD 17)
 find_package(SDL2 REQUIRED COMPONENTS SDL2)
 
 # Add .cpp files into executable
-file (GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/*.cpp")
+file (GLOB_RECURSE SRC_FILES
+		"${CMAKE_SOURCE_DIR}/main.cpp"
+		"${CMAKE_SOURCE_DIR}/GameEngine/*.cpp"
+		"${CMAKE_SOURCE_DIR}/DevTools/*.cpp"
+		"${CMAKE_SOURCE_DIR}/Utilities/*.cpp"
+		)
+
 if (APPLE)
 	file (GLOB_RECURSE ASSETS "../assets/*.csv" "../assets/*.bmp")
 	add_executable (wolf3d-clone MACOSX_BUNDLE ${SRC_FILES} ${ASSETS})

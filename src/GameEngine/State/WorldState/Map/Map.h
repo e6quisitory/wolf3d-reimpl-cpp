@@ -14,8 +14,8 @@ class Map {
 public:
     /* Tiles */
     std::vector<Tile*>               tiles;
-    int                              mapWidth;
-    int                              mapHeight;
+    int                              width;
+    int                              height;
     int                              numTiles;
 
     /* Doors */

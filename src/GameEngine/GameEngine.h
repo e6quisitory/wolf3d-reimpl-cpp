@@ -17,11 +17,11 @@
 class GameEngine {
 public:
     bool quitGameFlag;
+    WorldState*        worldState;
+    Multimedia*        multimedia;
 
 private:
     InputsBuffer*      inputsBuffer;
-    WorldState*        worldState;
-    Multimedia*        multimedia;
 
     InputsParser       inputsParser;
     MultimediaManager  multimediaManager;

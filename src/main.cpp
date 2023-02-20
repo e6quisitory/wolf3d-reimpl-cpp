@@ -1,4 +1,5 @@
 #include "GameEngine/GameEngine.h"
+#include "DevTools/Minimap/Minimap.h"
 
 #if _WIN64
     #include "Windows.h"
@@ -14,8 +15,12 @@
     gameEngine.Init();
     #endif
 
-    while (gameEngine.quitGameFlag == false)
+    Minimap minimap(gameEngine.worldState, gameEngine.multimedia, 20);
+
+    while (gameEngine.quitGameFlag == false) {
         gameEngine.GameLoop();
+        minimap.Update();
+    }
 
     gameEngine.Exit();
      

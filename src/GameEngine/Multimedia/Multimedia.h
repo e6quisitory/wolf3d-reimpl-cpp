@@ -20,8 +20,13 @@ typedef std::optional  <std::pair<SDL_Texture*, SDL_Texture*>>  texturePair_o;
 typedef std::pair      <texturePair_t, texturePair_t>           texturePairsPair_t;
 
 struct WindowParams {
-    int screenWidth;
-    int screenHeight;
+    int width;
+    int height;
+};
+
+struct DisplayParams {
+    int width;
+    int height;
     int refreshRate;
 };
 
@@ -33,9 +38,10 @@ struct WindowParams {
 
 class Multimedia {
 public:
-    SDL_Window*     sdlWindow;
-    WindowParams    windowParams;
-    SDL_Renderer*   sdlRenderer;
+    DisplayParams displayParams;
+    WindowParams  windowParams;
+    SDL_Window*   sdlWindow;
+    SDL_Renderer* sdlRenderer;
     std::map<textureType_t, std::vector<SDL_Texture*>>  textures;
 
 public:

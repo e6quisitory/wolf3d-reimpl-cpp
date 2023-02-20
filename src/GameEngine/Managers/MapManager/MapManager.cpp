@@ -25,8 +25,8 @@ void MapManager::Exit() const {
 void MapManager::LoadMap(const std::string file) const {
     MapFile mapFile(file);
 
-    worldState->map.mapWidth  = mapFile.columns;
-    worldState->map.mapHeight = mapFile.rows;
+    worldState->map.width  = mapFile.columns;
+    worldState->map.height = mapFile.rows;
     worldState->map.numTiles  = mapFile.numCells;
 
     // Grab door textures to feed into DoorTiles

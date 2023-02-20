@@ -2,13 +2,18 @@
 
 /*
 ================================
-Public Methods
+    Public Methods
 ================================
 */
 
 void MultimediaManager::Init(Multimedia* const _multimedia) {
     multimedia = _multimedia;
     SDL_Init(SDL_INIT_EVERYTHING);
+
+    // Get and set DisplayParams
+    SDL_DisplayMode displayMode;
+    SDL_GetCurrentDisplayMode(0, &displayMode);
+    multimedia->displayParams = {displayMode.w, displayMode.h, displayMode.refresh_rate};
 }
 
 void MultimediaManager::Exit() const {
@@ -30,17 +35,14 @@ void MultimediaManager::CreateWindowRenderer(const int customScreenWidth, const 
     assert(customScreenWidth % 2 == 0 && customScreenHeight % 2 == 0);
 
     CreateSdlWindowRenderer(customScreenWidth, customScreenHeight, false);
-
-    multimedia->windowParams.screenHeight = customScreenHeight;
-    multimedia->windowParams.screenWidth  = customScreenWidth;
-    multimedia->windowParams.refreshRate  = std::get<2>(GetDisplayParams());
+    multimedia->windowParams = {customScreenWidth, customScreenHeight};
 
     LockMouseToWindow();
 }
 
 void MultimediaManager::CreateWindowRenderer() const {
-    auto [displayWidth, displayHeight, displayRefreshRate] = GetDisplayParams();
-    multimedia->windowParams = {displayWidth, displayHeight, displayRefreshRate};
+    auto [displayWidth, displayHeight, displayRefreshRate] = multimedia->displayParams;
+    multimedia->windowParams = {displayWidth, displayHeight};
 
     CreateSdlWindowRenderer(displayWidth, displayHeight, true);
     LockMouseToWindow();
@@ -68,12 +70,6 @@ void MultimediaManager::LoadTextures(const textureType_t textureType, const spri
     Private Methods
 ================================
 */
-
-displayParams_t MultimediaManager::GetDisplayParams() const {
-    SDL_DisplayMode displayMode;
-    SDL_GetCurrentDisplayMode(0, &displayMode);
-    return displayParams_t(displayMode.w, displayMode.h, displayMode.refresh_rate);
-}
 
 void MultimediaManager::CreateSdlWindowRenderer(const int screenWidth, const int screenHeight, const bool fullScreen) const {
     multimedia->sdlWindow   = SDL_CreateWindow("Wolfenstein 3D Clone", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);

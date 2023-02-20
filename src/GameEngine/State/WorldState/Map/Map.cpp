@@ -11,7 +11,7 @@ Tile* Map::operator [] (const int tileIndex) const {
 }
 
 Tile* Map::operator () (const int tileCoordX, const int tileCoordY) const {
-    return tiles[tileCoordY * mapWidth + tileCoordX];
+    return tiles[tileCoordY * width + tileCoordX];
 }
 
 /*
@@ -25,7 +25,7 @@ Tile* Map::GetTile(const iPoint2& tileCoord) const {
 }
 
 bool Map::WithinMap(const iPoint2& tileCoord) const {
-    if((tileCoord.x() >= 0 && tileCoord.x() <= mapWidth) && (tileCoord.y() >= 0 && tileCoord.y() <= mapHeight))
+    if((tileCoord.x() >= 0 && tileCoord.x() <= width) && (tileCoord.y() >= 0 && tileCoord.y() <= height))
         return true;
     else
         return false;

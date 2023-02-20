@@ -1,9 +1,9 @@
 #include "DoorTile.h"
 
 /*
-================================
+=========================================================
     Constructors
-================================
+=========================================================
 */
 
 DoorTile::DoorTile(const texturePairsPair_t doorTextures) {
@@ -20,9 +20,9 @@ DoorTile::DoorTile(const texturePairsPair_t doorTextures) {
 }
 
 /*
-================================
+=========================================================
     Public methods
-================================
+=========================================================
 */
 
 textureSliceDistPair_o DoorTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {

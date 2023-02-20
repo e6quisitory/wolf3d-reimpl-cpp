@@ -38,6 +38,7 @@ public:
     Vec2D<T>&  operator  -=  (const Vec2D<T>& v);
     Vec2D<T>&  operator  *=  (const double d);
     bool       operator  ==  (const Vec2D& v)      const;
+    bool       operator  !=  (const Vec2D& v)      const;
 
     double         LengthSquared()                         const;
     double         Length()                                const;
@@ -50,10 +51,11 @@ public:
 =================================================
 */
 
-typedef  Vec2D<double>  Point2;
-typedef  Vec2D<int>     iPoint2;
-typedef  Vec2D<double>  Vec2;
-typedef  Vec2D<int>     iVec2;
+typedef  Vec2D <double>  Point2;
+typedef  Vec2D <int>     iPoint2;
+typedef  Vec2D <double>  Vec2;
+typedef  Vec2D <int>     iVec2;
+typedef  Vec2D <int>     Pixel;
 
 /*
 =================================================
@@ -152,6 +154,11 @@ template<typename T>
 template<typename T>
     bool Vec2D<T>::operator == (const Vec2D& v) const {
         return e[0] == v.e[0] && e[1] == v.e[1] ? true : false;
+    }
+
+template<typename T>
+    bool Vec2D<T>::operator != (const Vec2D& v) const {
+        return (*this) == v ? false : true;
     }
 
 /*

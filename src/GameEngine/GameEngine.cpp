@@ -18,7 +18,7 @@ void GameEngine::Init() {
 
     // Initialize input parser, managers, and renderer
     multimediaManager.Init(multimedia);
-    multimediaManager.CreateWindowRenderer();  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
+    multimediaManager.CreateWindowRenderer(640, 480);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
 
     #if __APPLE__ && __MACH__
     auto parentDirPath      = executablePath.substr(0, executablePath.find_last_of("/\\"));
@@ -33,7 +33,7 @@ void GameEngine::Init() {
     multimediaManager.LoadTextures(textureType_t::OBJECTS, {"../assets/objects.bmp", 5, 50});
     #endif
 
-    playerManager.Init(inputsBuffer, worldState, multimedia->windowParams.refreshRate);
+    playerManager.Init(inputsBuffer, worldState, multimedia->displayParams.refreshRate);
     mapManager.Init(worldState, multimedia);
 
     #if __APPLE__ && __MACH__ 
@@ -42,7 +42,7 @@ void GameEngine::Init() {
     mapManager.LoadMap("../assets/map.csv");
     #endif
 
-    doorManager.Init(worldState, multimedia->windowParams.refreshRate);
+    doorManager.Init(worldState, multimedia->displayParams.refreshRate);
     inputsParser.Init(inputsBuffer);
     renderer.Init(worldState, multimedia);
 
