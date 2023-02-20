@@ -70,6 +70,7 @@ void Minimap::Update() const {
     DrawGridlines();
     DrawNonEmptyTiles();
     DrawPlayerTile();
+    DrawPlayerRaycasts();
     SDL_RenderPresent(minimapRenderer);
 }
 
@@ -115,8 +116,25 @@ void Minimap::DrawPlayerTile() const {
     SDL_RenderFillRect(minimapRenderer, &playerRect);
 }
 
+void Minimap::DrawPlayerRaycasts() const {
+    Point2 playerLocCentered = iPoint2(worldState->player.location) + Point2(0.5, 0.5);
+    Pixel raycastStart = MapCoordToMinimapCoord(playerLocCentered);
+    Pixel raycastMiddleEnd   = MapCoordToMinimapCoord(playerLocCentered + 2*worldState->player.viewDir);
+
+    SDL_SetRenderDrawColor(minimapRenderer, 0, 233, 250, 255);
+    for (int angle = -36; angle <= 36; ++angle) {
+        Pixel raycastEnd = (raycastMiddleEnd - raycastStart).Rotate(DegreesToRadians(angle)) + raycastStart;
+        SDL_RenderDrawLine(minimapRenderer, raycastStart.x(), raycastStart.y(), raycastEnd.x(), raycastEnd.y());
+    }
+}
+
 SDL_Rect Minimap::TileToRect(const iPoint2 &tileCoord) const {
-    return {origin.x()+tileCoord.x()*tileSize, origin.y()+tileCoord.y()*tileSize, tileSize, tileSize};
+    auto minimapCoord = MapCoordToMinimapCoord(tileCoord);
+    return {minimapCoord.x(), minimapCoord.y(), tileSize, tileSize};
+}
+
+Pixel Minimap::MapCoordToMinimapCoord(const Point2& mapCoord) const {
+    return mapCoord*tileSize + origin;
 }
 
 void Minimap::CollectTileRectsFromMap(const tileType_t tileType, tileRects_t& tileRects) {

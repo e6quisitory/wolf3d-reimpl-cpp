@@ -27,6 +27,7 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 - Map loading from a `csv` file
 - Smooth movement using VSYNC
 - Mouse to look around
+- Minimap (dev tool)
 
 Here is a short video of what the engine is currently capable of:
 

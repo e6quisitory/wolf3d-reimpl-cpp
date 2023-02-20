@@ -49,6 +49,8 @@ private:
     void       DrawGridlines()                                                                 const;
     void       DrawNonEmptyTiles()                                                             const;
     void       DrawPlayerTile()                                                                const;
+    void       DrawPlayerRaycasts()                                                            const;
     SDL_Rect   TileToRect                (const iPoint2 &tileCoord)                            const;
+    Pixel      MapCoordToMinimapCoord    (const Point2& mapCoord)                              const;
     void       CollectTileRectsFromMap   (const tileType_t tileType, tileRects_t& tileRects);
 };
