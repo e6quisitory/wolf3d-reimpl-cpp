@@ -110,7 +110,7 @@ void Renderer::FullRender() {
 void Renderer::FlipWallBackbuffer() const {
     for (const auto& w : wallBackbuffer) {
         const auto& [textureSlice, screenRect] = w;
-        SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+        SDL_RenderCopyEx(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect), 0, nullptr, SDL_FLIP_HORIZONTAL);
     }
 }
 
@@ -121,7 +121,7 @@ void Renderer::FlipSpriteBackbuffers() {
             // Must render sprites in reverse of the order in which they were encountered
             for (auto s = spriteBackbuffers[i].rbegin(); s != spriteBackbuffers[i].rend(); ++s) {
                 const auto& [textureSlice, screenRect] = *s;
-                SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+                SDL_RenderCopyEx(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect), 0, nullptr, SDL_FLIP_NONE);
             }
             spriteBackbuffers[i].clear();
         }

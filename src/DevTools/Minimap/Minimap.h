@@ -29,10 +29,10 @@ private:
     int  tileSize;
 
     Pixel origin;
-    iVec2 down;
+    iVec2 up;
     iVec2 right;
-    Pixel bottomLeftCorner;
-    Pixel topRightCorner;
+    Pixel topLeftCorner;
+    Pixel bottomRightCorner;
 
     tileRects_t wallTileRects;
     tileRects_t doorTileRects;

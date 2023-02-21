@@ -33,11 +33,11 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
     SDL_SetWindowPosition(minimapWindow, minimapWindowX, minimapWindowY);
 
     // Define major map coordinates relative to screen
-    origin = Pixel(tileSize, tileSize);
-    down   = iVec2(0, tileSize);
+    origin = Pixel(tileSize, tileSize*(worldState->map.height));
+    up   = iVec2(0, -tileSize);
     right  = iVec2(tileSize, 0);
-    bottomLeftCorner = origin + worldState->map.height*down;
-    topRightCorner   = origin + worldState->map.width*right;
+    topLeftCorner = origin + worldState->map.height*up;
+    bottomRightCorner = origin + worldState->map.width*right;
 
     // Collect all non-empty tiles
     CollectTileRectsFromMap(tileType_t::WALL, wallTileRects);
@@ -88,11 +88,11 @@ void Minimap::DrawBackground() const {
 
 void Minimap::DrawGridlines() const {
     SDL_SetRenderDrawColor(minimapRenderer, 44, 44, 44, 255);
-    for (Pixel p = origin; p.x() <= topRightCorner.x(); p += right)
-        SDL_RenderDrawLine(minimapRenderer, p.x(), p.y(), p.x(), p.y()+ worldState->map.height * tileSize);
+    for (Pixel p = origin; p.x() <= bottomRightCorner.x(); p += right)
+        SDL_RenderDrawLine(minimapRenderer, p.x(), p.y(), p.x(), p.y()+(up*worldState->map.height).y());
 
-    for (Pixel p = origin; p.y() <= bottomLeftCorner.y(); p += down)
-        SDL_RenderDrawLine(minimapRenderer, p.x(), p.y(), p.x()+ worldState->map.width * tileSize, p.y());
+    for (Pixel p = origin; p.y() >= topLeftCorner.y(); p += up)
+        SDL_RenderDrawLine(minimapRenderer, p.x(), p.y(), p.x()+(right*worldState->map.width).x(), p.y());
 }
 
 void Minimap::DrawNonEmptyTiles() const {
@@ -117,7 +117,7 @@ void Minimap::DrawPlayerTile() const {
 }
 
 void Minimap::DrawPlayerRaycasts() const {
-    Point2 playerLocCentered = iPoint2(worldState->player.location) + Point2(0.5, 0.5);
+    Point2 playerLocCentered = iPoint2(worldState->player.location) - iPoint2(0,1) + Point2(0.5, 0.5);
     Pixel raycastStart = MapCoordToMinimapCoord(playerLocCentered);
     Pixel raycastMiddleEnd   = MapCoordToMinimapCoord(playerLocCentered + 2*worldState->player.viewDir);
 
@@ -134,7 +134,7 @@ SDL_Rect Minimap::TileToRect(const iPoint2 &tileCoord) const {
 }
 
 Pixel Minimap::MapCoordToMinimapCoord(const Point2& mapCoord) const {
-    return mapCoord*tileSize + origin;
+    return Pixel((origin + right*mapCoord.x()).x(), (origin + up*mapCoord.y()).y());
 }
 
 void Minimap::CollectTileRectsFromMap(const tileType_t tileType, tileRects_t& tileRects) {

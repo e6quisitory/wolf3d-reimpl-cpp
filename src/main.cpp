@@ -15,7 +15,7 @@
     gameEngine.Init();
     #endif
 
-    Minimap minimap(gameEngine.worldState, gameEngine.multimedia, 20);
+    Minimap minimap(gameEngine.worldState, gameEngine.multimedia, 15);
 
     while (gameEngine.quitGameFlag == false) {
         gameEngine.GameLoop();

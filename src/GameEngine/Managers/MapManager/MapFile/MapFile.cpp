@@ -64,6 +64,24 @@ void MapFile::ParseCSV(const std::string& mapFileName) {
     }
     numCells = rows * columns;
 
+    std::vector<std::vector<parsedTileInfo_o>> flipped;
+    flipped.resize(rows);
+    for (auto& row : flipped)
+        row.resize(columns);
+
+    for (int i = 0; i < numCells; ++i)
+        flipped[i / columns][i % columns] = tiles[i];
+
+    std::reverse(flipped.begin(), flipped.end());
+
+    tiles.clear();
+    for (auto& row : flipped)
+        for (auto& tile : row)
+            tiles.push_back(tile);
+
+    for (int i = 0; i < numCells; ++i)
+        tiles[i]->tileIndex = i;
+
     // Fill in tile coordinates
     for (auto& tileInfo : tiles)
         tileInfo->tileCoord = iPoint2(tileInfo->tileIndex % columns, tileInfo->tileIndex / columns);
