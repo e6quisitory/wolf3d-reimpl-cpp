@@ -29,11 +29,16 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 - Mouse to look around
 - Minimap (dev tool)
 
-Here is a short video of what the engine is currently capable of:
+Here's a couple short videos of what the engine is currently capable of:
 
 <div align="center">
   <video src="https://user-images.githubusercontent.com/25702188/213652164-ee0d2622-4c79-4e63-87d3-8f52f17b8080.mp4" width=852/>
 </div>
+</br>
+<div align="center">
+<video src="https://user-images.githubusercontent.com/25702188/220486392-d4c782b8-bcb1-475a-883a-08ab6a0e1d46.mp4" width=500/>
+</div>
+</br>
 
 The only dependacy of the project thus far is SDL2, used to open a window and render pixels into it, hardware-based texture scaling, reading keyboard and mouse inputs, and VSYNC.
 
@@ -268,9 +273,8 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 <a name="igoals"/>
 
 ## Immediate Goals
-- Character/sprite animation
+- Enemy AI & character animation
 - Weapons
-- Enemy AI
 
 </a>
 

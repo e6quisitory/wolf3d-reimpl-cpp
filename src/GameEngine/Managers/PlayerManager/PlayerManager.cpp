@@ -20,12 +20,11 @@ void PlayerManager::SetPlayer(const Point2& location, const Vec2& viewDir) {
     worldState->player.viewDir  = UnitVector(viewDir);
     worldState->player.eastDir = worldState->player.viewDir.Rotate(-PI/2);
 
-    // If spawn is set for a perfect grid corner (i.e. x and y vals are both integers), there is some weird clipping that happens when you first move
-    // Certainly a bug that I will investigate. But for now, if user enters in integers, a quick fix is just to add a little decimal value to them to
-    // avoid the bug
-    for (int i = 0; i < 2; ++i)
-        if (IsInteger(worldState->player.location[i]))
-            worldState->player.location[i] += 0.01;
+    // If spawn location or view direction vectors have any integer components, weird clipping / lines appear on screen
+    // For now, fix is to just add a bit of noise to those components (which below function does)
+    // For a proper fix, will have to investigate what causes this
+    AddNoiseIfAnyIntegerComponents(worldState->player.location);
+    AddNoiseIfAnyIntegerComponents(worldState->player.viewDir);
 }
 
 void PlayerManager::Update() const {

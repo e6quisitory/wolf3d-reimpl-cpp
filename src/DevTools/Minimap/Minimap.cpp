@@ -33,7 +33,7 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
     SDL_SetWindowPosition(minimapWindow, minimapWindowX, minimapWindowY);
 
     // Define major map coordinates relative to screen
-    origin = Pixel(tileSize, tileSize*(worldState->map.height));
+    origin = Pixel(tileSize, tileSize*(worldState->map.height + 1));
     up   = iVec2(0, -tileSize);
     right  = iVec2(tileSize, 0);
     topLeftCorner = origin + worldState->map.height*up;
@@ -89,10 +89,10 @@ void Minimap::DrawBackground() const {
 void Minimap::DrawGridlines() const {
     SDL_SetRenderDrawColor(minimapRenderer, 44, 44, 44, 255);
     for (Pixel p = origin; p.x() <= bottomRightCorner.x(); p += right)
-        SDL_RenderDrawLine(minimapRenderer, p.x(), p.y(), p.x(), p.y()+(up*worldState->map.height).y());
+        SDL_RenderDrawLine(minimapRenderer, p.x(), origin.y(), p.x(), topLeftCorner.y());
 
     for (Pixel p = origin; p.y() >= topLeftCorner.y(); p += up)
-        SDL_RenderDrawLine(minimapRenderer, p.x(), p.y(), p.x()+(right*worldState->map.width).x(), p.y());
+        SDL_RenderDrawLine(minimapRenderer, origin.x(), p.y(), bottomRightCorner.x(), p.y());
 }
 
 void Minimap::DrawNonEmptyTiles() const {
@@ -117,7 +117,7 @@ void Minimap::DrawPlayerTile() const {
 }
 
 void Minimap::DrawPlayerRaycasts() const {
-    Point2 playerLocCentered = iPoint2(worldState->player.location) - iPoint2(0,1) + Point2(0.5, 0.5);
+    Point2 playerLocCentered = iPoint2(worldState->player.location) + Point2(0.5, 0.5);
     Pixel raycastStart = MapCoordToMinimapCoord(playerLocCentered);
     Pixel raycastMiddleEnd   = MapCoordToMinimapCoord(playerLocCentered + 2*worldState->player.viewDir);
 
@@ -129,8 +129,8 @@ void Minimap::DrawPlayerRaycasts() const {
 }
 
 SDL_Rect Minimap::TileToRect(const iPoint2 &tileCoord) const {
-    auto minimapCoord = MapCoordToMinimapCoord(tileCoord);
-    return {minimapCoord.x(), minimapCoord.y(), tileSize, tileSize};
+    auto minimapGridRectTopLeft = MapCoordToMinimapCoord(tileCoord) + up;
+    return {minimapGridRectTopLeft.x(), minimapGridRectTopLeft.y(), tileSize, tileSize};
 }
 
 Pixel Minimap::MapCoordToMinimapCoord(const Point2& mapCoord) const {
@@ -140,9 +140,10 @@ Pixel Minimap::MapCoordToMinimapCoord(const Point2& mapCoord) const {
 void Minimap::CollectTileRectsFromMap(const tileType_t tileType, tileRects_t& tileRects) {
     // First collect tiles of specified type from map
     std::vector<iPoint2> tileCoords;
-    for (const auto& mapTile : worldState->map.tiles)
-        if (mapTile->type == tileType)
-            tileCoords.push_back(mapTile->coordinate);
+    for (const auto& mapColumn : worldState->map.tiles)
+        for (const auto& mapTile : mapColumn)
+            if (mapTile->type == tileType)
+                tileCoords.push_back(mapTile->coordinate);
 
     // Then fill in corresponding SDL_Rects
     auto& [rects, count] = tileRects;

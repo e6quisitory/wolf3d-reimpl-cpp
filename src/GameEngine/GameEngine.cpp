@@ -47,7 +47,7 @@ void GameEngine::Init() {
     renderer.Init(worldState, multimedia);
 
     // Set player location & view direction
-    playerManager.SetPlayer(Point2(1.5, 1.5), Vec2(1, 1));
+    playerManager.SetPlayer(Point2(2.5, 2.5), Vec2(0, 1));
 
     quitGameFlag = false;
 }

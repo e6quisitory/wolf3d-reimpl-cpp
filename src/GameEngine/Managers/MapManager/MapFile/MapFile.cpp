@@ -6,8 +6,8 @@
 =========================================================
 */
 
-parsedTileInfo_t::parsedTileInfo_t(const int _tileIndex, const textureType_t _textureType, const int _textureID):
-    tileIndex(_tileIndex), textureType(_textureType), textureID(_textureID) {}
+parsedTileInfo_t::parsedTileInfo_t(const textureType_t _textureType, const int _textureID):
+    textureType(_textureType), textureID(_textureID) {}
 
 /*
 =========================================================
@@ -15,17 +15,16 @@ parsedTileInfo_t::parsedTileInfo_t(const int _tileIndex, const textureType_t _te
 =========================================================
 */
 
-MapFile::MapFile(const std::string& mapFileName): rows(0), columns(0), numCells(0) {
+MapFile::MapFile(const std::string& mapFileName): numRows(0), numColumns(0) {
     ParseCSV(mapFileName);
 }
 
 void MapFile::ParseCSV(const std::string& mapFileName) {
     std::ifstream mapFile(mapFileName);
-
+    parsedTileInfo1DArray_t parsedTiles1DArray;
     std::string currCellString;
     bool cellReadInProgress = false;
 
-    int cellIndex = 0;
     while (mapFile.is_open()) {
         char currentChar = mapFile.get();
         bool isComma   = currentChar == ',';
@@ -36,12 +35,12 @@ void MapFile::ParseCSV(const std::string& mapFileName) {
             goto PushCurrentTileInfo;
         } else if (isNewline) {
             if (cellReadInProgress == true) {
-                ++rows;
+                ++numRows;
                 goto PushCurrentTileInfo;
             } else
                 continue;
         } else if (isEOF) {
-            ++rows;
+            ++numRows;
             mapFile.close();
             goto PushCurrentTileInfo;
         } else if (cellReadInProgress == true) {
@@ -49,60 +48,50 @@ void MapFile::ParseCSV(const std::string& mapFileName) {
         } else {
             cellReadInProgress = true;
             currCellString.push_back(currentChar);
-            if (rows == 0)
-                ++columns;
+            if (numRows == 0)
+                ++numColumns;
         }
 
         goto Exit;
 
         PushCurrentTileInfo: {
             cellReadInProgress = false;
-            PushTileInfo(cellIndex, currCellString);
+            PushTileInfo(parsedTiles1DArray, currCellString);
         }
 
         Exit: {}
     }
-    numCells = rows * columns;
 
-    std::vector<std::vector<parsedTileInfo_o>> flipped;
-    flipped.resize(rows);
-    for (auto& row : flipped)
-        row.resize(columns);
+    /*** Transform tiles 1D array into 2D array **/
+    parsedTiles.resize(numColumns);
+    for (auto& column : parsedTiles)
+        column.resize(numRows);
 
-    for (int i = 0; i < numCells; ++i)
-        flipped[i / columns][i % columns] = tiles[i];
+    // Fill 2D array from 1D array
+    for (int tileIndex = 0; tileIndex < parsedTiles1DArray.size(); ++tileIndex) {
+        auto tileCoord = iPoint2(tileIndex%numColumns, (numRows-1) - tileIndex/numColumns);  // subtracted from numRows due to flipping in next step after this loop
+        parsedTiles[tileCoord.x()][tileCoord.y()] = std::pair(parsedTiles1DArray[tileIndex], tileCoord);
+    }
 
-    std::reverse(flipped.begin(), flipped.end());
-
-    tiles.clear();
-    for (auto& row : flipped)
-        for (auto& tile : row)
-            tiles.push_back(tile);
-
-    for (int i = 0; i < numCells; ++i)
-        tiles[i]->tileIndex = i;
-
-    // Fill in tile coordinates
-    for (auto& tileInfo : tiles)
-        tileInfo->tileCoord = iPoint2(tileInfo->tileIndex % columns, tileInfo->tileIndex / columns);
+    // Flip 2D array (top-most row goes to bottom, as map origin is at bottom-left corner
+    for (auto& column : parsedTiles)
+        std::reverse(column.begin(), column.end());
 };
 
-void MapFile::PushTileInfo(int& tileIndex, std::string& cellString) {
+void MapFile::PushTileInfo(parsedTileInfo1DArray_t& parsedTileInfo1DArray, std::string &cellString) const {
     if (cellString.empty())
-        tiles.emplace_back(std::nullopt);
+        parsedTileInfo1DArray.emplace_back(std::nullopt);
     else {
         auto parsedTextureInfo = ParseTileCode(cellString);
-
         if (parsedTextureInfo.has_value()) {
             auto [textureType, textureID] = parsedTextureInfo.value();
-            auto parsedTileInfo = parsedTileInfo_t(tileIndex, textureType, textureID);
-            tiles.emplace_back(parsedTileInfo);
+            auto parsedTileInfo = parsedTileInfo_t(textureType, textureID);
+            parsedTileInfo1DArray.emplace_back(parsedTileInfo);
         } else
-            tiles.emplace_back(std::nullopt);  // invalid format ; default to empty tile
+            parsedTileInfo1DArray.emplace_back(std::nullopt);  // invalid format ; default to empty tile
 
         cellString.clear();
     }
-    ++tileIndex;
 }
 
 parsedTextureInfo_o MapFile::ParseTileCode(const std::string& textureCode) const {

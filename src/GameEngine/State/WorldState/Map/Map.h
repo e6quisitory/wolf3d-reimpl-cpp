@@ -6,6 +6,14 @@
 
 /*
 =========================================================
+    Relevant type definitions
+=========================================================
+*/
+
+typedef std::vector<std::vector<Tile*>> tileGrid2D_t;
+
+/*
+=========================================================
     Map
 =========================================================
 */
@@ -13,10 +21,9 @@
 class Map {
 public:
     /* Tiles */
-    std::vector<Tile*>               tiles;
+    tileGrid2D_t                     tiles;
     int                              width;
     int                              height;
-    int                              numTiles;
 
     /* Doors */
     std::map<DoorTile*, DoorTile*>   activeDoors;
@@ -26,10 +33,8 @@ public:
     std::vector<SpriteTile*>         sprites;
 
 public:
-    Tile*                             operator []           (const int tileIndex)                          const;
-    Tile*                             operator ()           (const int tileCoordX, const int tileCoordY)   const;
-
     Tile*                             GetTile               (const iPoint2& tileCoord)                     const;
+    void                              SetTile               (const iPoint2& tileCoord, Tile* const tile);
     bool                              WithinMap             (const iPoint2& tileCoord)                     const;
     void                              AddActiveDoor         (DoorTile* const door);
     void                              RemoveActiveDoor      (DoorTile* const door);

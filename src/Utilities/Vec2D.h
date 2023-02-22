@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "Conventions.h"
+#include "MiscMath/MiscMath.h"
 
 /*
 =====================================================
@@ -241,3 +242,9 @@ template<typename T>
     Vec2D<T> UnitVector(const Vec2D<T>& v) {
         return v / v.Length();
     }
+
+static Vec2D<double> AddNoiseIfAnyIntegerComponents(Vec2D<double>& v) {
+    for (int index = 0; index < 2; ++index)
+        if (IsInteger(v[index]))
+            v[index] += 0.01;
+}

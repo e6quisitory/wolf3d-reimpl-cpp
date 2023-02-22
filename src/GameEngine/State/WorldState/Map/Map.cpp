@@ -2,26 +2,16 @@
 
 /*
 ================================
-    Operators
-================================
-*/
-
-Tile* Map::operator [] (const int tileIndex) const {
-    return tiles[tileIndex];
-}
-
-Tile* Map::operator () (const int tileCoordX, const int tileCoordY) const {
-    return tiles[tileCoordY * width + tileCoordX];
-}
-
-/*
-================================
     Public Methods
 ================================
 */
 
 Tile* Map::GetTile(const iPoint2& tileCoord) const {
-    return (*this)(tileCoord.x(), tileCoord.y());
+    return tiles[tileCoord.x()][tileCoord.y()];
+}
+
+void Map::SetTile(const iPoint2 &tileCoord, Tile *const tile) {
+    tiles[tileCoord.x()][tileCoord.y()] = tile;
 }
 
 bool Map::WithinMap(const iPoint2& tileCoord) const {
