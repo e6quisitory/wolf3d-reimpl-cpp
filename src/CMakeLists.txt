@@ -3,6 +3,11 @@ cmake_minimum_required (VERSION 3.20)
 project (wolf3d-clone)
 set (CMAKE_CXX_STANDARD 17)
 
+# Suppress missing switch cases warnings
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-switch")
+endif()
+
 # Find SDL2
 find_package(SDL2 REQUIRED COMPONENTS SDL2)
 
@@ -30,6 +35,3 @@ target_precompile_headers (wolf3d-clone PRIVATE "Utilities/COMMON_HEADERS.h" ${U
 
 # Link SDL2
 target_link_libraries(wolf3d-clone PRIVATE SDL2::SDL2)
-
-# Suppress all compiler warnings
-target_compile_options (wolf3d-clone PRIVATE -w)

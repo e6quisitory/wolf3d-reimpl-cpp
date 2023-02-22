@@ -118,36 +118,6 @@ The following instructions assume you're running on an x86-64 Windows machine.
     ```
     ./wolf3d-clone.exe
     ```
-**Aside**
-
-This compiled executable will be located in `C:\msys64\home\[YOUR USERNAME]\wolf3d-clone\build` (assuming you installed MSYS2 into `C:\msys64`). You can navigate to this location in Windows file explorer and you'll see `wolf3d-clone.exe` present there. However, if you double click, it'll complain about certain `.dll`'s being missing and wont run.
-Thus, if you'd like to run the executable from _outside_ of the MSYS2 CLANG64 environment terminal (as in just double click on it and have it run), you have two options:
-
-1. Copy `libc++.dll` and `SDL2.dll` located in `C:\msys64\clang64\bin`, and paste them next to the `wolf3d-clone.exe` executable. Now when you run it, it'll be able to access both of those `.dll`'s that it needs and will run properly.
-2. Add the location of the needed `.dll`'s to your system PATH. Follow the steps below to achieve this:
-
-    - Hit `Win` + `R` and type in `systempropertiesadvanced`, then hit the `Enter` key
-    - Click `Environment Variables` at the bottom of the window that opens
-    - In the bottom section (System Variables) look for a variable called `Path` and double-click on it
-    - In the new window that opens, click `New` on the right side
-    - Enter in `C:\msys64\clang64\bin`
-    - Hit the `Enter` key, then `OK` out of all open windows
-
-Note, the executable also requires access to the `assets` folder from this project, which holds the texture/sprite sheets, map, etc. So the directory structure should still at least be the following:
-
-```
-wolf3d-clone/
-├── assets/
-│   ├── wall_textures.bmp
-│   ├── map.csv
-│   ├── objects.bmp
-│   └── ...
-└── build/
-    ├── wolf3d-clone.exe
-    ├── SDL2.dll (if not made accessible through PATH)
-    └── libc++.dll (if not made accessible through PATH)
-```
-
 </a>
 
 <a name="macos"/>
@@ -179,7 +149,7 @@ wolf3d-clone/
     cmake -G "Ninja" ../src
     ninja -j $(sysctl -n hw.physicalcpu)
     ```
-4. Now a clickable `.app` executable should be present in this build directory. You can run it from the terminal with the below command, and you can also navigate to it and simply double-click it as well to launch.
+4. Now a clickable `.app` executable should be present in this build directory. You can run it from the terminal with the command below, and you can also navigate to it and simply double-click it as well to launch.
 
     ```
     open -n ./wolf3d-clone.app
@@ -200,7 +170,7 @@ Note that the below instructions have been tested on Ubuntu, and should work on 
 2. Install the following packages
 
     ```
-    sudo apt install clang
+    sudo apt install build-essentials
     sudo apt install cmake
     sudo apt install ninja-build
     sudo apt install libsdl2-dev
@@ -217,7 +187,7 @@ Note that the below instructions have been tested on Ubuntu, and should work on 
     ```
     mkdir build
     cd build
-    cmake -G "Ninja" ../src -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+    cmake -G "Ninja" ../src
     ninja
     ```
 5. Now run the compiled executable like so:
@@ -225,38 +195,6 @@ Note that the below instructions have been tested on Ubuntu, and should work on 
     ```
     ./wolf3d-clone
     ```
-**Aside**
-
-If after running `ninja`, you get compilation errors of C++ standard library headers not being found (like `<iostream>` etc.), run the following command:
-
-```
-clang -v
-```
-Now check the following two lines of the output:
-
-```
-Found candidate GCC installation: ...
-Selected GCC installation: ...
-```
-Now here, make sure that the _selected_ GCC version is one of the ones _found_. It is possible for the selected version to be one that is not even present on your system, which will cause the standard library headers to not be found. If in your case the selected version is not one of the ones found, you can simply install that version of GCC with the following command:
-
-```
-sudo apt install g++-n
-```
-Where `n` is the version you wish to install. So, for example, if the selected version is GCC 12 and it's not one of the versions found, you can install it like so:
-
-```
-sudo apt install g++-12
-```
-After the GCC installation is finished, make sure you're still in the `build` directory, then run the following set of commands to rebuild the project and run the compiled executable. Now there should be no missing STL header errors that get thrown.
-
-```
-rm -r *
-cmake -G "Ninja" ../src -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++
-ninja
-./wolf3d-clone
-```
-
 </a>
 
 <a name="controls"/>

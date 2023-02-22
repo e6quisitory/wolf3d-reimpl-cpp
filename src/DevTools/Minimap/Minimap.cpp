@@ -13,7 +13,7 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
 
     // Only create minimap if main window is NOT fullscreen
     auto mainWindowFlags = SDL_GetWindowFlags(multimedia->sdlWindow);
-    bool mainWindowIsFullScreen = mainWindowFlags & SDL_WINDOW_FULLSCREEN == SDL_WINDOW_FULLSCREEN;
+    bool mainWindowIsFullScreen = (mainWindowFlags & SDL_WINDOW_FULLSCREEN) == SDL_WINDOW_FULLSCREEN;
     assert(!mainWindowIsFullScreen);
 
     // Create window and renderer
