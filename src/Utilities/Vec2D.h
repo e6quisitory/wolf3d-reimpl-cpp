@@ -176,7 +176,7 @@ template<typename T>
         return v / v.Length();
     }
 
-static Vec2D<double> AddNoiseIfAnyIntegerComponents(Vec2D<double>& v) {
+static void AddNoiseIfAnyIntegerComponents(Vec2D<double>& v) {
     for (int index = 0; index < 2; ++index)
         if (IsInteger(v[index]))
             v[index] += 0.01;
