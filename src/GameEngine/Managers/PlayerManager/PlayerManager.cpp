@@ -147,7 +147,8 @@ void PlayerManager::OpenDoor() const {
                     switch (currentDoor->doorStatus) {
                         case doorStatus_t::CLOSED:
                             worldState->map.AddActiveDoor(currentDoor);
-                        case doorStatus_t::CLOSING: currentDoor->doorStatus = doorStatus_t::OPENING;
+                        case doorStatus_t::CLOSING:
+                            currentDoor->doorStatus = doorStatus_t::OPENING;
                     }
                 }
                 case tileType_t::WALL:

@@ -46,6 +46,7 @@ void MapManager::LoadMap(const std::string file) const {
                 switch (parsedTileInfo.textureType) {
                     /* Wall tile */
                     case textureType_t::WALLS:
+                    {
                         if (parsedTileInfo.textureID == 99)
                             worldState->map.SetTile(tileCoord, new DoorTile(tileCoord, door_textures));
                         else {
@@ -53,15 +54,24 @@ void MapManager::LoadMap(const std::string file) const {
                             worldState->map.SetTile(tileCoord, new WallTile(tileCoord, wallTexturePair));
                         }
                         break;
+                    }
 
                     /* Sprite Tile */
+                    static const std::array<int, 21> noPassthroughList = {4, 5, 6, 8, 10, 11, 13, 14, 15, 16, 19, 20, 21, 25, 38, 39, 40, 42, 48, 49, 50};
                     case textureType_t::OBJECTS:
-                    case textureType_t::GUARD:
-                        texturePair_t  spriteTexture  = multimedia->GetTexturePair(parsedTileInfo.textureType, parsedTileInfo.textureID);
-                        SpriteTile     *s             = new SpriteTile(tileCoord, spriteTexture);
-                        worldState->map.SetTile(tileCoord, s);
-                        worldState->map.sprites.push_back(s);
+                    {
+                        texturePair_t objectTexture = multimedia->GetTexturePair(textureType_t::OBJECTS, parsedTileInfo.textureID);
+                        bool objectPassthrough = !(std::find(noPassthroughList.begin(), noPassthroughList.end(), parsedTileInfo.textureID) != noPassthroughList.end());
+                        worldState->map.SetTile(tileCoord, new SpriteTile(tileCoord, objectTexture, objectPassthrough));
                         break;
+                    }
+                    case textureType_t::GUARD:
+                    {
+                        texturePair_t guardTexture = multimedia->GetTexturePair(textureType_t::GUARD, parsedTileInfo.textureID);
+                        bool guardPassthrough = parsedTileInfo.textureID == 45;
+                        worldState->map.SetTile(tileCoord, new SpriteTile(tileCoord, guardTexture, guardPassthrough));
+                        break;
+                    }
                 }
             } else {
                 /* Empty tile */
@@ -69,10 +79,4 @@ void MapManager::LoadMap(const std::string file) const {
             }
         }
     }
-}
-
-void MapManager::UpdateSpritePerplines() const {
-    static const double negNinetyDeg = -PI / 2;
-    Vec2 playerViewDirPerp = worldState->player.viewDir.Rotate(negNinetyDeg);
-    SpriteTile::perplinesDir = playerViewDirPerp;
 }

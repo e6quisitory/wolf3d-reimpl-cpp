@@ -18,5 +18,4 @@ public:
     void    Init                       (WorldState* const _worldState, Multimedia* const _multimedia);
     void    Exit()                                                                                      const;
     void    LoadMap                    (const std::string file)                                         const;
-    void    UpdateSpritePerplines()                                                                     const;
 };

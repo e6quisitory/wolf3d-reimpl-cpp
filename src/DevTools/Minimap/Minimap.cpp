@@ -149,6 +149,6 @@ void Minimap::CollectTileRectsFromMap(const tileType_t tileType, tileRects_t& ti
     auto& [rects, count] = tileRects;
     count = tileCoords.size();
     rects = new SDL_Rect[count];
-    for (int i = 0; i < count; ++i)
-        rects[i] = TileToRect(tileCoords[i]);
+    for (int tileCoordNum = 0; tileCoordNum < count; ++tileCoordNum)
+        rects[tileCoordNum] = TileToRect(tileCoords[tileCoordNum]);
 }

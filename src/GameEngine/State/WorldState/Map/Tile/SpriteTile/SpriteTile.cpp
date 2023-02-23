@@ -6,7 +6,7 @@
 ================================
 */
 
-SpriteTile::SpriteTile(const iPoint2 &tileCoord, const texturePair_t &_texture) : texture(_texture) {
+SpriteTile::SpriteTile(const iPoint2 &tileCoord, const texturePair_t &_texture, const bool _passthrough) : texture(_texture), passthrough(_passthrough) {
     coordinate = tileCoord;
     type = tileType_t::SPRITE;
     perplineOrigin = coordinate + Point2(0.5, 0.5);
@@ -40,7 +40,13 @@ textureSliceDistPair_o SpriteTile::RayTileHit(RayHitMarker& hitInfo, const textu
 }
 
 bool SpriteTile::PlayerTileHit() const {
-    return true;
+    return !passthrough;
+}
+
+void SpriteTile::UpdateUniversalPerpline(const Vec2 &playerViewDir) {
+    static const double negNinetyDeg = -PI / 2;
+    Vec2 playerViewDirPerp = playerViewDir.Rotate(negNinetyDeg);
+    perplinesDir = playerViewDirPerp;
 }
 
 /*

@@ -29,9 +29,6 @@ public:
     std::map<DoorTile*, DoorTile*>   activeDoors;
     bool                             anyDoorsAwaitingRendering;
 
-    /* Sprites */
-    std::vector<SpriteTile*>         sprites;
-
 public:
     Tile*                             GetTile               (const iPoint2& tileCoord)                     const;
     void                              SetTile               (const iPoint2& tileCoord, Tile* const tile);
