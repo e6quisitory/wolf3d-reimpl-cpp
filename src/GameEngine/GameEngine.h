@@ -6,6 +6,7 @@
 #include "Managers/MapManager/MapManager.h"
 #include "Managers/MultimediaManager/MultimediaManager.h"
 #include "Managers/DoorManager/DoorManager.h"
+#include "Managers/EnemyManager/EnemyManager.h"
 #include "Renderer/Renderer.h"
 
 /*

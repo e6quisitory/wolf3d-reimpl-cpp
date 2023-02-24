@@ -17,7 +17,6 @@ enum class textureType_t {
 
 typedef std::pair      <SDL_Texture*, SDL_Texture*>             texturePair_t;
 typedef std::optional  <std::pair<SDL_Texture*, SDL_Texture*>>  texturePair_o;
-typedef std::pair      <texturePair_t, texturePair_t>           texturePairsPair_t;
 
 struct WindowParams {
     int width;

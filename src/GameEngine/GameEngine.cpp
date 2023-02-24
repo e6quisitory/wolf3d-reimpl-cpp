@@ -18,7 +18,7 @@ void GameEngine::Init() {
 
     // Initialize input parser, managers, and renderer
     multimediaManager.Init(multimedia);
-    multimediaManager.CreateWindowRenderer(640, 480);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
+    multimediaManager.CreateWindowRenderer(960, 600);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
 
     #if __APPLE__ && __MACH__
     auto parentDirPath      = executablePath.substr(0, executablePath.find_last_of("/\\"));
@@ -48,6 +48,9 @@ void GameEngine::Init() {
 
     // Set player location & view direction
     playerManager.SetPlayer(Point2(2.5, 2.5), Vec2(0, 1));
+
+    // Seed random number generator (used for setting enemy view dirs at launch)
+    std::srand(std::time(nullptr));
 
     quitGameFlag = false;
 }

@@ -2,6 +2,14 @@
 
 /*
 ================================
+    Static members
+================================
+*/
+
+Vec2 SpriteTile::perplinesDir;
+
+/*
+================================
     Constructors
 ================================
 */
@@ -11,14 +19,6 @@ SpriteTile::SpriteTile(const iPoint2 &tileCoord, const texturePair_t &_texture, 
     type = tileType_t::SPRITE;
     perplineOrigin = coordinate + Point2(0.5, 0.5);
 }
-
-/*
-================================
-    Static members
-================================
-*/
-
-Vec2 SpriteTile::perplinesDir;
 
 /*
 ================================

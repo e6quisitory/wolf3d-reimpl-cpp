@@ -21,6 +21,8 @@
 #include <array>
 #include <tuple>
 #include <thread>
+#include <cstdlib>
+#include <ctime>
 
 /*
 =======================================

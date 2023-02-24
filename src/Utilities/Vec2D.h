@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
+#include <ctime>
 
 #include "Conventions.h"
 #include "MiscMath/MiscMath.h"
@@ -180,4 +182,12 @@ static void AddNoiseIfAnyIntegerComponents(Vec2D<double>& v) {
     for (int index = 0; index < 2; ++index)
         if (IsInteger(v[index]))
             v[index] += 0.01;
+}
+
+static Vec2D<double> RandomUnitVector() {
+    double x      = std::rand() / static_cast<double>(RAND_MAX);
+    double y      = std::rand() / static_cast<double>(RAND_MAX);
+    int    signX  = std::rand() % 2;
+    int    signY  = std::rand() % 2;
+    return UnitVector(Vec2D<double>(signX*x, signY*y));
 }

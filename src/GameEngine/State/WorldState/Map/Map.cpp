@@ -21,15 +21,15 @@ bool Map::WithinMap(const iPoint2& tileCoord) const {
         return false;
 }
 
-void Map::AddActiveDoor(DoorTile* const door) {
+void Map::AddActiveDoor(Door* const door) {
     activeDoors.insert({door, door});
 }
 
-void Map::RemoveActiveDoor(DoorTile* const door) {
+void Map::RemoveActiveDoor(Door* const door) {
     activeDoors.erase(door);
 }
 
-std::optional<DoorTile*> Map::GetLoneActiveDoor() const {
+std::optional<Door*> Map::GetLoneActiveDoor() const {
     if (activeDoors.size() == 1)
         return activeDoors.begin()->first;
     else

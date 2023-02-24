@@ -1,5 +1,7 @@
 #include "DoorManager.h"
 
+#include "../../State/WorldState/Map/Tile/DoorTile/DoorTile.h"
+
 /*
 ================================
 Public Methods
@@ -33,7 +35,7 @@ void DoorManager::Update() {
     } else {
         // Cycle through list (std::map) of active doors
         for (auto const [activeDoor, _activeDoor] : worldState->map.activeDoors) {
-            switch (activeDoor->doorStatus) {
+            switch (activeDoor->status) {
                 case doorStatus_t::OPEN:          // If door is open, update (decrement) timer, but only if player is not inside that door
                     if (!InsideDoor(activeDoor)) {
                         DecrementTimer(activeDoor);
@@ -60,32 +62,37 @@ void DoorManager::Update() {
 ================================
 */
 
-void DoorManager::MoveDoor(DoorTile* const doorTile) {
+void DoorManager::MoveDoor(Door *const door) {
     double proposedPosition;
 
-    switch (doorTile->doorStatus) {
-        case doorStatus_t::CLOSING: proposedPosition = doorTile->doorPosition + movementIncrement; break;
-        case doorStatus_t::OPENING: proposedPosition = doorTile->doorPosition - movementIncrement; break;
+    switch (door->status) {
+        case doorStatus_t::CLOSING: proposedPosition = door->position + movementIncrement; break;
+        case doorStatus_t::OPENING: proposedPosition = door->position - movementIncrement; break;
     }
 
-    bool fullyOpen  =  proposedPosition <= static_cast<double>(doorPosition_t::OPEN);
-    bool fullyClose =  proposedPosition >= static_cast<double>(doorPosition_t::CLOSED);
+    bool fullyOpen  = proposedPosition <= static_cast<double>(doorPosition_t::OPEN);
+    bool fullyClose = proposedPosition >= static_cast<double>(doorPosition_t::CLOSED);
 
     if (fullyOpen) {
-        doorTile->doorPosition = static_cast<double>(doorPosition_t::OPEN);
-        doorTile->doorStatus   = doorStatus_t::OPEN;
+        door->position = static_cast<double>(doorPosition_t::OPEN);
+        door->status   = doorStatus_t::OPEN;
 
     } else if (fullyClose) {
-        doorTile->doorPosition = static_cast<double>(doorPosition_t::CLOSED);
-        doorTile->doorStatus   = doorStatus_t::CLOSED;
-        SetActiveDoorForRemoval(doorTile);
+        door->position = static_cast<double>(doorPosition_t::CLOSED);
+        door->status   = doorStatus_t::CLOSED;
+        SetActiveDoorForRemoval(door);
 
     } else
-        doorTile->doorPosition = proposedPosition;
+        door->position = proposedPosition;
 }
 
-bool DoorManager::InsideDoor(DoorTile* const doorTile) const {
-    return worldState->map.GetTile(worldState->player.location) == doorTile ? true : false;
+bool DoorManager::InsideDoor(Door *const door) const {
+    auto currTile = worldState->map.GetTile(worldState->player.location);
+    if (currTile->type == tileType_t::DOOR) {
+        auto currDoorTile = static_cast<DoorTile*>(currTile);
+        return currDoorTile->door == door;
+    } else
+        return false;
 }
 
 bool DoorManager::InsideAnyDoor() const {
@@ -96,12 +103,12 @@ bool DoorManager::ActiveDoorAwaitingRemoval() const {
     return activeDoorToErase.first;
 }
 
-DoorTile* DoorManager::GetActiveDoorAwaitingRemove() const {
+Door * DoorManager::GetActiveDoorAwaitingRemove() const {
     return activeDoorToErase.second;
 }
 
-void DoorManager::SetActiveDoorForRemoval(DoorTile* const doorTile) {
-    activeDoorToErase = {true, doorTile};
+void DoorManager::SetActiveDoorForRemoval(Door *const door) {
+    activeDoorToErase = {true, door};
 }
 
 void DoorManager::ClearActiveDoorForRemoval() {
@@ -115,18 +122,18 @@ void DoorManager::RemoveActiveDoorIfAnyAwaiting() {
     }
 }
 
-void DoorManager::DecrementTimer(DoorTile* const doorTile) const {
-    double proposedTimerVal = doorTile->doorTimerVal - timerIncrement;
+void DoorManager::DecrementTimer(Door *const door) const {
+    double proposedTimerVal = door->timerVal - timerIncrement;
 
     bool timeIsUp = proposedTimerVal <= static_cast<double>(doorTimerVal_t::NO_TIME_LEFT);
 
     if (timeIsUp) {
-        doorTile->doorStatus = doorStatus_t::CLOSING;
-        ResetTimer(doorTile);
+        door->status = doorStatus_t::CLOSING;
+        ResetTimer(door);
     } else
-        doorTile->doorTimerVal = proposedTimerVal;
+        door->timerVal = proposedTimerVal;
 }
 
-void DoorManager::ResetTimer(DoorTile* const doorTile) const {
-    doorTile->doorTimerVal = static_cast<double>(doorTimerVal_t::FULL_TIME_LEFT);
+void DoorManager::ResetTimer(Door *const door) const {
+    door->timerVal = static_cast<double>(doorTimerVal_t::FULL_TIME_LEFT);
 }

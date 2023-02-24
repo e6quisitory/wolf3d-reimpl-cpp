@@ -29,8 +29,8 @@ void MapManager::LoadMap(const std::string file) const {
     worldState->map.width  = mapFile.numColumns;
     worldState->map.height = mapFile.numRows;
 
-    // Grab door textures to feed into DoorTiles
-    texturePairsPair_t door_textures = {multimedia->GetWallTexturePair(99), multimedia->GetWallTexturePair(101)};
+    // Grab door gate texture and pass it to DoorTile class
+    DoorTile::gateTexture = multimedia->GetWallTexturePair(99);
 
     // Allocate enough memory and fill map with tiles corresponding to mapFile data
     worldState->map.tiles.resize(mapFile.numColumns);
@@ -48,7 +48,7 @@ void MapManager::LoadMap(const std::string file) const {
                     case textureType_t::WALLS:
                     {
                         if (parsedTileInfo.textureID == 99)
-                            worldState->map.SetTile(tileCoord, new DoorTile(tileCoord, door_textures));
+                            worldState->map.SetTile(tileCoord, new DoorTile(tileCoord));
                         else {
                             auto wallTexturePair = multimedia->GetWallTexturePair(parsedTileInfo.textureID);
                             worldState->map.SetTile(tileCoord, new WallTile(tileCoord, wallTexturePair));

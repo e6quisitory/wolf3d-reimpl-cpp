@@ -1,5 +1,7 @@
 #include "PlayerManager.h"
 
+#include "../../State/WorldState/Map/Tile/DoorTile/DoorTile.h"
+
 /*
 ================================
  Public Methods
@@ -143,12 +145,12 @@ void PlayerManager::OpenDoor() const {
                     continue;
                 case tileType_t::DOOR:
                 {
-                    DoorTile* currentDoor = static_cast<DoorTile*>(currentTile);
-                    switch (currentDoor->doorStatus) {
+                    DoorTile* currentDoorTile = static_cast<DoorTile*>(currentTile);
+                    switch (currentDoorTile->door->status) {
                         case doorStatus_t::CLOSED:
-                            worldState->map.AddActiveDoor(currentDoor);
+                            worldState->map.AddActiveDoor(currentDoorTile->door);
                         case doorStatus_t::CLOSING:
-                            currentDoor->doorStatus = doorStatus_t::OPENING;
+                            currentDoorTile->door->status = doorStatus_t::OPENING;
                     }
                 }
                 case tileType_t::WALL:

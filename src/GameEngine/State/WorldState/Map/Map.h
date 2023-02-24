@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tile/Tile.h"
-#include "Tile/DoorTile/DoorTile.h"
+#include "Tile/DoorTile/Door/Door.h"
 #include "Tile/SpriteTile/SpriteTile.h"
 
 /*
@@ -26,14 +26,14 @@ public:
     int                              height;
 
     /* Doors */
-    std::map<DoorTile*, DoorTile*>   activeDoors;
+    std::map<Door*, Door*>           activeDoors;
     bool                             anyDoorsAwaitingRendering;
 
 public:
     Tile*                             GetTile               (const iPoint2& tileCoord)                     const;
     void                              SetTile               (const iPoint2& tileCoord, Tile* const tile);
     bool                              WithinMap             (const iPoint2& tileCoord)                     const;
-    void                              AddActiveDoor         (DoorTile* const door);
-    void                              RemoveActiveDoor      (DoorTile* const door);
-    std::optional<DoorTile*>          GetLoneActiveDoor()                                                  const;
+    void                              AddActiveDoor         (Door* const door);
+    void                              RemoveActiveDoor      (Door* const door);
+    std::optional<Door*>              GetLoneActiveDoor()                                                  const;
 };
