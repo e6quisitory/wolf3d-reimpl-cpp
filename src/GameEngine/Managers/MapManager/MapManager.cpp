@@ -1,10 +1,12 @@
 #include "MapManager.h"
 
 #include "MapFile/MapFile.h"
-#include "../../State/WorldState/Map/Tile/EmptyTile/EmptyTile.h"
-#include "../../State/WorldState/Map/Tile/WallTile/WallTile.h"
-#include "../../State/WorldState/Map/Tile/DoorTile/DoorTile.h"
-#include "../../State/WorldState/Map/Tile/SpriteTile/SpriteTile.h"
+#include "../../WorldState/Map/Tile/EmptyTile/EmptyTile.h"
+#include "../../WorldState/Map/Tile/WallTile/WallTile.h"
+#include "../../WorldState/Map/Tile/DoorTile/DoorTile.h"
+#include "../../WorldState/Map/Tile/SpriteTile/ObjectTile/ObjectTile.h"
+#include "../../WorldState/Map/Tile/SpriteTile/EnemyTile/EnemyTile.h"
+
 
 /*
 ================================
@@ -32,6 +34,13 @@ void MapManager::LoadMap(const std::string file) const {
     // Grab door gate texture and pass it to DoorTile class
     DoorTile::gateTexture = multimedia->GetWallTexturePair(99);
 
+    // Set ObjectTile list of object textures that player cannot pass through
+    const std::array<int, 21> objectNoPassthroughTextureIDs = {4, 5, 6, 8, 10, 11, 13, 14, 15, 16, 19, 20, 21, 25, 38, 39, 40, 42, 48, 49, 50};
+    std::vector<SDL_Texture*> objectNoPassthroughTextures;
+    for (const int objectTextureID : objectNoPassthroughTextureIDs)
+        objectNoPassthroughTextures.push_back(multimedia->GetTexture(textureType_t::OBJECTS, objectTextureID));
+    ObjectTile::noPassthroughList = objectNoPassthroughTextures;
+
     // Allocate enough memory and fill map with tiles corresponding to mapFile data
     worldState->map.tiles.resize(mapFile.numColumns);
     for (auto& column : worldState->map.tiles)
@@ -57,19 +66,16 @@ void MapManager::LoadMap(const std::string file) const {
                     }
 
                     /* Sprite Tile */
-                    static const std::array<int, 21> noPassthroughList = {4, 5, 6, 8, 10, 11, 13, 14, 15, 16, 19, 20, 21, 25, 38, 39, 40, 42, 48, 49, 50};
                     case textureType_t::OBJECTS:
                     {
-                        texturePair_t objectTexture = multimedia->GetTexturePair(textureType_t::OBJECTS, parsedTileInfo.textureID);
-                        bool objectPassthrough = !(std::find(noPassthroughList.begin(), noPassthroughList.end(), parsedTileInfo.textureID) != noPassthroughList.end());
-                        worldState->map.SetTile(tileCoord, new SpriteTile(tileCoord, objectTexture, objectPassthrough));
+                        SDL_Texture* objectTexture = multimedia->GetTexture(textureType_t::OBJECTS, parsedTileInfo.textureID);
+                        worldState->map.SetTile(tileCoord, new ObjectTile(tileCoord, objectTexture));
                         break;
                     }
                     case textureType_t::GUARD:
                     {
-                        texturePair_t guardTexture = multimedia->GetTexturePair(textureType_t::GUARD, parsedTileInfo.textureID);
-                        bool guardPassthrough = parsedTileInfo.textureID == 45;
-                        worldState->map.SetTile(tileCoord, new SpriteTile(tileCoord, guardTexture, guardPassthrough));
+                        SDL_Texture* guardTexture = multimedia->GetTexture(textureType_t::GUARD, parsedTileInfo.textureID);
+                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, guardTexture));
                         break;
                     }
                 }

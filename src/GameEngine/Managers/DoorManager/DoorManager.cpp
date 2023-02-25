@@ -1,11 +1,11 @@
 #include "DoorManager.h"
 
-#include "../../State/WorldState/Map/Tile/DoorTile/DoorTile.h"
+#include "../../WorldState/Map/Tile/DoorTile/DoorTile.h"
 
 /*
-================================
-Public Methods
-================================
+=========================================================
+    Public methods
+=========================================================
 */
 
 void DoorManager::Init(WorldState* const _worldState, const int _screenRefreshRate) {
@@ -57,9 +57,9 @@ void DoorManager::Update() {
 }
 
 /*
-================================
-    Private Methods
-================================
+=========================================================
+    Private methods
+=========================================================
 */
 
 void DoorManager::MoveDoor(Door *const door) {

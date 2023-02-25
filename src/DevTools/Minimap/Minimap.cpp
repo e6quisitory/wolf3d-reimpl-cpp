@@ -42,7 +42,8 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
     // Collect all non-empty tiles
     CollectTileRectsFromMap(tileType_t::WALL, wallTileRects);
     CollectTileRectsFromMap(tileType_t::DOOR, doorTileRects);
-    CollectTileRectsFromMap(tileType_t::SPRITE, spriteTileRects);
+    CollectTileRectsFromMap(tileType_t::OBJECT, objectTileRects);
+    CollectTileRectsFromMap(tileType_t::ENEMY, enemyTileRects);
 }
 
 /*
@@ -97,16 +98,20 @@ void Minimap::DrawGridlines() const {
 
 void Minimap::DrawNonEmptyTiles() const {
     // Draw wall tiles
-    SDL_SetRenderDrawColor(minimapRenderer, 150, 0, 0, 255);
+    SDL_SetRenderDrawColor(minimapRenderer, 100, 0, 0, 255);
     SDL_RenderFillRects(minimapRenderer, wallTileRects.first, wallTileRects.second);
 
     // Draw door tiles
     SDL_SetRenderDrawColor(minimapRenderer, 150, 118, 2, 255);
     SDL_RenderFillRects(minimapRenderer, doorTileRects.first, doorTileRects.second);
 
-    // Draw sprite tiles
+    // Draw object tiles
     SDL_SetRenderDrawColor(minimapRenderer, 176, 4, 164, 255);
-    SDL_RenderFillRects(minimapRenderer, spriteTileRects.first, spriteTileRects.second);
+    SDL_RenderFillRects(minimapRenderer, objectTileRects.first, objectTileRects.second);
+
+    // Draw enemy tiles
+    SDL_SetRenderDrawColor(minimapRenderer, 255, 0, 0, 255);
+    SDL_RenderFillRects(minimapRenderer, enemyTileRects.first, enemyTileRects.second);
 }
 
 void Minimap::DrawPlayerTile() const {

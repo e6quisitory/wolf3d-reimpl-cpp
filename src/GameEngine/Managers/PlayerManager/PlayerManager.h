@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../State/WorldState/WorldState.h"
-#include "../../State/InputsBuffer/InputsBuffer.h"
+#include "../../WorldState/WorldState.h"
+#include "../../InputsBuffer/InputsBuffer.h"
 
 /*
 =========================================================

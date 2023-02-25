@@ -78,11 +78,12 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
             if (rayTileHitResult.has_value()) {
                 auto [textureSlice, hitDistance] = rayTileHitResult.value();
 
-                SDL_Rect textureRect = textureSlice.textureRect;
-                int     renderHeight = GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
-                SDL_Rect screenRect  = GetScreenRect(renderHeight, rayNum);
+                SDL_Rect textureRect  = textureSlice.textureRect;
+                int      renderHeight = GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
+                SDL_Rect screenRect   = GetScreenRect(renderHeight, rayNum);
 
-                if (worldState->map.GetTile(rayCursor.hitTile)->type == tileType_t::SPRITE) {
+                auto hitTileType = worldState->map.GetTile(rayCursor.hitTile)->type;
+                if (hitTileType == tileType_t::OBJECT || hitTileType == tileType_t::ENEMY) {
                     spriteBackbuffers[renderSectionNum].emplace_back(std::pair(textureSlice, screenRect));
                     continue;
                 } else {

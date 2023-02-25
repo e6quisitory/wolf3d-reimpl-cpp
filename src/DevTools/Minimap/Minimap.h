@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../GameEngine/State/WorldState/WorldState.h"
+#include "../../GameEngine/WorldState/WorldState.h"
 #include "../../GameEngine/Multimedia/Multimedia.h"
 
 /*
@@ -36,7 +36,8 @@ private:
 
     tileRects_t wallTileRects;
     tileRects_t doorTileRects;
-    tileRects_t spriteTileRects;
+    tileRects_t objectTileRects;
+    tileRects_t enemyTileRects;
 
 public:
     Minimap(WorldState* const _worldState, Multimedia* const _multimedia, const int _tileSize);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../State/WorldState/WorldState.h"
-#include "../../State/WorldState/Map/Tile/DoorTile/Door/Door.h"
+#include "../../WorldState/WorldState.h"
+#include "../../WorldState/Map/Tile/DoorTile/Door/Door.h"
 
 /*
 =========================================================

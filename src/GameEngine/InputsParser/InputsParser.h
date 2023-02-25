@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../State/InputsBuffer/InputsBuffer.h"
+#include "../InputsBuffer/InputsBuffer.h"
 
 /*
 =========================================================

@@ -20,20 +20,20 @@ texturePair_t Multimedia::GetTexturePair(const textureType_t textureType, const 
 
 }
 
-texturePair_t Multimedia::GetWallTexturePair(const int textureID) const {
+texturePair_t Multimedia::GetWallTexturePair(const int wallTextureID) const {
     static const std::array<int, 10> noLightingIDList = {31, 32, 41, 42, 43, 44, 107, 108, 109, 110};
 
     // Check if textureID is part of no lighting list ; if so, make pair have same texture
     for (const auto NoLightingID : noLightingIDList) {
-        if (textureID == NoLightingID) {
-            SDL_Texture* t = GetTexture(textureType_t::WALLS, textureID);
+        if (wallTextureID == NoLightingID) {
+            SDL_Texture* t = GetTexture(textureType_t::WALLS, wallTextureID);
             return texturePair_t(t, t);
         }
     }
 
     // If not, put lit followed by unlit texture in pair
-    SDL_Texture* litTexture   = GetTexture(textureType_t::WALLS, textureID);
-    SDL_Texture* unlitTexture = GetTexture(textureType_t::WALLS, textureID + 1);
+    SDL_Texture* litTexture   = GetTexture(textureType_t::WALLS, wallTextureID);
+    SDL_Texture* unlitTexture = GetTexture(textureType_t::WALLS, wallTextureID + 1);
 
     return {litTexture, unlitTexture};
 }

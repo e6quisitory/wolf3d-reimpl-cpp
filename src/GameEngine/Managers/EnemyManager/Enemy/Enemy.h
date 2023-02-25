@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../State/WorldState/Map/Tile/SpriteTile/SpriteTile.h"
+#include "../../../WorldState/Map/Tile/SpriteTile/SpriteTile.h"
 
 /*
 =========================================================

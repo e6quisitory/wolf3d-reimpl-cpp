@@ -46,6 +46,6 @@ public:
 public:
     SDL_Texture*    GetTexture           (const textureType_t textureType, const int textureID)           const;
     void            AddTexture           (const textureType_t textureType, SDL_Texture* const texture);
-    texturePair_t   GetTexturePair       (const textureType_t textureType, const int textureID)           const;  // Temporary ; will get removed
-    texturePair_t   GetWallTexturePair   (const int textureID)                                            const;  // Performs lighting
+    texturePair_t   GetTexturePair       (const textureType_t textureType, const int textureID)           const;
+    texturePair_t   GetWallTexturePair   (const int wallTextureID)                                        const;
 };

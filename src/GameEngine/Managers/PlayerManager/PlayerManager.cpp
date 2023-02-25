@@ -1,6 +1,6 @@
 #include "PlayerManager.h"
 
-#include "../../State/WorldState/Map/Tile/DoorTile/DoorTile.h"
+#include "../../WorldState/Map/Tile/DoorTile/DoorTile.h"
 
 /*
 ================================
@@ -141,7 +141,8 @@ void PlayerManager::OpenDoor() const {
             Tile* currentTile = worldState->map.GetTile(rayCursor.hitTile);
             switch (currentTile->type) {
                 case tileType_t::EMPTY:
-                case tileType_t::SPRITE:
+                case tileType_t::OBJECT:
+                case tileType_t::ENEMY:
                     continue;
                 case tileType_t::DOOR:
                 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../../Multimedia/Multimedia.h"
+#include "../../../Multimedia/Multimedia.h"
 
 /*
 =========================================================
@@ -22,7 +22,8 @@ enum class tileType_t {
     EMPTY,
     WALL,
     DOOR,
-    SPRITE
+    OBJECT,
+    ENEMY
 };
 
 /*

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "State/InputsBuffer/InputsBuffer.h"
+#include "InputsBuffer/InputsBuffer.h"
 #include "InputsParser/InputsParser.h"
 #include "Managers/PlayerManager/PlayerManager.h"
 #include "Managers/MapManager/MapManager.h"
