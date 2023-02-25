@@ -26,7 +26,26 @@ void SpriteTile::UpdateUniversalPerpline(const Vec2 &playerViewDir) {
 =========================================================
 */
 
-RayHitMarker_o SpriteTile::RayPerplineHit(const Ray& incomingRay) const {
+textureSliceDistPair_o SpriteTile::SpriteRayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride, SDL_Texture* const texture) const {
+    // Get intersection of incoming ray with perpline
+    Ray incomingRay = hitInfo.ray;
+    RayHitMarker_o perpLineHitInfo = SpriteRayPerplineHit(incomingRay);
+
+    if (perpLineHitInfo.has_value()) {
+        SDL_Rect textureRect = {static_cast<int>(perpLineHitInfo.value().GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
+        double   hitDistance = perpLineHitInfo->GetDistToHitPoint();
+        return std::pair(textureSlice_t(texture, textureRect), hitDistance);
+    } else
+        return std::nullopt;
+}
+
+/*
+=========================================================
+    Private methods
+=========================================================
+*/
+
+RayHitMarker_o SpriteTile::SpriteRayPerplineHit(const Ray& incomingRay) const {
     Point2 O1 = incomingRay.origin;
     Vec2   D1 = incomingRay.direction;
     Point2 O2 = perplineOrigin;

@@ -29,16 +29,7 @@ ObjectTile::ObjectTile(const iPoint2& tileCoord, SDL_Texture* const _texture) {
 */
 
 textureSliceDistPair_o ObjectTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {
-    // Get intersection of incoming ray with perpline
-    Ray incomingRay = hitInfo.ray;
-    RayHitMarker_o perpLineHitInfo = RayPerplineHit(incomingRay);
-
-    if (perpLineHitInfo.has_value()) {
-        SDL_Rect textureRect = {static_cast<int>(perpLineHitInfo.value().GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
-        double   hitDistance = perpLineHitInfo->GetDistToHitPoint();
-        return std::pair(textureSlice_t(texture, textureRect), hitDistance);
-    } else
-        return std::nullopt;
+    return SpriteRayTileHit(hitInfo, textureOverride, texture);
 }
 
 bool ObjectTile::PlayerTileHit() const {
