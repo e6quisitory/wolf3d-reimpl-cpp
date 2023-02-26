@@ -145,10 +145,13 @@ Pixel Minimap::MapCoordToMinimapCoord(const Point2& mapCoord) const {
 void Minimap::CollectTileRectsFromMap(const tileType_t tileType, tileRects_t& tileRects) {
     // First collect tiles of specified type from map
     std::vector<iPoint2> tileCoords;
-    for (const auto& mapColumn : worldState->map.tiles)
-        for (const auto& mapTile : mapColumn)
-            if (mapTile->type == tileType)
-                tileCoords.push_back(mapTile->coordinate);
+    for (int y = 0; y < worldState->map.height; ++y) {
+        for (int x = 0; x < worldState->map.width; ++x) {
+            iPoint2 tileCoord(x, y);
+            if (worldState->map.GetTile(tileCoord)->type == tileType)
+                tileCoords.push_back(tileCoord);
+        }
+    }
 
     // Then fill in corresponding SDL_Rects
     auto& [rects, count] = tileRects;

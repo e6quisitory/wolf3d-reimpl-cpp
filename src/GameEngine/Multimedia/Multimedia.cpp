@@ -14,12 +14,6 @@ void Multimedia::AddTexture(const textureType_t textureType, SDL_Texture* const 
     textures[textureType].push_back(texture);
 }
 
-texturePair_t Multimedia::GetTexturePair(const textureType_t textureType, const int textureID) const {
-    SDL_Texture* t = GetTexture(textureType, textureID);
-    return texturePair_t(t, t);
-
-}
-
 texturePair_t Multimedia::GetWallTexturePair(const int wallTextureID) const {
     static const std::array<int, 10> noLightingIDList = {31, 32, 41, 42, 43, 44, 107, 108, 109, 110};
 

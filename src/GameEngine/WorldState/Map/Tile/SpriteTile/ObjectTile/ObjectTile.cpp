@@ -16,9 +16,8 @@ std::vector<SDL_Texture*> ObjectTile::noPassthroughList;
 
 ObjectTile::ObjectTile(const iPoint2& tileCoord, SDL_Texture* const _texture) {
     texture = _texture;
-    coordinate = tileCoord;
     type = tileType_t::OBJECT;
-    perplineOrigin = coordinate + Point2(0.5, 0.5);
+    perplineOrigin = tileCoord + Point2(0.5, 0.5);
     passthrough = std::find(noPassthroughList.begin(), noPassthroughList.end(), texture) == noPassthroughList.end();
 }
 
@@ -28,8 +27,8 @@ ObjectTile::ObjectTile(const iPoint2& tileCoord, SDL_Texture* const _texture) {
 =========================================================
 */
 
-textureSliceDistPair_o ObjectTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {
-    return SpriteRayTileHit(hitInfo, textureOverride, texture);
+rayTileHitVariant_o ObjectTile::RayTileHit(RayHitMarker& hitInfo) const {
+    return SpriteRayTileHit(hitInfo, texture);
 }
 
 bool ObjectTile::PlayerTileHit() const {

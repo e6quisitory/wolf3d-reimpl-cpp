@@ -6,8 +6,7 @@
 =========================================================
 */
 
-EmptyTile::EmptyTile(const iPoint2 &tileCoord) {
-    coordinate = tileCoord;
+EmptyTile::EmptyTile() {
     type = tileType_t::EMPTY;
 }
 
@@ -17,7 +16,7 @@ EmptyTile::EmptyTile(const iPoint2 &tileCoord) {
 =========================================================
 */
 
-textureSliceDistPair_o EmptyTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {
+rayTileHitVariant_o EmptyTile::RayTileHit(RayHitMarker& hitInfo) const {
     return std::nullopt;
 }
 

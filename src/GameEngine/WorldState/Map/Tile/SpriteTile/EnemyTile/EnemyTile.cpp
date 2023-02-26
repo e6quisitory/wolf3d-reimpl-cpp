@@ -8,9 +8,8 @@
 
 EnemyTile::EnemyTile(const iPoint2 &tileCoord, SDL_Texture *const _texture) {
     texture = _texture;
-    coordinate = tileCoord;
     type = tileType_t::ENEMY;
-    perplineOrigin = coordinate + Point2(0.5, 0.5);
+    perplineOrigin = tileCoord + Point2(0.5, 0.5);
 }
 
 /*
@@ -19,8 +18,8 @@ EnemyTile::EnemyTile(const iPoint2 &tileCoord, SDL_Texture *const _texture) {
 =========================================================
 */
 
-textureSliceDistPair_o EnemyTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {
-    return SpriteRayTileHit(hitInfo, textureOverride, texture);
+rayTileHitVariant_o EnemyTile::RayTileHit(RayHitMarker& hitInfo) const {
+    return SpriteRayTileHit(hitInfo, texture);
 }
 
 bool EnemyTile::PlayerTileHit() const {

@@ -32,7 +32,7 @@ void MapManager::LoadMap(const std::string file) const {
     worldState->map.height = mapFile.numRows;
 
     // Grab door gate texture and pass it to DoorTile class
-    DoorTile::gateTexture = multimedia->GetWallTexturePair(99);
+    DoorTile::gateTexture  = multimedia->GetWallTexturePair(99);
 
     // Set ObjectTile list of object textures that player cannot pass through
     const std::array<int, 21> objectNoPassthroughTextureIDs = {4, 5, 6, 8, 10, 11, 13, 14, 15, 16, 19, 20, 21, 25, 38, 39, 40, 42, 48, 49, 50};
@@ -57,10 +57,10 @@ void MapManager::LoadMap(const std::string file) const {
                     case textureType_t::WALLS:
                     {
                         if (parsedTileInfo.textureID == 99)
-                            worldState->map.SetTile(tileCoord, new DoorTile(tileCoord));
+                            worldState->map.SetTile(tileCoord, new DoorTile());
                         else {
                             auto wallTexturePair = multimedia->GetWallTexturePair(parsedTileInfo.textureID);
-                            worldState->map.SetTile(tileCoord, new WallTile(tileCoord, wallTexturePair));
+                            worldState->map.SetTile(tileCoord, new WallTile(wallTexturePair));
                         }
                         break;
                     }
@@ -81,7 +81,7 @@ void MapManager::LoadMap(const std::string file) const {
                 }
             } else {
                 /* Empty tile */
-                worldState->map.SetTile(tileCoord, new EmptyTile(tileCoord));
+                worldState->map.SetTile(tileCoord, new EmptyTile());
             }
         }
     }

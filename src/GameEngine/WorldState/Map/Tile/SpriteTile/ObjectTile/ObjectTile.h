@@ -19,6 +19,6 @@ private:
 public:
     ObjectTile(const iPoint2 &tileCoord, SDL_Texture* const _texture);
 
-    virtual  textureSliceDistPair_o  RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride)  const override;
-    virtual  bool                    PlayerTileHit()                                                         const override;
+    virtual  rayTileHitVariant_o  RayTileHit(RayHitMarker& hitInfo)  const override;
+    virtual  bool                 PlayerTileHit()                    const override;
 };

@@ -14,10 +14,8 @@ texturePair_t DoorTile::gateTexture;
 =========================================================
 */
 
-DoorTile::DoorTile(const iPoint2& tileCoord) {
-    coordinate = tileCoord;
+DoorTile::DoorTile() {
     type = tileType_t::DOOR;
-
     door = new Door();
 }
 
@@ -37,7 +35,7 @@ DoorTile::~DoorTile() {
 =========================================================
 */
 
-textureSliceDistPair_o DoorTile::RayTileHit(RayHitMarker& hitInfo, const texturePair_o textureOverride) const {
+rayTileHitVariant_o DoorTile::RayTileHit(RayHitMarker& hitInfo) const {
     // Center hit point
     RayHitMarker centeredHitInfo = hitInfo.GetNextCenterHit();
 
@@ -52,12 +50,15 @@ textureSliceDistPair_o DoorTile::RayTileHit(RayHitMarker& hitInfo, const texture
             double gateTextureWidthPercent = door->position - centeredHitInfo.GetWidthPercent();
             SDL_Rect gateTextureRect = {static_cast<int>(gateTextureWidthPercent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
             textureSlice_t gateTextureSlice(litGateTexture, gateTextureRect);
-
-            return std::pair(gateTextureSlice, centeredHitInfo.GetDistToHitPoint());
+            return textureSliceDistPair_t(gateTextureSlice, centeredHitInfo.GetDistToHitPoint());
 
         } else
+            // Ray is not blocked by gate, meaning it passes through the DoorTile entirely
             return std::nullopt;
+
     } else
+        // Ray does not intersect with middle of tile ==> it hits sidewall
+        // Let it pass through ; renderer will detect sidewall hit and swap texture accordingly
         return std::nullopt;
 }
 

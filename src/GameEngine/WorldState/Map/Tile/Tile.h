@@ -8,16 +8,6 @@
 =========================================================
 */
 
-struct textureSlice_t {
-    textureSlice_t(SDL_Texture* const t, SDL_Rect r);
-    textureSlice_t();
-
-    SDL_Texture*  texture;
-    SDL_Rect      textureRect;
-};
-
-typedef std::optional<std::pair<textureSlice_t, double>> textureSliceDistPair_o;
-
 enum class tileType_t {
     EMPTY,
     WALL,
@@ -25,6 +15,33 @@ enum class tileType_t {
     OBJECT,
     ENEMY
 };
+
+/* WallTile return type related definitions */
+struct textureSlice_t {
+    textureSlice_t(SDL_Texture* const t, const SDL_Rect r);
+    textureSlice_t();
+
+    SDL_Texture*  texture;
+    SDL_Rect      textureRect;
+};
+
+struct textureSliceDistPair_t {
+    textureSliceDistPair_t(const textureSlice_t _textureSlice, const double _distance);
+
+    textureSlice_t textureSlice;
+    double         hitDistance;
+};
+
+/* SpriteTile return type definition */
+struct textureVecToSpritePair_t {
+    textureVecToSpritePair_t(SDL_Texture* const _texture, const Vec2& _vecToSprite);
+
+    SDL_Texture* texture;
+    Vec2         vecToSprite;
+};
+
+/* RayTileHit virtual function return type definition */
+typedef std::optional<std::variant<textureSliceDistPair_t, textureVecToSpritePair_t>> rayTileHitVariant_o;
 
 /*
 =========================================================
@@ -35,13 +52,10 @@ enum class tileType_t {
 class Tile {
 public:
     tileType_t type;
-    iPoint2    coordinate;
 
 public:
-    virtual                          ~Tile();
-    virtual textureSliceDistPair_o   RayTileHit        (RayHitMarker& hitInfo, const texturePair_o textureOverride) const = 0;
-    virtual bool                     PlayerTileHit()                                                                const = 0;
-
-protected:
-    SDL_Texture*                     LightTexture      (const texturePair_t _texturePair, RayHitMarker& hitInfo)    const;
+    static   SDL_Texture*          LightTexture      (const texturePair_t texturePair, RayHitMarker& hitInfo);
+    virtual                        ~Tile();
+    virtual  rayTileHitVariant_o   RayTileHit        (RayHitMarker& hitInfo)                                   const = 0;
+    virtual  bool                  PlayerTileHit()                                                             const = 0;
 };

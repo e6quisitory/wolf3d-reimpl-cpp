@@ -49,7 +49,7 @@ RayHitMarker RayHitMarker::GetNextHit() const {
     return temp;
 }
 
-RayHitMarker RayHitMarker::GetNextCenterHit() {
+void RayHitMarker::GoToNextCenterHit() {
     Vec2 vecToCenter;
     if (GetWallType() == wallType_t::VERTICAL) {
         vecToCenter.x() = static_cast<double>(ray.xDir) / 2;
@@ -58,7 +58,14 @@ RayHitMarker RayHitMarker::GetNextCenterHit() {
         vecToCenter.x() = static_cast<double>(ray.xDir) * (ray.xStep / 2);
         vecToCenter.y() = static_cast<double>(ray.yDir) / 2;
     }
-    return RayHitMarker(ray, hitPoint + vecToCenter);
+
+    (*this) = RayHitMarker(ray, hitPoint + vecToCenter);
+}
+
+RayHitMarker RayHitMarker::GetNextCenterHit() {
+    RayHitMarker temp = (*this);
+    temp.GoToNextCenterHit();
+    return temp;
 }
 
 double RayHitMarker::GetDistToHitPoint() const {

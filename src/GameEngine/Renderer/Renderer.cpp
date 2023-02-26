@@ -15,7 +15,7 @@ void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia
     CalculateCastingRayAngles();
 
     // Grab copy of gate sidewall texture (used for injecting into rayMarker when prev hit tile was a door tile
-    gateSidewallTexture = multimedia->GetTexturePair(textureType_t::WALLS, 101);
+    gateSidewallTexture = multimedia->GetWallTexturePair(101);
 
     // These do not change, so calculate once in advance
     ceilingScreenRect = {0, 0, multimedia->windowParams.width, multimedia->windowParams.height / 2};
@@ -61,28 +61,27 @@ void Renderer::DrawCeilingFloor() const {
 
 void Renderer::PartialRender(const int startRayNum, const int endRayNum, const int renderSectionNum) {
     for (int rayNum = startRayNum; rayNum < endRayNum; ++rayNum) {
-        RayHitMarker rayCursor(GetRay(rayNum));
+        RayHitMarker rayHitMarker(GetRay(rayNum));
 
-        while (worldState->map.WithinMap(rayCursor.hitTile)) {
-            Tile* prevTile = worldState->map.GetTile(rayCursor.hitTile);
-                rayCursor.GoToNextHit();
-            Tile* currTile = worldState->map.GetTile(rayCursor.hitTile);
+        while (worldState->map.WithinMap(rayHitMarker.hitTile)) {
+            Tile* prevTile = worldState->map.GetTile(rayHitMarker.hitTile);
+            rayHitMarker.GoToNextHit();
+            Tile* currTile = worldState->map.GetTile(rayHitMarker.hitTile);
 
-            texturePair_o textureOverride;
-            if (prevTile->type == tileType_t::DOOR)
-                textureOverride = gateSidewallTexture;
-            else
-                textureOverride = std::nullopt;
-
-            auto rayTileHitResult = currTile->RayTileHit(rayCursor, textureOverride);
+            auto rayTileHitResult = currTile->RayTileHit(rayHitMarker);
             if (rayTileHitResult.has_value()) {
-                auto [textureSlice, hitDistance] = rayTileHitResult.value();
+                auto [textureSlice, hitDistance] = std::get<textureSliceDistPair_t>(rayTileHitResult.value());
+
+                // If prev tile type was a door and next is a wall, it means the next hit is a door sidewall
+                // Thus, must swap texture
+                if (prevTile->type == tileType_t::DOOR && currTile->type == tileType_t::WALL)
+                    textureSlice.texture = Tile::LightTexture(gateSidewallTexture, rayHitMarker);
 
                 SDL_Rect textureRect  = textureSlice.textureRect;
                 int      renderHeight = GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
                 SDL_Rect screenRect   = GetScreenRect(renderHeight, rayNum);
 
-                auto hitTileType = worldState->map.GetTile(rayCursor.hitTile)->type;
+                auto hitTileType = worldState->map.GetTile(rayHitMarker.hitTile)->type;
                 if (hitTileType == tileType_t::OBJECT || hitTileType == tileType_t::ENEMY) {
                     spriteBackbuffers[renderSectionNum].emplace_back(std::pair(textureSlice, screenRect));
                     continue;

@@ -41,6 +41,7 @@ public:
 
     void           GoToNextHit();
     RayHitMarker   GetNextHit()          const;
+    void           GoToNextCenterHit();
     RayHitMarker   GetNextCenterHit();
     double         GetDistToHitPoint()   const;
     wallType_t     GetWallType();
