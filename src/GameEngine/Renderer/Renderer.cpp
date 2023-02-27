@@ -2,6 +2,22 @@
 
 /*
 =========================================================
+    Relevant type definitions
+=========================================================
+*/
+
+textureRenderData_t::textureRenderData_t(SDL_Texture* const _texture, const SDL_Rect _textureRect, const SDL_Rect _screenRect) :
+    texture(_texture), textureRect(_textureRect), screenRect(_screenRect) {}
+
+textureRenderData_t::textureRenderData_t() {}
+
+spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData) :
+    spriteID(_spriteID), textureRenderData(_textureRenderData) {}
+
+spriteRenderData_t::spriteRenderData_t() {}
+
+/*
+=========================================================
     Public methods
 =========================================================
 */
@@ -30,10 +46,6 @@ void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia
     }
     wallBackbuffer.resize(multimedia->windowParams.width);
     spriteBackbuffers.resize(cores);
-
-    // Pre-allocate sprite back buffers (rough estimate)
-    for (int i = 0; i < cores; ++i)
-        spriteBackbuffers[i].reserve(renderSecWidth);
 }
 
 void Renderer::RenderFrame() {
@@ -70,25 +82,51 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
 
             auto rayTileHitResult = currTile->RayTileHit(rayHitMarker);
             if (rayTileHitResult.has_value()) {
-                auto [textureSlice, hitDistance] = std::get<textureSliceDistPair_t>(rayTileHitResult.value());
 
-                // If prev tile type was a door and next is a wall, it means the next hit is a door sidewall
-                // Thus, must swap texture
-                if (prevTile->type == tileType_t::DOOR && currTile->type == tileType_t::WALL)
-                    textureSlice.texture = Tile::LightTexture(gateSidewallTexture, rayHitMarker);
+                // WallTile hit
+                if (std::holds_alternative<textureSliceDistPair_t>(rayTileHitResult.value())) {
 
-                SDL_Rect textureRect  = textureSlice.textureRect;
-                int      renderHeight = GetRenderHeight(hitDistance, castingRayAngles[rayNum].second);
-                SDL_Rect screenRect   = GetScreenRect(renderHeight, rayNum);
+                    auto& [textureSlice, hitDistance] = std::get<textureSliceDistPair_t>(rayTileHitResult.value());
 
-                auto hitTileType = worldState->map.GetTile(rayHitMarker.hitTile)->type;
-                if (hitTileType == tileType_t::OBJECT || hitTileType == tileType_t::ENEMY) {
-                    spriteBackbuffers[renderSectionNum].emplace_back(std::pair(textureSlice, screenRect));
-                    continue;
-                } else {
-                    wallBackbuffer[rayNum] = std::pair(textureSlice, screenRect);
+                    // If prev tile type was a door and next is a wall, it means the next hit is a door sidewall ; thus, must swap texture
+                    if (prevTile->type == tileType_t::DOOR && currTile->type == tileType_t::WALL)
+                        textureSlice.texture = Tile::LightTexture(gateSidewallTexture, rayHitMarker);
+
+                    wallBackbuffer[rayNum] = textureRenderData_t(textureSlice.texture, textureSlice.textureRect, GetScreenRect(GetRenderHeight(hitDistance, castingRayAngles[rayNum].second), rayNum));
+
                     break;
+
+                  // SpriteTile hit
+                } else {
+
+                    auto& [texture, coordinate] = std::get<textureCoordinatePair_t>(rayTileHitResult.value());
+                    SpriteTile* currSpriteID = static_cast<SpriteTile*>(currTile);
+
+                    auto& currSpriteBackbuffer = spriteBackbuffers[renderSectionNum];
+
+                    if (currSpriteBackbuffer.empty() || (!currSpriteBackbuffer.empty() && currSpriteBackbuffer.back().spriteID != currSpriteID)) {
+                        Vec2 vecToSprite = coordinate - worldState->player.location;
+                        double verticalHitDist = Dot(vecToSprite, worldState->player.viewDir);
+
+                        double deg = AngleBetween(vecToSprite, worldState->player.viewDir)*(180.0/PI);
+
+
+                        int horizontalHitDistDirection = Dot(vecToSprite, worldState->player.eastDir) > 0 ? 1 : -1;
+                        int horizontalHitDist = (multimedia->windowParams.width/2) + horizontalHitDistDirection*((AngleBetween(vecToSprite, worldState->player.viewDir)*(180.0/PI)) / (fov/2))*(multimedia->windowParams.width/2);
+
+                        int renderHeight = static_cast<int>((1.3 * multimedia->windowParams.width / ((16.0 / 9.0) * (fov / 72.0))) / verticalHitDist);
+                        int renderWidth = renderHeight;
+
+                        int textureMiddleScreenX = multimedia->windowParams.width/2 + horizontalHitDist;
+
+                        SDL_Rect screenRect = {horizontalHitDist - renderWidth/2, multimedia->windowParams.height/2 - renderHeight/2, renderWidth, renderHeight};
+
+                        spriteBackbuffers[renderSectionNum].emplace_back(spriteRenderData_t(currSpriteID, textureRenderData_t(texture, {0,0,TEXTURE_PITCH,TEXTURE_PITCH}, screenRect)));
+                    }
+
+                    continue;
                 }
+
             } else
                 continue;
         }
@@ -105,25 +143,29 @@ void Renderer::FullRender() {
     // Wait for all threads to finish rendering their sections
     for (int i = 0; i < cores; ++i)
         renderThreads[i].join();
+
+
+    //PartialRender(startingPixels[0], endingPixels[0], 0);
+
+
 }
 
 void Renderer::FlipWallBackbuffer() const {
     for (const auto& w : wallBackbuffer) {
-        const auto& [textureSlice, screenRect] = w;
-        SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+        const auto& [texture, textureRect, screenRect] = w;
+        SDL_RenderCopy(multimedia->sdlRenderer, texture, &(textureRect), &(screenRect));
     }
 }
 
 void Renderer::FlipSpriteBackbuffers() {
-    for (int i = 0; i < cores; ++i) {
-        // Flip sprite back buffers
-        if (!spriteBackbuffers[i].empty()) {
-            // Must render sprites in reverse of the order in which they were encountered
-            for (auto s = spriteBackbuffers[i].rbegin(); s != spriteBackbuffers[i].rend(); ++s) {
-                const auto& [textureSlice, screenRect] = *s;
-                SDL_RenderCopy(multimedia->sdlRenderer, textureSlice.texture, &(textureSlice.textureRect), &(screenRect));
+    for (auto& sVec : spriteBackbuffers) {
+        if (!sVec.empty()) {
+            for (auto s = sVec.rbegin(); s != sVec.rend(); ++s) {
+                const auto& [spriteID, textureRenderData] = *s;
+                const auto& [spriteTexture, textureRect, screenRect] = textureRenderData;
+                SDL_RenderCopy(multimedia->sdlRenderer, spriteTexture, &(textureRect), &(screenRect));
             }
-            spriteBackbuffers[i].clear();
+            sVec.clear();
         }
     }
 }

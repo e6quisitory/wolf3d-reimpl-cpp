@@ -28,10 +28,11 @@ enum class enemyTextureClass_t {
 class EnemyTile : public SpriteTile {
 private:
     SDL_Texture* texture;
+    Point2 centerCoord;
 
 public:
     EnemyTile(const iPoint2 &tileCoord, SDL_Texture* const _texture);
 
-    virtual  rayTileHitVariant_o  RayTileHit(RayHitMarker& hitInfo)  const override;
-    virtual  bool                 PlayerTileHit()                    const override;
+    virtual rayTileHitVariant_o  RayTileHit(RayHitMarker& hitInfo)  const override;
+    virtual bool                 PlayerTileHit()                    const override;
 };

@@ -18,7 +18,8 @@ enum class tileType_t {
 
 /* WallTile return type related definitions */
 struct textureSlice_t {
-    textureSlice_t(SDL_Texture* const t, const SDL_Rect r);
+    textureSlice_t(SDL_Texture* const t, const int sliceNum);
+    textureSlice_t(SDL_Texture* const t, const double widthPercent);
     textureSlice_t();
 
     SDL_Texture*  texture;
@@ -33,15 +34,15 @@ struct textureSliceDistPair_t {
 };
 
 /* SpriteTile return type definition */
-struct textureVecToSpritePair_t {
-    textureVecToSpritePair_t(SDL_Texture* const _texture, const Vec2& _vecToSprite);
+struct textureCoordinatePair_t {
+    textureCoordinatePair_t(SDL_Texture* const _texture, const Point2& _coordinate);
 
     SDL_Texture* texture;
-    Vec2         vecToSprite;
+    Point2       coordinate;
 };
 
 /* RayTileHit virtual function return type definition */
-typedef std::optional<std::variant<textureSliceDistPair_t, textureVecToSpritePair_t>> rayTileHitVariant_o;
+typedef std::optional<std::variant<textureSliceDistPair_t, textureCoordinatePair_t>> rayTileHitVariant_o;
 
 /*
 =========================================================

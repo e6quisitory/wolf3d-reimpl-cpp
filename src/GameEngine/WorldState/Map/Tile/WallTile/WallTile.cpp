@@ -18,8 +18,7 @@ WallTile::WallTile(const texturePair_t _texture) : texture(_texture) {
 
 rayTileHitVariant_o WallTile::RayTileHit(RayHitMarker& hitInfo) const {
     SDL_Texture* litTexture = LightTexture(texture, hitInfo);
-    SDL_Rect textureRect = {static_cast<int>(hitInfo.GetWidthPercent() * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
-    textureSlice_t textureSlice(litTexture, textureRect);
+    textureSlice_t textureSlice(litTexture, hitInfo.GetWidthPercent());
 
     return textureSliceDistPair_t(textureSlice, hitInfo.GetDistToHitPoint());
 }

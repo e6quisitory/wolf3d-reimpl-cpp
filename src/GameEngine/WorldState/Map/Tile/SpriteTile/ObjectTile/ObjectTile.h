@@ -14,6 +14,7 @@ public:
 
 private:
     SDL_Texture* texture;
+    Point2 centerCoord;
     bool passthrough;
 
 public:

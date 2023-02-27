@@ -191,3 +191,11 @@ static Vec2D<double> RandomUnitVector() {
     int    signY  = std::rand() % 2;
     return UnitVector(Vec2D<double>(signX*x, signY*y));
 }
+
+static double Dot(const Vec2D<double>& v1, const Vec2D<double>& v2) {
+    return v1.x()*v2.x() + v1.y()*v2.y();
+}
+
+static double AngleBetween(const Vec2D<double>& v1, const Vec2D<double>& v2) {
+    return std::acos(Dot(v1,v2)/(v1.Length()*v2.Length()));
+}

@@ -70,7 +70,6 @@ void GameEngine::GameLoop() {
 
     if (running) {
         playerManager.Update();
-        SpriteTile::UpdateUniversalPerpline(worldState->player.viewDir);
         renderer.RenderFrame();
     } else
         SDL_Delay(20);

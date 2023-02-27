@@ -48,8 +48,7 @@ rayTileHitVariant_o DoorTile::RayTileHit(RayHitMarker& hitInfo) const {
             // If ray is blocked by gate, then output the proper gate texture and rect
             SDL_Texture* litGateTexture = LightTexture(gateTexture, centeredHitInfo);
             double gateTextureWidthPercent = door->position - centeredHitInfo.GetWidthPercent();
-            SDL_Rect gateTextureRect = {static_cast<int>(gateTextureWidthPercent * TEXTURE_PITCH), 0, 1, TEXTURE_PITCH};
-            textureSlice_t gateTextureSlice(litGateTexture, gateTextureRect);
+            textureSlice_t gateTextureSlice(litGateTexture, gateTextureWidthPercent);
             return textureSliceDistPair_t(gateTextureSlice, centeredHitInfo.GetDistToHitPoint());
 
         } else

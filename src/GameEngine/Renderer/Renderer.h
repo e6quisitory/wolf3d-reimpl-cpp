@@ -5,20 +5,41 @@
 
 /*
 =========================================================
+    Relevant type definitions
+=========================================================
+*/
+
+struct textureRenderData_t {
+    textureRenderData_t(SDL_Texture* const _texture, const SDL_Rect _textureRect, const SDL_Rect _screenRect);
+    textureRenderData_t();
+
+    SDL_Texture* texture;
+    SDL_Rect     textureRect;
+    SDL_Rect     screenRect;
+};
+
+struct spriteRenderData_t {
+    spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData);
+    spriteRenderData_t();
+
+    SpriteTile*         spriteID;
+    textureRenderData_t textureRenderData;
+};
+
+/*
+=========================================================
     Renderer
 =========================================================
 */
 
 class Renderer {
 private:
-    typedef std::pair<textureSlice_t, SDL_Rect> textureSliceScreenRectPair_t;
-
     WorldState*  worldState;
     Multimedia*  multimedia;
 
-    std::vector  <std::pair<double, double>>                  castingRayAngles;  // { angle, cosine(angle) }
-    std::vector  <textureSliceScreenRectPair_t>               wallBackbuffer;
-    std::vector  <std::vector<textureSliceScreenRectPair_t>>  spriteBackbuffers;
+    std::vector  <std::pair<double, double>>         castingRayAngles;  // { angle, cosine(angle) }
+    std::vector  <textureRenderData_t>               wallBackbuffer;
+    std::vector  <std::vector<spriteRenderData_t>>   spriteBackbuffers;
 
     const double fov = 72.0;
     texturePair_t gateSidewallTexture;
