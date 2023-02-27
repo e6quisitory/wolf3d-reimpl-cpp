@@ -11,8 +11,14 @@ textureRenderData_t::textureRenderData_t(SDL_Texture* const _texture, const SDL_
 
 textureRenderData_t::textureRenderData_t() {}
 
-spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData) :
-    spriteID(_spriteID), textureRenderData(_textureRenderData) {}
+spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData,  std::pair<int,int> _screenXBeginEnd) :
+    spriteID(_spriteID), textureRenderData(_textureRenderData), screenXBeginEnd(_screenXBeginEnd) {}
+
+spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, SDL_Texture* const _texture, const SDL_Rect _screenRect,  std::pair<int,int> _screenXBeginEnd) {
+    spriteID = _spriteID;
+    textureRenderData = textureRenderData_t(_texture, {0,0,TEXTURE_PITCH, TEXTURE_PITCH}, _screenRect);
+    screenXBeginEnd = _screenXBeginEnd;
+}
 
 spriteRenderData_t::spriteRenderData_t() {}
 
@@ -92,7 +98,10 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
                     if (prevTile->type == tileType_t::DOOR && currTile->type == tileType_t::WALL)
                         textureSlice.texture = Tile::LightTexture(gateSidewallTexture, rayHitMarker);
 
-                    wallBackbuffer[rayNum] = textureRenderData_t(textureSlice.texture, textureSlice.textureRect, GetScreenRect(GetRenderHeight(hitDistance, castingRayAngles[rayNum].second), rayNum));
+                    double    renderHeight = GetRenderHeight(hitDistance*castingRayAngles[rayNum].second);
+                    SDL_Rect  screenRect  = GetTextureSliceScreenRect(renderHeight, rayNum);
+
+                    wallBackbuffer[rayNum] = textureRenderData_t(textureSlice.texture, textureSlice.textureRect, screenRect);
 
                     break;
 
@@ -104,24 +113,20 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
 
                     auto& currSpriteBackbuffer = spriteBackbuffers[renderSectionNum];
 
-                    if (currSpriteBackbuffer.empty() || (!currSpriteBackbuffer.empty() && currSpriteBackbuffer.back().spriteID != currSpriteID)) {
+                    if (currSpriteBackbuffer.empty() || currSpriteBackbuffer.back().spriteID != currSpriteID) {
+                        static const double projPlaneDist = (multimedia->windowParams.width/2.0)/std::tan(DegreesToRadians(fov/2.0));
+
                         Vec2 vecToSprite = coordinate - worldState->player.location;
-                        double verticalHitDist = Dot(vecToSprite, worldState->player.viewDir);
+                        double spriteHitDistY = Dot(vecToSprite, worldState->player.viewDir);
+                        double spriteHitDistX = Dot(vecToSprite, worldState->player.eastDir);
+                        int screenX = (multimedia->windowParams.width/2) + ((projPlaneDist/spriteHitDistY)*spriteHitDistX);
 
-                        double deg = AngleBetween(vecToSprite, worldState->player.viewDir)*(180.0/PI);
+                        int renderHeight = GetRenderHeight(spriteHitDistY);
+                        int renderWidth  = renderHeight;
 
+                        SDL_Rect screenRect = GetFullTextureScreenRect(renderHeight, screenX);
 
-                        int horizontalHitDistDirection = Dot(vecToSprite, worldState->player.eastDir) > 0 ? 1 : -1;
-                        int horizontalHitDist = (multimedia->windowParams.width/2) + horizontalHitDistDirection*((AngleBetween(vecToSprite, worldState->player.viewDir)*(180.0/PI)) / (fov/2))*(multimedia->windowParams.width/2);
-
-                        int renderHeight = static_cast<int>((1.3 * multimedia->windowParams.width / ((16.0 / 9.0) * (fov / 72.0))) / verticalHitDist);
-                        int renderWidth = renderHeight;
-
-                        int textureMiddleScreenX = multimedia->windowParams.width/2 + horizontalHitDist;
-
-                        SDL_Rect screenRect = {horizontalHitDist - renderWidth/2, multimedia->windowParams.height/2 - renderHeight/2, renderWidth, renderHeight};
-
-                        spriteBackbuffers[renderSectionNum].emplace_back(spriteRenderData_t(currSpriteID, textureRenderData_t(texture, {0,0,TEXTURE_PITCH,TEXTURE_PITCH}, screenRect)));
+                        spriteBackbuffers[renderSectionNum].emplace_back(currSpriteID, texture, screenRect, std::pair(screenRect.x, screenRect.x + screenRect.w));
                     }
 
                     continue;
@@ -143,11 +148,6 @@ void Renderer::FullRender() {
     // Wait for all threads to finish rendering their sections
     for (int i = 0; i < cores; ++i)
         renderThreads[i].join();
-
-
-    //PartialRender(startingPixels[0], endingPixels[0], 0);
-
-
 }
 
 void Renderer::FlipWallBackbuffer() const {
@@ -158,10 +158,19 @@ void Renderer::FlipWallBackbuffer() const {
 }
 
 void Renderer::FlipSpriteBackbuffers() {
+    for (int backbufferNum = 0; backbufferNum < spriteBackbuffers.size()-1; ++backbufferNum) {
+        auto& currentBuffer = spriteBackbuffers[backbufferNum];
+        auto& nextBuffer = spriteBackbuffers[backbufferNum+1];
+        if (!currentBuffer.empty() && !nextBuffer.empty()) {
+            if (currentBuffer.back().spriteID == nextBuffer.front().spriteID)
+                nextBuffer.erase(nextBuffer.begin());
+        }
+    }
+
     for (auto& sVec : spriteBackbuffers) {
         if (!sVec.empty()) {
             for (auto s = sVec.rbegin(); s != sVec.rend(); ++s) {
-                const auto& [spriteID, textureRenderData] = *s;
+                const auto& [spriteID, textureRenderData, screenXBeginEnd] = *s;
                 const auto& [spriteTexture, textureRect, screenRect] = textureRenderData;
                 SDL_RenderCopy(multimedia->sdlRenderer, spriteTexture, &(textureRect), &(screenRect));
             }
@@ -174,13 +183,18 @@ Ray Renderer::GetRay(const int rayNum) const {
     return Ray(worldState->player.location, worldState->player.viewDir.Rotate(castingRayAngles[rayNum].first));
 }
 
-int Renderer::GetRenderHeight(const double hitDist, const double angleCosine) const {
+int Renderer::GetRenderHeight(const double perpHitDist) const {
     static const double proportionalityConstant = 1.3 * multimedia->windowParams.width / ((16.0 / 9.0) * (fov / 72.0));
-    return static_cast<int>(proportionalityConstant / (hitDist * angleCosine));
+    return static_cast<int>(proportionalityConstant / perpHitDist);
 }
 
-SDL_Rect Renderer::GetScreenRect(double renderHeight, int rayNum) const {
-    return {rayNum, static_cast<int>(multimedia->windowParams.height / 2 - renderHeight / 2), 1, static_cast<int>(renderHeight)};
+SDL_Rect Renderer::GetTextureSliceScreenRect(const int renderHeight, int sliceNum) const {
+    return {sliceNum, multimedia->windowParams.height/2 - renderHeight/2, 1, renderHeight};
+}
+
+SDL_Rect Renderer::GetFullTextureScreenRect(const int renderHeight, int textureCenterX) const {
+    // Assumed renderHeight = renderWidth
+    return {textureCenterX - renderHeight/2, multimedia->windowParams.height/2 - renderHeight/2, renderHeight, renderHeight};
 }
 
 void Renderer::CalculateCastingRayAngles() {

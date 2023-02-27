@@ -19,11 +19,13 @@ struct textureRenderData_t {
 };
 
 struct spriteRenderData_t {
-    spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData);
+    spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData, std::pair<int,int> _screenXBeginEnd);
+    spriteRenderData_t(SpriteTile* const _spriteID, SDL_Texture* const _texture, const SDL_Rect _screenRect, std::pair<int,int> _screenXBeginEnd);
     spriteRenderData_t();
 
     SpriteTile*         spriteID;
     textureRenderData_t textureRenderData;
+    std::pair<int, int> screenXBeginEnd;
 };
 
 /*
@@ -63,8 +65,9 @@ private:
     void      FlipSpriteBackbuffers();
 
     Ray       GetRay                         (const int rayNum)                                                        const;
-    int       GetRenderHeight                (const double hitDist, const double angleCosine)                          const;
-    SDL_Rect  GetScreenRect                  (double renderHeight, int rayNum)                                         const;
+    int       GetRenderHeight                (const double perpHitDist)                                                const;
+    SDL_Rect  GetTextureSliceScreenRect      (const int renderHeight, int sliceNum)                                    const;
+    SDL_Rect  GetFullTextureScreenRect       (const int renderHeight, int textureCenterX)                              const;
 
     void      CalculateCastingRayAngles();
 };
