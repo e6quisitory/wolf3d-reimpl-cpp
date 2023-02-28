@@ -14,10 +14,11 @@ std::vector<SDL_Texture*> ObjectTile::noPassthroughList;
 =========================================================
 */
 
-ObjectTile::ObjectTile(const iPoint2& tileCoord, SDL_Texture* const _texture) {
+ObjectTile::ObjectTile(const iPoint2& _tileCoord, SDL_Texture* const _texture) {
     texture = _texture;
     type = tileType_t::OBJECT;
-    centerCoord = tileCoord + Point2(0.5, 0.5);
+    tileCoord = _tileCoord;
+    centerCoord = _tileCoord + Point2(0.5, 0.5);
     passthrough = std::find(noPassthroughList.begin(), noPassthroughList.end(), texture) == noPassthroughList.end();
 }
 

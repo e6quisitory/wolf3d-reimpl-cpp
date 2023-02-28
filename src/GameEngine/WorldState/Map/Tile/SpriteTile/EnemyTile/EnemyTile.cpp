@@ -6,9 +6,10 @@
 =========================================================
 */
 
-EnemyTile::EnemyTile(const iPoint2 &tileCoord, SDL_Texture *const _texture) {
+EnemyTile::EnemyTile(const iPoint2& _tileCoord, SDL_Texture *const _texture) {
     texture = _texture;
     type = tileType_t::ENEMY;
+    tileCoord = _tileCoord;
     centerCoord = tileCoord + Point2(0.5, 0.5);
 }
 

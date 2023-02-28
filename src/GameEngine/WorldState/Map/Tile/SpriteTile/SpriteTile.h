@@ -8,4 +8,7 @@
 =========================================================
 */
 
-class SpriteTile : public Tile {};
+class SpriteTile : public Tile {
+public:
+    iPoint2 tileCoord;
+};

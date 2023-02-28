@@ -58,6 +58,7 @@ void GameEngine::Init() {
 void GameEngine::Exit() {
     // Exit managers (that have memory clean-up to do)
     mapManager.Exit();
+    renderer.Exit();
     multimediaManager.Exit();
 
     delete inputsBuffer;

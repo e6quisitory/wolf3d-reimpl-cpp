@@ -11,13 +11,12 @@ textureRenderData_t::textureRenderData_t(SDL_Texture* const _texture, const SDL_
 
 textureRenderData_t::textureRenderData_t() {}
 
-spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData,  std::pair<int,int> _screenXBeginEnd) :
-    spriteID(_spriteID), textureRenderData(_textureRenderData), screenXBeginEnd(_screenXBeginEnd) {}
+spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData) :
+    spriteID(_spriteID), textureRenderData(_textureRenderData) {}
 
-spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, SDL_Texture* const _texture, const SDL_Rect _screenRect,  std::pair<int,int> _screenXBeginEnd) {
+spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, SDL_Texture* const _texture, const SDL_Rect _screenRect) {
     spriteID = _spriteID;
     textureRenderData = textureRenderData_t(_texture, {0,0,TEXTURE_PITCH, TEXTURE_PITCH}, _screenRect);
-    screenXBeginEnd = _screenXBeginEnd;
 }
 
 spriteRenderData_t::spriteRenderData_t() {}
@@ -50,17 +49,35 @@ void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia
         startingPixels.push_back(i*renderSecWidth);
         endingPixels.push_back(startingPixels[i] + renderSecWidth);
     }
-    wallBackbuffer.resize(multimedia->windowParams.width);
-    spriteBackbuffers.resize(cores);
+    wallsRenderDataBuffer.resize(multimedia->windowParams.width);
+    spritesRenderDataBuffers.resize(cores);
+
+    // Sprites back buffer (for rendering into before merging with already-drawn walls on screen)
+    spritesBackBuffer       = SDL_CreateTexture(multimedia->sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, multimedia->windowParams.width, multimedia->windowParams.height);
+    spritesBackBuffer_clear = SDL_CreateTexture(multimedia->sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, multimedia->windowParams.width, multimedia->windowParams.height);
+    SDL_SetTextureBlendMode(spritesBackBuffer, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(spritesBackBuffer_clear, SDL_BLENDMODE_BLEND);
+
+    spritesHitMap.resize(worldState->map.width);
+    for (auto& column : spritesHitMap) {
+        column.resize(worldState->map.height);
+        std::fill(column.begin(), column.end(), false);
+    }
+}
+
+void Renderer::Exit() const {
+    SDL_DestroyTexture(spritesBackBuffer);
+    SDL_DestroyTexture(spritesBackBuffer_clear);
 }
 
 void Renderer::RenderFrame() {
     SDL_RenderClear(multimedia->sdlRenderer);
     DrawCeilingFloor();
-    FullRender();
-    FlipWallBackbuffer();
-    FlipSpriteBackbuffers();
-    SDL_RenderPresent(multimedia->sdlRenderer);
+    FullRenderToBuffers();
+    RenderSpritesIntoBackBuffer();
+    DrawWalls();
+    DrawSprites();
+    //SDL_RenderPresent(multimedia->sdlRenderer);
 }
 
 /*
@@ -70,6 +87,8 @@ void Renderer::RenderFrame() {
 */
 
 void Renderer::DrawCeilingFloor() const {
+    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
+
     SDL_SetRenderDrawColor(multimedia->sdlRenderer, 50, 50, 50, 0 );
     SDL_RenderFillRect(multimedia->sdlRenderer, &ceilingScreenRect );
 
@@ -77,7 +96,7 @@ void Renderer::DrawCeilingFloor() const {
     SDL_RenderFillRect(multimedia->sdlRenderer, &floorScreenRect );
 }
 
-void Renderer::PartialRender(const int startRayNum, const int endRayNum, const int renderSectionNum) {
+void Renderer::PartialRenderToBuffers(const int startRayNum, const int endRayNum, const int renderSectionNum) {
     for (int rayNum = startRayNum; rayNum < endRayNum; ++rayNum) {
         RayHitMarker rayHitMarker(GetRay(rayNum));
 
@@ -101,19 +120,24 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
                     double    renderHeight = GetRenderHeight(hitDistance*castingRayAngles[rayNum].second);
                     SDL_Rect  screenRect  = GetTextureSliceScreenRect(renderHeight, rayNum);
 
-                    wallBackbuffer[rayNum] = textureRenderData_t(textureSlice.texture, textureSlice.textureRect, screenRect);
+                    wallsRenderDataBuffer[rayNum] = textureRenderData_t(textureSlice.texture, textureSlice.textureRect, screenRect);
 
                     break;
 
                   // SpriteTile hit
                 } else {
-
-                    auto& [texture, coordinate] = std::get<textureCoordinatePair_t>(rayTileHitResult.value());
                     SpriteTile* currSpriteID = static_cast<SpriteTile*>(currTile);
+                    auto& currSpriteTileCoord = currSpriteID->tileCoord;
+                    auto currSpriteTileHit = spritesHitMap[currSpriteTileCoord.x()][currSpriteTileCoord.y()];
+                    if (currSpriteTileHit == true)
+                        continue;
+                    else {
+                        currSpriteTileHit = true;
 
-                    auto& currSpriteBackbuffer = spriteBackbuffers[renderSectionNum];
+                        auto& [texture, coordinate] = std::get<textureCoordinatePair_t>(rayTileHitResult.value());
 
-                    if (currSpriteBackbuffer.empty() || currSpriteBackbuffer.back().spriteID != currSpriteID) {
+                        auto& currSpriteBackbuffer = spritesRenderDataBuffers[renderSectionNum];
+
                         static const double projPlaneDist = (multimedia->windowParams.width/2.0)/std::tan(DegreesToRadians(fov/2.0));
 
                         Vec2 vecToSprite = coordinate - worldState->player.location;
@@ -126,10 +150,10 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
 
                         SDL_Rect screenRect = GetFullTextureScreenRect(renderHeight, screenX);
 
-                        spriteBackbuffers[renderSectionNum].emplace_back(currSpriteID, texture, screenRect, std::pair(screenRect.x, screenRect.x + screenRect.w));
-                    }
+                        spritesRenderDataBuffers[renderSectionNum].emplace_back(currSpriteID, texture, screenRect);
 
-                    continue;
+                        continue;
+                    }
                 }
 
             } else
@@ -138,45 +162,84 @@ void Renderer::PartialRender(const int startRayNum, const int endRayNum, const i
     }
 }
 
-void Renderer::FullRender() {
+void Renderer::FullRenderToBuffers() {
     std::thread renderThreads[cores];
 
     // Launch a rendering thread for each CPU core
     for (int i = 0; i < cores; ++i)
-        renderThreads[i] = std::thread(&Renderer::PartialRender, this, startingPixels[i], endingPixels[i], i);
+        renderThreads[i] = std::thread(&Renderer::PartialRenderToBuffers, this, startingPixels[i], endingPixels[i], i);
 
     // Wait for all threads to finish rendering their sections
     for (int i = 0; i < cores; ++i)
         renderThreads[i].join();
 }
 
-void Renderer::FlipWallBackbuffer() const {
-    for (const auto& w : wallBackbuffer) {
+void Renderer::DrawWalls() const {
+    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
+    for (const auto& w : wallsRenderDataBuffer) {
         const auto& [texture, textureRect, screenRect] = w;
         SDL_RenderCopy(multimedia->sdlRenderer, texture, &(textureRect), &(screenRect));
     }
 }
 
-void Renderer::FlipSpriteBackbuffers() {
-    for (int backbufferNum = 0; backbufferNum < spriteBackbuffers.size()-1; ++backbufferNum) {
-        auto& currentBuffer = spriteBackbuffers[backbufferNum];
-        auto& nextBuffer = spriteBackbuffers[backbufferNum+1];
-        if (!currentBuffer.empty() && !nextBuffer.empty()) {
-            if (currentBuffer.back().spriteID == nextBuffer.front().spriteID)
-                nextBuffer.erase(nextBuffer.begin());
-        }
+void Renderer::RenderSpritesIntoBackBuffer() {
+//    for (int backbufferNum = 0; backbufferNum < spritesRenderDataBuffers.size() - 1; ++backbufferNum) {
+//        auto& currentBuffer = spritesRenderDataBuffers[backbufferNum];
+//        auto& nextBuffer = spritesRenderDataBuffers[backbufferNum + 1];
+//        if (!currentBuffer.empty() && !nextBuffer.empty()) {
+//            if (currentBuffer.back().spriteID == nextBuffer.front().spriteID)
+//                nextBuffer.erase(nextBuffer.begin());
+//        }
+//    }
+
+    for (auto& spritesVec : spritesRenderDataBuffers) {
+        for (auto& spriteData : spritesVec)
+            allspritesbuffer.emplace_back(spriteData);
+        spritesVec.clear();
     }
 
-    for (auto& sVec : spriteBackbuffers) {
-        if (!sVec.empty()) {
-            for (auto s = sVec.rbegin(); s != sVec.rend(); ++s) {
-                const auto& [spriteID, textureRenderData, screenXBeginEnd] = *s;
+
+
+        std::sort(allspritesbuffer.begin(), allspritesbuffer.end(), [](const spriteRenderData_t s1, const spriteRenderData_t s2){
+            return s1.textureRenderData.screenRect.h > s2.textureRenderData.screenRect.h;
+        });
+
+    SDL_SetRenderTarget(multimedia->sdlRenderer, spritesBackBuffer);
+            for (auto sprite = allspritesbuffer.rbegin(); sprite != allspritesbuffer.rend(); ++sprite) {
+                const auto& [spriteID, textureRenderData] = *sprite;
                 const auto& [spriteTexture, textureRect, screenRect] = textureRenderData;
                 SDL_RenderCopy(multimedia->sdlRenderer, spriteTexture, &(textureRect), &(screenRect));
             }
-            sVec.clear();
-        }
+}
+
+void Renderer::DrawSprites() {
+    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
+            for (auto sprite = allspritesbuffer.rbegin(); sprite != allspritesbuffer.rend(); ++sprite) {
+                const auto& [spriteID, textureRenderData] = *sprite;
+                const auto& [spriteTexture, textureRect, screenRect] = textureRenderData;
+
+                for (int x = screenRect.x; x < screenRect.x + screenRect.w; ++x) {
+                    if (wallsRenderDataBuffer[x].screenRect.h < screenRect.h) {
+                        SDL_Rect spriteScreenSlice = {x, 0, 1, multimedia->windowParams.height};
+                        SDL_RenderCopy(multimedia->sdlRenderer, spritesBackBuffer, &(spriteScreenSlice), &(spriteScreenSlice));
+                    }
+                }
+
+            }
+
+
+        SDL_RenderPresent(multimedia->sdlRenderer);
+
+    // need to clear sprite back buffer (SDL_Texture). Below code doesn't work.
+    SDL_SetRenderTarget(multimedia->sdlRenderer, spritesBackBuffer);
+    SDL_RenderClear(multimedia->sdlRenderer);
+
+    for (auto& column : spritesHitMap) {
+        column.resize(worldState->map.height);
+        std::fill(column.begin(), column.end(), false);
     }
+
+    allspritesbuffer.clear();
 }
 
 Ray Renderer::GetRay(const int rayNum) const {
