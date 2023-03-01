@@ -13,8 +13,8 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
 
     // Only create minimap if main window is NOT fullscreen
     auto mainWindowFlags = SDL_GetWindowFlags(multimedia->sdlWindow);
-    bool mainWindowIsFullScreen = (mainWindowFlags & SDL_WINDOW_FULLSCREEN) == SDL_WINDOW_FULLSCREEN;
-    assert(!mainWindowIsFullScreen);
+    mainWindowIsFullScreen = (mainWindowFlags & SDL_WINDOW_FULLSCREEN) == SDL_WINDOW_FULLSCREEN;
+    if (mainWindowIsFullScreen) return;
 
     // Create window and renderer
     minimapWindowWidth  = tileSize * worldState->map.width + 2 * tileSize;
@@ -53,11 +53,12 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
 */
 
 Minimap::~Minimap() {
-    SDL_DestroyRenderer(minimapRenderer);
-    SDL_DestroyWindow(minimapWindow);
-
-    delete wallTileRects.first;
-    delete doorTileRects.first;
+    if (!mainWindowIsFullScreen) {
+        SDL_DestroyRenderer(minimapRenderer);
+        SDL_DestroyWindow(minimapWindow);
+        delete wallTileRects.first;
+        delete doorTileRects.first;
+    }
 }
 
 /*
@@ -67,12 +68,14 @@ Minimap::~Minimap() {
 */
 
 void Minimap::Update() const {
-    DrawBackground();
-    DrawGridlines();
-    DrawNonEmptyTiles();
-    DrawPlayerTile();
-    DrawPlayerRaycasts();
-    SDL_RenderPresent(minimapRenderer);
+    if (!mainWindowIsFullScreen) {
+        DrawBackground();
+        DrawGridlines();
+        DrawNonEmptyTiles();
+        DrawPlayerTile();
+        DrawPlayerRaycasts();
+        SDL_RenderPresent(minimapRenderer);
+    }
 }
 
 /*

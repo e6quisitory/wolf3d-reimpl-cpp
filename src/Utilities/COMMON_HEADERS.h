@@ -23,6 +23,7 @@
 #include <thread>
 #include <cstdlib>
 #include <ctime>
+#include <atomic>
 
 /*
 =======================================

@@ -1,7 +1,7 @@
 # Setup
 cmake_minimum_required (VERSION 3.20)
 project (wolf3d-clone)
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 20)
 
 # Suppress missing switch cases warnings
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

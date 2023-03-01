@@ -18,7 +18,7 @@ void GameEngine::Init() {
 
     // Initialize input parser, managers, and renderer
     multimediaManager.Init(multimedia);
-    multimediaManager.CreateWindowRenderer(960, 600);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
+    multimediaManager.CreateWindowRenderer(960, 540);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
 
     #if __APPLE__ && __MACH__
     auto parentDirPath      = executablePath.substr(0, executablePath.find_last_of("/\\"));
@@ -69,11 +69,11 @@ void GameEngine::Exit() {
 void GameEngine::GameLoop() {
     static bool running = true;
 
-    if (running) {
+    //if (running) {
         playerManager.Update();
         renderer.RenderFrame();
-    } else
-        SDL_Delay(20);
+    //} else
+        //SDL_Delay(20);
 
     inputsParser.ParseInputs();
     doorManager.Update();

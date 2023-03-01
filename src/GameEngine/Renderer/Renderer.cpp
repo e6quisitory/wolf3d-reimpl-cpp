@@ -6,18 +6,8 @@
 =========================================================
 */
 
-textureRenderData_t::textureRenderData_t(SDL_Texture* const _texture, const SDL_Rect _textureRect, const SDL_Rect _screenRect) :
-    texture(_texture), textureRect(_textureRect), screenRect(_screenRect) {}
-
-textureRenderData_t::textureRenderData_t() {}
-
-spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, const textureRenderData_t _textureRenderData) :
-    spriteID(_spriteID), textureRenderData(_textureRenderData) {}
-
-spriteRenderData_t::spriteRenderData_t(SpriteTile* const _spriteID, SDL_Texture* const _texture, const SDL_Rect _screenRect) {
-    spriteID = _spriteID;
-    textureRenderData = textureRenderData_t(_texture, {0,0,TEXTURE_PITCH, TEXTURE_PITCH}, _screenRect);
-}
+spriteRenderData_t::spriteRenderData_t(const int _screenX, SDL_Texture* const _texture, const int _renderHeight) :
+    screenX(_screenX), texture(_texture), renderHeight(_renderHeight) {}
 
 spriteRenderData_t::spriteRenderData_t() {}
 
@@ -49,35 +39,51 @@ void Renderer::Init(WorldState* const _worldState, Multimedia* const _multimedia
         startingPixels.push_back(i*renderSecWidth);
         endingPixels.push_back(startingPixels[i] + renderSecWidth);
     }
-    wallsRenderDataBuffer.resize(multimedia->windowParams.width);
-    spritesRenderDataBuffers.resize(cores);
+    wallHitReturnDataVec.resize(multimedia->windowParams.width);
+    wallRenderHeightVec.resize(multimedia->windowParams.width);
 
-    // Sprites back buffer (for rendering into before merging with already-drawn walls on screen)
-    spritesBackBuffer       = SDL_CreateTexture(multimedia->sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, multimedia->windowParams.width, multimedia->windowParams.height);
+    spritesRenderHeightVec.resize(multimedia->windowParams.width);
+
+
+    spriteTilesHitMap = new bool*[worldState->map.width];
+    for (int i = 0; i < worldState->map.width; ++i)
+        spriteTilesHitMap[i] = new bool[worldState->map.height];
+
+    for (int i = 0; i < worldState->map.width; ++i) {
+        for (int cell = 0; cell < worldState->map.height; ++cell)
+            spriteTilesHitMap[i][cell] = false;
+    }
+
+    spriteHitReturnDataVec.reserve(worldState->map.width*worldState->map.height - 2*(worldState->map.width) - 2*(worldState->map.height-2));
+    spriteRenderDataVec.reserve(worldState->map.width*worldState->map.height - 2*(worldState->map.width) - 2*(worldState->map.height-2));
+
+    spritesBackBuffer = SDL_CreateTexture(multimedia->sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, multimedia->windowParams.width, multimedia->windowParams.height);
     spritesBackBuffer_clear = SDL_CreateTexture(multimedia->sdlRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, multimedia->windowParams.width, multimedia->windowParams.height);
     SDL_SetTextureBlendMode(spritesBackBuffer, SDL_BLENDMODE_BLEND);
     SDL_SetTextureBlendMode(spritesBackBuffer_clear, SDL_BLENDMODE_BLEND);
-
-    spritesHitMap.resize(worldState->map.width);
-    for (auto& column : spritesHitMap) {
-        column.resize(worldState->map.height);
-        std::fill(column.begin(), column.end(), false);
-    }
 }
 
 void Renderer::Exit() const {
     SDL_DestroyTexture(spritesBackBuffer);
     SDL_DestroyTexture(spritesBackBuffer_clear);
+
+    for (int i = 0; i < worldState->map.width; ++i)
+            delete[] spriteTilesHitMap[i];
+    delete[] spriteTilesHitMap;
 }
 
 void Renderer::RenderFrame() {
     SDL_RenderClear(multimedia->sdlRenderer);
     DrawCeilingFloor();
     FullRenderToBuffers();
-    RenderSpritesIntoBackBuffer();
     DrawWalls();
     DrawSprites();
-    //SDL_RenderPresent(multimedia->sdlRenderer);
+    SDL_RenderPresent(multimedia->sdlRenderer);
+
+    // Clear sprites backbuffer
+    SDL_SetRenderTarget(multimedia->sdlRenderer, spritesBackBuffer);
+    SDL_RenderClear(multimedia->sdlRenderer);
+    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
 }
 
 /*
@@ -87,8 +93,6 @@ void Renderer::RenderFrame() {
 */
 
 void Renderer::DrawCeilingFloor() const {
-    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
-
     SDL_SetRenderDrawColor(multimedia->sdlRenderer, 50, 50, 50, 0 );
     SDL_RenderFillRect(multimedia->sdlRenderer, &ceilingScreenRect );
 
@@ -96,7 +100,7 @@ void Renderer::DrawCeilingFloor() const {
     SDL_RenderFillRect(multimedia->sdlRenderer, &floorScreenRect );
 }
 
-void Renderer::PartialRenderToBuffers(const int startRayNum, const int endRayNum, const int renderSectionNum) {
+void Renderer::PartialRenderToBuffers(const int startRayNum, const int endRayNum) {
     for (int rayNum = startRayNum; rayNum < endRayNum; ++rayNum) {
         RayHitMarker rayHitMarker(GetRay(rayNum));
 
@@ -108,54 +112,32 @@ void Renderer::PartialRenderToBuffers(const int startRayNum, const int endRayNum
             auto rayTileHitResult = currTile->RayTileHit(rayHitMarker);
             if (rayTileHitResult.has_value()) {
 
-                // WallTile hit
+                // WallTile or DoorTile hit (returns textureSliceDistPair_t)
                 if (std::holds_alternative<textureSliceDistPair_t>(rayTileHitResult.value())) {
 
-                    auto& [textureSlice, hitDistance] = std::get<textureSliceDistPair_t>(rayTileHitResult.value());
+                    auto& textureSliceDistPair = std::get<textureSliceDistPair_t>(rayTileHitResult.value());
+                    auto& [textureSlice, hitDistance] = textureSliceDistPair;
 
                     // If prev tile type was a door and next is a wall, it means the next hit is a door sidewall ; thus, must swap texture
                     if (prevTile->type == tileType_t::DOOR && currTile->type == tileType_t::WALL)
                         textureSlice.texture = Tile::LightTexture(gateSidewallTexture, rayHitMarker);
 
-                    double    renderHeight = GetRenderHeight(hitDistance*castingRayAngles[rayNum].second);
-                    SDL_Rect  screenRect  = GetTextureSliceScreenRect(renderHeight, rayNum);
-
-                    wallsRenderDataBuffer[rayNum] = textureRenderData_t(textureSlice.texture, textureSlice.textureRect, screenRect);
+                    wallHitReturnDataVec[rayNum] = textureSliceDistPair;
 
                     break;
 
-                  // SpriteTile hit
+                  // SpriteTile hit (returns textureCoordinatePair_t)
                 } else {
-                    SpriteTile* currSpriteID = static_cast<SpriteTile*>(currTile);
-                    auto& currSpriteTileCoord = currSpriteID->tileCoord;
-                    auto currSpriteTileHit = spritesHitMap[currSpriteTileCoord.x()][currSpriteTileCoord.y()];
-                    if (currSpriteTileHit == true)
-                        continue;
-                    else {
-                        currSpriteTileHit = true;
+                    SpriteTile* spriteTileHit = static_cast<SpriteTile*>(currTile);
+                    auto& spriteTileHitOnMap = spriteTilesHitMap[spriteTileHit->tileCoord.x()][spriteTileHit->tileCoord.y()];
 
-                        auto& [texture, coordinate] = std::get<textureCoordinatePair_t>(rayTileHitResult.value());
-
-                        auto& currSpriteBackbuffer = spritesRenderDataBuffers[renderSectionNum];
-
-                        static const double projPlaneDist = (multimedia->windowParams.width/2.0)/std::tan(DegreesToRadians(fov/2.0));
-
-                        Vec2 vecToSprite = coordinate - worldState->player.location;
-                        double spriteHitDistY = Dot(vecToSprite, worldState->player.viewDir);
-                        double spriteHitDistX = Dot(vecToSprite, worldState->player.eastDir);
-                        int screenX = (multimedia->windowParams.width/2) + ((projPlaneDist/spriteHitDistY)*spriteHitDistX);
-
-                        int renderHeight = GetRenderHeight(spriteHitDistY);
-                        int renderWidth  = renderHeight;
-
-                        SDL_Rect screenRect = GetFullTextureScreenRect(renderHeight, screenX);
-
-                        spritesRenderDataBuffers[renderSectionNum].emplace_back(currSpriteID, texture, screenRect);
-
-                        continue;
+                    if (spriteTileHitOnMap == false) {
+                        spriteTileHitOnMap = true;
+                        auto& textureCoordinatePair = std::get<textureCoordinatePair_t>(rayTileHitResult.value());
+                        spriteHitReturnDataVec.emplace_back(textureCoordinatePair);
                     }
+                    continue;
                 }
-
             } else
                 continue;
         }
@@ -163,83 +145,99 @@ void Renderer::PartialRenderToBuffers(const int startRayNum, const int endRayNum
 }
 
 void Renderer::FullRenderToBuffers() {
-    std::thread renderThreads[cores];
+//    std::thread renderThreads[cores];
+//
+//    // Launch a rendering thread for each CPU core
+//    for (int i = 0; i < cores; ++i)
+//        renderThreads[i] = std::thread(&Renderer::PartialRenderToBuffers, this, startingPixels[i], endingPixels[i]);
+//
+//    // Wait for all threads to finish rendering their sections
+//    for (int i = 0; i < cores; ++i)
+//        renderThreads[i].join();
 
-    // Launch a rendering thread for each CPU core
-    for (int i = 0; i < cores; ++i)
-        renderThreads[i] = std::thread(&Renderer::PartialRenderToBuffers, this, startingPixels[i], endingPixels[i], i);
 
-    // Wait for all threads to finish rendering their sections
-    for (int i = 0; i < cores; ++i)
-        renderThreads[i].join();
-}
+    //auto t = std::thread(&Renderer::PartialRenderToBuffers, this, 0, multimedia->windowParams.width);
+    //t.join();
 
-void Renderer::DrawWalls() const {
-    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
-    for (const auto& w : wallsRenderDataBuffer) {
-        const auto& [texture, textureRect, screenRect] = w;
-        SDL_RenderCopy(multimedia->sdlRenderer, texture, &(textureRect), &(screenRect));
-    }
-}
+    PartialRenderToBuffers(0, multimedia->windowParams.width);
 
-void Renderer::RenderSpritesIntoBackBuffer() {
-//    for (int backbufferNum = 0; backbufferNum < spritesRenderDataBuffers.size() - 1; ++backbufferNum) {
-//        auto& currentBuffer = spritesRenderDataBuffers[backbufferNum];
-//        auto& nextBuffer = spritesRenderDataBuffers[backbufferNum + 1];
-//        if (!currentBuffer.empty() && !nextBuffer.empty()) {
-//            if (currentBuffer.back().spriteID == nextBuffer.front().spriteID)
-//                nextBuffer.erase(nextBuffer.begin());
-//        }
-//    }
-
-    for (auto& spritesVec : spritesRenderDataBuffers) {
-        for (auto& spriteData : spritesVec)
-            allspritesbuffer.emplace_back(spriteData);
-        spritesVec.clear();
+    // Clear sprite tiles hit map
+    for (int i = 0; i < worldState->map.width; ++i) {
+        for (int cell = 0; cell < worldState->map.height; ++cell)
+            spriteTilesHitMap[i][cell] = false;
     }
 
+}
 
-
-        std::sort(allspritesbuffer.begin(), allspritesbuffer.end(), [](const spriteRenderData_t s1, const spriteRenderData_t s2){
-            return s1.textureRenderData.screenRect.h > s2.textureRenderData.screenRect.h;
-        });
-
-    SDL_SetRenderTarget(multimedia->sdlRenderer, spritesBackBuffer);
-            for (auto sprite = allspritesbuffer.rbegin(); sprite != allspritesbuffer.rend(); ++sprite) {
-                const auto& [spriteID, textureRenderData] = *sprite;
-                const auto& [spriteTexture, textureRect, screenRect] = textureRenderData;
-                SDL_RenderCopy(multimedia->sdlRenderer, spriteTexture, &(textureRect), &(screenRect));
-            }
+void Renderer::DrawWalls() {
+    for (int i = 0; i < multimedia->windowParams.width; ++i) {
+        wallRenderHeightVec[i] = GetRenderHeight(wallHitReturnDataVec[i].hitDistance * castingRayAngles[i].second);
+        SDL_Rect wallSliceScreenRect = GetTextureSliceScreenRect(wallRenderHeightVec[i], i);
+        SDL_RenderCopy(multimedia->sdlRenderer, wallHitReturnDataVec[i].textureSlice.texture, &(wallHitReturnDataVec[i].textureSlice.textureRect), &(wallSliceScreenRect));
+    }
 }
 
 void Renderer::DrawSprites() {
-    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
-            for (auto sprite = allspritesbuffer.rbegin(); sprite != allspritesbuffer.rend(); ++sprite) {
-                const auto& [spriteID, textureRenderData] = *sprite;
-                const auto& [spriteTexture, textureRect, screenRect] = textureRenderData;
+    // From texture and coordinate of each sprite, calculate screen x position and render height
+    for (const auto& spriteHit : spriteHitReturnDataVec) {
+        auto& [texture, coordinate] = spriteHit;
 
-                for (int x = screenRect.x; x < screenRect.x + screenRect.w; ++x) {
-                    if (wallsRenderDataBuffer[x].screenRect.h < screenRect.h) {
-                        SDL_Rect spriteScreenSlice = {x, 0, 1, multimedia->windowParams.height};
-                        SDL_RenderCopy(multimedia->sdlRenderer, spritesBackBuffer, &(spriteScreenSlice), &(spriteScreenSlice));
-                    }
-                }
+        static const double projPlaneDist = (multimedia->windowParams.width/2.0)/std::tan(DegreesToRadians(fov/2.0));
 
-            }
+        Vec2 vecToSprite = coordinate - worldState->player.location;
+        double spriteHitDistY = Dot(vecToSprite, worldState->player.viewDir);
+        double spriteHitDistX = Dot(vecToSprite, worldState->player.eastDir);
+        int screenX = (multimedia->windowParams.width/2) + ((projPlaneDist/spriteHitDistY)*spriteHitDistX);
 
+        int renderHeight = GetRenderHeight(spriteHitDistY);
 
-        SDL_RenderPresent(multimedia->sdlRenderer);
-
-    // need to clear sprite back buffer (SDL_Texture). Below code doesn't work.
-    SDL_SetRenderTarget(multimedia->sdlRenderer, spritesBackBuffer);
-    SDL_RenderClear(multimedia->sdlRenderer);
-
-    for (auto& column : spritesHitMap) {
-        column.resize(worldState->map.height);
-        std::fill(column.begin(), column.end(), false);
+        spriteRenderDataVec.emplace_back(spriteRenderData_t(screenX, texture, renderHeight));
     }
+    spriteHitReturnDataVec.clear();
 
-    allspritesbuffer.clear();
+    // Sort sprites by render height (we must render from back to front)
+    std::sort(spriteRenderDataVec.begin(), spriteRenderDataVec.end(), [](const spriteRenderData_t s1, const spriteRenderData_t s2){
+        return s1.renderHeight < s2.renderHeight;
+    });
+
+    // Render each sprite from back to front
+    for (const auto& sprite : spriteRenderDataVec) {
+        SDL_Rect spriteScreenRect = GetFullTextureScreenRect(sprite.renderHeight, sprite.screenX);
+        for (int x = spriteScreenRect.x; x < spriteScreenRect.x + spriteScreenRect.w; ++x) {
+            if (x < 0 || x >= multimedia->windowParams.width)
+                continue;
+
+            if (wallRenderHeightVec[x] < spriteScreenRect.h) {
+                double widthPercent = static_cast<double>(x - spriteScreenRect.x)/(spriteScreenRect.w);
+                int textureX = static_cast<int>(widthPercent*TEXTURE_PITCH);
+                SDL_Rect textureSlice = {textureX, 0, 1, TEXTURE_PITCH};
+                SDL_Rect spriteScreenSlice = {x, spriteScreenRect.y, 1, spriteScreenRect.h};
+                SDL_RenderCopy(multimedia->sdlRenderer, sprite.texture, &(textureSlice), &(spriteScreenSlice));
+            }
+        }
+    } // if sprite starts off off screen, rendering the pixels not visible is wasteful
+    spriteRenderDataVec.clear();
+    for (auto& w : wallRenderHeightVec) w = 0;
+
+
+//    for (auto& h : spritesRenderHeightVec) h = 0;
+//    SDL_SetRenderTarget(multimedia->sdlRenderer, spritesBackBuffer);
+//    for (auto sprite = spriteRenderDataVec.rbegin(); sprite != spriteRenderDataVec.rend(); ++sprite) {
+//        SDL_Rect spriteScreenRect = GetFullTextureScreenRect(sprite->renderHeight, sprite->screenX);
+//        FillSpriteRenderHeights(GetFullTextureScreenRect(sprite->renderHeight, sprite->screenX).x, sprite->renderHeight);
+//        SDL_RenderCopy(multimedia->sdlRenderer, sprite->texture, nullptr, &(spriteScreenRect));
+//    }
+//    spriteRenderDataVec.clear();
+//
+//    // For each column of pixels, if sprite render height is greater than wall's, render out that column from the sprite backbuffer
+//    SDL_SetRenderTarget(multimedia->sdlRenderer, nullptr);
+//    for (int i = 0; i < multimedia->windowParams.width; ++i) {
+//        if (wallRenderHeightVec[i] < spritesRenderHeightVec[i]) {
+//            SDL_Rect spriteSlice = {i, 0, 1, multimedia->windowParams.height};
+//            SDL_RenderCopy(multimedia->sdlRenderer, spritesBackBuffer, &(spriteSlice), &(spriteSlice));
+//        }
+//    }
+//    for (auto& w : wallRenderHeightVec) w = 0;
 }
 
 Ray Renderer::GetRay(const int rayNum) const {
@@ -251,11 +249,11 @@ int Renderer::GetRenderHeight(const double perpHitDist) const {
     return static_cast<int>(proportionalityConstant / perpHitDist);
 }
 
-SDL_Rect Renderer::GetTextureSliceScreenRect(const int renderHeight, int sliceNum) const {
+SDL_Rect Renderer::GetTextureSliceScreenRect(const int renderHeight, const int sliceNum) const {
     return {sliceNum, multimedia->windowParams.height/2 - renderHeight/2, 1, renderHeight};
 }
 
-SDL_Rect Renderer::GetFullTextureScreenRect(const int renderHeight, int textureCenterX) const {
+SDL_Rect Renderer::GetFullTextureScreenRect(const int renderHeight, const int textureCenterX) const {
     // Assumed renderHeight = renderWidth
     return {textureCenterX - renderHeight/2, multimedia->windowParams.height/2 - renderHeight/2, renderHeight, renderHeight};
 }
@@ -269,4 +267,13 @@ void Renderer::CalculateCastingRayAngles() {
         double angle = std::atan(-(i * segmentLength - (projectionPlaneWidth / 2)));
         castingRayAngles.emplace_back(std::pair(angle, std::cos(angle)));
     }
+}
+
+void Renderer::FillSpriteRenderHeights(const int index, const int renderHeight) {
+    if (index + renderHeight > multimedia->windowParams.width)
+        std::fill(spritesRenderHeightVec.begin()+index, spritesRenderHeightVec.end(), renderHeight);
+    else if (index < 0)
+        std::fill_n(spritesRenderHeightVec.begin(), renderHeight+index, renderHeight);
+    else
+        std::fill_n(spritesRenderHeightVec.begin()+index, renderHeight, renderHeight);
 }

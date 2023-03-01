@@ -22,6 +22,8 @@ private:
     WorldState*   worldState;
     Multimedia*   multimedia;
 
+    bool mainWindowIsFullScreen;
+
     SDL_Window*   minimapWindow;
     SDL_Renderer* minimapRenderer;
     int  minimapWindowWidth;

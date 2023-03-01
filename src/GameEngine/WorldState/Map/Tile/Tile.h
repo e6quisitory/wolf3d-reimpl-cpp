@@ -28,6 +28,7 @@ struct textureSlice_t {
 
 struct textureSliceDistPair_t {
     textureSliceDistPair_t(const textureSlice_t _textureSlice, const double _distance);
+    textureSliceDistPair_t();
 
     textureSlice_t textureSlice;
     double         hitDistance;
