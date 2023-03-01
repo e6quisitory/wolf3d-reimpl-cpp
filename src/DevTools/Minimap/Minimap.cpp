@@ -140,14 +140,20 @@ void Minimap::DrawPlayerRaycasts() const {
 void Minimap::CheckMouseClickSpawn() const {
     SDL_Event currPendingEvent;
     while (SDL_PollEvent(&currPendingEvent)) {
-        if (currPendingEvent.type == SDL_MOUSEBUTTONUP && currPendingEvent.button.button == SDL_BUTTON_LEFT && SDL_GetMouseFocus() == minimapWindow) {
+        if (currPendingEvent.type == SDL_MOUSEBUTTONUP && SDL_GetMouseFocus() == minimapWindow) {
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
             auto mapCoord = WindowCoordToMapCoord(Pixel(mouseX, mouseY));
             if (mapCoord.has_value()) {
-                auto mapTile = worldState->map.GetTile(mapCoord.value());
-                if (!mapTile->PlayerTileHit())
-                    worldState->player.location = mapCoord.value();
+                if (currPendingEvent.button.button == SDL_BUTTON_LEFT) {
+                    auto mapTile = worldState->map.GetTile(mapCoord.value());
+                    if (!mapTile->PlayerTileHit())
+                        worldState->player.location = mapCoord.value();
+                } else if (currPendingEvent.button.button == SDL_BUTTON_RIGHT) {
+                    Vec2 newViewDir = UnitVector(mapCoord.value() - worldState->player.location);
+                    worldState->player.viewDir = newViewDir;
+                    worldState->player.eastDir = newViewDir.Rotate(-PI/2);
+                }
             }
         }
     }
