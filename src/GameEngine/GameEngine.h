@@ -20,16 +20,14 @@ public:
     bool quitGameFlag;
     WorldState*        worldState;
     Multimedia*        multimedia;
-
-private:
     InputsBuffer*      inputsBuffer;
 
+private:
     InputsParser       inputsParser;
     MultimediaManager  multimediaManager;
     PlayerManager      playerManager;
     MapManager         mapManager;
     DoorManager        doorManager;
-
     Renderer           renderer;
 
 public:

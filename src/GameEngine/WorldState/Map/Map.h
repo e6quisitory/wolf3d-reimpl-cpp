@@ -27,7 +27,6 @@ public:
 
     /* Doors */
     std::map<Door*, Door*>           activeDoors;
-    bool                             anyDoorsAwaitingRendering;
 
 public:
     Tile*                             GetTile               (const iPoint2& tileCoord)                     const;

@@ -80,13 +80,9 @@ void MultimediaManager::CreateSdlWindowRenderer(const int screenWidth, const int
 }
 
 void MultimediaManager::LockMouseToWindow() const {
-//    SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
-//    SDL_ShowCursor(SDL_DISABLE);
-//    SDL_SetRelativeMouseMode(SDL_TRUE);
-
-    SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_FALSE);
-    SDL_ShowCursor(SDL_ENABLE);
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+    SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
+    SDL_ShowCursor(SDL_DISABLE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 SDL_Surface* MultimediaManager::BmpToSurface(const char* const fileName) const {

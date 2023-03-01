@@ -38,7 +38,7 @@ private:
     std::vector<textureCoordinatePair_t>    spritesReturnData;
     std::vector<spriteRenderData_t>         spritesRenderData;
 
-    const double fov = 72.0;
+    const double fov = 90.0;
     texturePair_t gateSidewallTexture;
 
     SDL_Rect ceilingScreenRect;

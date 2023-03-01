@@ -29,6 +29,12 @@ enum class inputCommand_t {
     OPEN_DOOR
 };
 
+enum class mouseClickType_t {
+    NONE,
+    LEFT,
+    RIGHT
+};
+
 /*
 =========================================================
     InputsBuffer
@@ -37,10 +43,13 @@ enum class inputCommand_t {
 
 class InputsBuffer {
 public:
+    // Main game related
     std::map<inputCommandType_t, inputCommand_t>  currentCommands;
     int                                           mouseAbsXrel;
     bool                                          quitGameFlag;
 
-public:
-    bool AnyActiveInputs() const;
+    // Devtool related
+    mouseClickType_t nonGameWindowMouseClick;
+    Pixel            mouseClickLocation;
+    bool             toggleMouseLock;
 };

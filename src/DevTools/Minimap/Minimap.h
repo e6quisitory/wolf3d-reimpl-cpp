@@ -2,6 +2,7 @@
 
 #include "../../GameEngine/WorldState/WorldState.h"
 #include "../../GameEngine/Multimedia/Multimedia.h"
+#include "../../GameEngine/InputsBuffer/InputsBuffer.h"
 
 /*
 =========================================================
@@ -21,6 +22,7 @@ class Minimap {
 private:
     WorldState*   worldState;
     Multimedia*   multimedia;
+    InputsBuffer* inputsBuffer;
 
     bool mainWindowIsFullScreen;
 
@@ -42,7 +44,7 @@ private:
     tileRects_t enemyTileRects;
 
 public:
-    Minimap(WorldState* const _worldState, Multimedia* const _multimedia, const int _tileSize);
+    Minimap      (WorldState* const _worldState, Multimedia* const _multimedia, InputsBuffer* const _inputsBuffer, const int _tileSize);
     ~Minimap();
 
     void Update()         const;
@@ -53,11 +55,11 @@ private:
     void       DrawNonEmptyTiles()                                                             const;
     void       DrawPlayerTile()                                                                const;
     void       DrawPlayerRaycasts()                                                            const;
-    void       CheckMouseClickSpawn()                                                          const;
+    void       HandleInputs()                                                          const;
 
     SDL_Rect   TileToRect                (const iPoint2 &tileCoord)                            const;
     Pixel      MapCoordToMinimapCoord    (const Point2& mapCoord)                              const;
     Point2_o   WindowCoordToMapCoord     (const Pixel& windowCoord)                            const;
-
+    void       ToggleMouseLock()                                                               const;
     void       CollectTileRectsFromMap   (const tileType_t tileType, tileRects_t& tileRects);
 };

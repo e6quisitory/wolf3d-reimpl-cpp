@@ -6,10 +6,11 @@
 =========================================================
 */
 
-Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, const int _tileSize) {
-    worldState = _worldState;
-    multimedia = _multimedia;
-    tileSize = _tileSize;
+Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, InputsBuffer* const _inputsBuffer, const int _tileSize) {
+    worldState   = _worldState;
+    multimedia   = _multimedia;
+    inputsBuffer = _inputsBuffer;
+    tileSize     = _tileSize;
 
     // Only create minimap if main window is NOT fullscreen
     auto mainWindowFlags = SDL_GetWindowFlags(multimedia->sdlWindow);
@@ -44,6 +45,9 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, c
     CollectTileRectsFromMap(tileType_t::DOOR, doorTileRects);
     CollectTileRectsFromMap(tileType_t::OBJECT, objectTileRects);
     CollectTileRectsFromMap(tileType_t::ENEMY, enemyTileRects);
+
+    // Unlock mouse
+    ToggleMouseLock();
 }
 
 /*
@@ -56,8 +60,8 @@ Minimap::~Minimap() {
     if (!mainWindowIsFullScreen) {
         SDL_DestroyRenderer(minimapRenderer);
         SDL_DestroyWindow(minimapWindow);
-        delete wallTileRects.first;
-        delete doorTileRects.first;
+        delete[] wallTileRects.first;
+        delete[] doorTileRects.first;
     }
 }
 
@@ -75,7 +79,7 @@ void Minimap::Update() const {
         DrawPlayerTile();
         DrawPlayerRaycasts();
         SDL_RenderPresent(minimapRenderer);
-        CheckMouseClickSpawn();
+        HandleInputs();
     }
 }
 
@@ -137,25 +141,34 @@ void Minimap::DrawPlayerRaycasts() const {
     }
 }
 
-void Minimap::CheckMouseClickSpawn() const {
-    SDL_Event currPendingEvent;
-    while (SDL_PollEvent(&currPendingEvent)) {
-        if (currPendingEvent.type == SDL_MOUSEBUTTONUP && SDL_GetMouseFocus() == minimapWindow) {
-            int mouseX, mouseY;
-            SDL_GetMouseState(&mouseX, &mouseY);
-            auto mapCoord = WindowCoordToMapCoord(Pixel(mouseX, mouseY));
-            if (mapCoord.has_value()) {
-                if (currPendingEvent.button.button == SDL_BUTTON_LEFT) {
-                    auto mapTile = worldState->map.GetTile(mapCoord.value());
-                    if (!mapTile->PlayerTileHit())
-                        worldState->player.location = mapCoord.value();
-                } else if (currPendingEvent.button.button == SDL_BUTTON_RIGHT) {
-                    Vec2 newViewDir = UnitVector(mapCoord.value() - worldState->player.location);
-                    worldState->player.viewDir = newViewDir;
-                    worldState->player.eastDir = newViewDir.Rotate(-PI/2);
-                }
+void Minimap::HandleInputs() const {
+
+    /***************************** Mouse clicks ******************************/
+
+    const auto& mouseClick = inputsBuffer->nonGameWindowMouseClick;
+    const auto  windowInFocus = SDL_GetMouseFocus();
+
+    if (mouseClick != mouseClickType_t::NONE && windowInFocus == minimapWindow) {
+        auto mapCoord = WindowCoordToMapCoord(inputsBuffer->mouseClickLocation);
+        if (mapCoord.has_value()) {
+            if (mouseClick == mouseClickType_t::LEFT) {
+                auto mapTile = worldState->map.GetTile(mapCoord.value());
+                if (!mapTile->PlayerTileHit())
+                    worldState->player.location = mapCoord.value();
+            } else if (mouseClick == mouseClickType_t::RIGHT) {
+                Vec2 newViewDir = UnitVector(mapCoord.value() - worldState->player.location);
+                worldState->player.viewDir = newViewDir;
+                worldState->player.eastDir = newViewDir.Rotate(-PI/2);
             }
         }
+    }
+
+    /***************************** Unlock mouse ******************************/
+
+    auto& toggleMouseLock = inputsBuffer->toggleMouseLock;
+    if (toggleMouseLock) {
+        ToggleMouseLock();
+        toggleMouseLock = false;
     }
 }
 
@@ -180,6 +193,22 @@ Point2_o Minimap::WindowCoordToMapCoord(const Pixel& windowCoord) const {
         double mapY = static_cast<double>(minimapY)/tileSize;
 
         return Point2(mapX, mapY);
+    }
+}
+
+void Minimap::ToggleMouseLock() const {
+    static bool toggle = true;
+
+    if (toggle == true) {
+        SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_FALSE);
+        SDL_ShowCursor(SDL_ENABLE);
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        toggle = false;
+    } else {
+        SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
+        SDL_ShowCursor(SDL_DISABLE);
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        toggle = true;
     }
 }
 

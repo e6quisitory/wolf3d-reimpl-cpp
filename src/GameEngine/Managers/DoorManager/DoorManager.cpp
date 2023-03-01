@@ -11,9 +11,6 @@
 void DoorManager::Init(WorldState* const _worldState, const int _screenRefreshRate) {
     worldState = _worldState;
 
-    // No doors active at beginning
-    worldState->map.anyDoorsAwaitingRendering = false;
-
     // Set door movement and timer speeds based on fps / display refresh rate
     movementIncrement = _screenRefreshRate / 3000.0;
     timerIncrement    = _screenRefreshRate / 6000.0;
@@ -23,16 +20,11 @@ void DoorManager::Init(WorldState* const _worldState, const int _screenRefreshRa
 }
 
 void DoorManager::Update() {
-    // Check if doors even need updating; if not, then player is idle, so better not waste CPU for nothing
-    bool noActiveDoors = worldState->map.activeDoors.empty();
     auto oneActiveDoor = worldState->map.GetLoneActiveDoor();
 
-    if (noActiveDoors)
-        worldState->map.anyDoorsAwaitingRendering = false;
-    else if (oneActiveDoor.has_value() && InsideAnyDoor()) {
+    if (oneActiveDoor.has_value() && InsideAnyDoor())
         ResetTimer(oneActiveDoor.value());
-        worldState->map.anyDoorsAwaitingRendering = false;
-    } else {
+    else {
         // Cycle through list (std::map) of active doors
         for (auto const [activeDoor, _activeDoor] : worldState->map.activeDoors) {
             switch (activeDoor->status) {
@@ -51,8 +43,6 @@ void DoorManager::Update() {
 
         // If any door is done closing, it must be erased from worldState->Map.activeDoors;
         RemoveActiveDoorIfAnyAwaiting();
-
-        worldState->map.anyDoorsAwaitingRendering = true;
     }
 }
 

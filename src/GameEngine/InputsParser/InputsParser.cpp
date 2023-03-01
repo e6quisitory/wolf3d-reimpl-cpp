@@ -6,18 +6,20 @@
 =========================================================
 */
 
-void InputsParser::Init(InputsBuffer* const _inputsBuffer) {
+void InputsParser::Init(InputsBuffer *const _inputsBuffer, SDL_Window* const _mainGameWindow) {
     inputsBuffer = _inputsBuffer;
-    _inputsBuffer->quitGameFlag = false;
+    mainGameWindow = _mainGameWindow;
 
+    _inputsBuffer->quitGameFlag = false;
     keyboardState = SDL_GetKeyboardState(nullptr);
 }
 
 void InputsParser::ParseInputs() const {
 
-    /************************* Mouse movement (to look side to side) *************************/
+    /************************* Mouse movement + clicks + toggle mouse lock *************************/
 
-    auto& LookingCmd = inputsBuffer->currentCommands[inputCommandType_t::LOOKING];
+    auto& lookingCmd        = inputsBuffer->currentCommands[inputCommandType_t::LOOKING];
+    auto& nonGameMouseClick = inputsBuffer->nonGameWindowMouseClick;
 
     SDL_Event currPendingEvent;
     int currXrel;
@@ -25,12 +27,29 @@ void InputsParser::ParseInputs() const {
         if (currPendingEvent.type == SDL_MOUSEMOTION) {
             currXrel = currPendingEvent.motion.xrel;
             if (currXrel > 0)
-                LookingCmd = inputCommand_t::LOOK_RIGHT;
+                lookingCmd = inputCommand_t::LOOK_RIGHT;
             else if (currXrel < 0)
-                LookingCmd = inputCommand_t::LOOK_LEFT;
+                lookingCmd = inputCommand_t::LOOK_LEFT;
 
             inputsBuffer->mouseAbsXrel = abs(currXrel);
         }
+
+        if (currPendingEvent.type == SDL_MOUSEBUTTONUP && SDL_GetMouseFocus() != mainGameWindow) {
+            if (currPendingEvent.button.button == SDL_BUTTON_LEFT)
+                nonGameMouseClick = mouseClickType_t::LEFT;
+            else if (currPendingEvent.button.button == SDL_BUTTON_RIGHT)
+                nonGameMouseClick = mouseClickType_t::RIGHT;
+            else
+                nonGameMouseClick = mouseClickType_t::NONE;
+
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            inputsBuffer->mouseClickLocation = Pixel(mouseX, mouseY);
+        } else
+            nonGameMouseClick = mouseClickType_t::NONE;
+
+        if (currPendingEvent.type == SDL_KEYDOWN && currPendingEvent.key.keysym.sym == SDLK_BACKQUOTE)
+            inputsBuffer->toggleMouseLock = true;
     }
 
     // Detect when mouse is not moving anymore and reset xrel and looking command (to prevent player spin)
@@ -38,7 +57,7 @@ void InputsParser::ParseInputs() const {
 
     if (currXrel == prevXrel && GetXrel() == 0) {
         inputsBuffer->mouseAbsXrel = 0;
-        LookingCmd = inputCommand_t::NONE;
+        lookingCmd = inputCommand_t::NONE;
     }
 
     prevXrel = currXrel;
@@ -56,15 +75,15 @@ void InputsParser::ParseInputs() const {
 
     auto& MovementCmd = inputsBuffer->currentCommands[inputCommandType_t::MOVEMENT];
 
-    if        (northEast)   MovementCmd    = inputCommand_t::MOVE_NORTHEAST;
-    else if   (northWest)   MovementCmd    = inputCommand_t::MOVE_NORTHWEST;
-    else if   (southEast)   MovementCmd    = inputCommand_t::MOVE_SOUTHEAST;
-    else if   (southWest)   MovementCmd    = inputCommand_t::MOVE_SOUTHWEST;
-    else if   (north)       MovementCmd    = inputCommand_t::MOVE_NORTH;
-    else if   (south)       MovementCmd    = inputCommand_t::MOVE_SOUTH;
-    else if   (west)        MovementCmd    = inputCommand_t::MOVE_WEST;
-    else if   (east)        MovementCmd    = inputCommand_t::MOVE_EAST;
-    else                    MovementCmd    = inputCommand_t::NONE;
+    if        (northEast)   MovementCmd  = inputCommand_t::MOVE_NORTHEAST;
+    else if   (northWest)   MovementCmd  = inputCommand_t::MOVE_NORTHWEST;
+    else if   (southEast)   MovementCmd  = inputCommand_t::MOVE_SOUTHEAST;
+    else if   (southWest)   MovementCmd  = inputCommand_t::MOVE_SOUTHWEST;
+    else if   (north)       MovementCmd  = inputCommand_t::MOVE_NORTH;
+    else if   (south)       MovementCmd  = inputCommand_t::MOVE_SOUTH;
+    else if   (west)        MovementCmd  = inputCommand_t::MOVE_WEST;
+    else if   (east)        MovementCmd  = inputCommand_t::MOVE_EAST;
+    else                    MovementCmd  = inputCommand_t::NONE;
 
     /************************* Spacebar (to open doors) *************************/
 
@@ -73,8 +92,7 @@ void InputsParser::ParseInputs() const {
 
     /************************* Escape (to exit game) *************************/
 
-    if (keyboardState[SDL_SCANCODE_ESCAPE])
-        inputsBuffer->quitGameFlag = true;
+    inputsBuffer->quitGameFlag = keyboardState[SDL_SCANCODE_ESCAPE];
 }
 
 /*

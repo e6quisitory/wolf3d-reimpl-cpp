@@ -168,7 +168,7 @@ Ray Renderer::GetRay(const int rayNum) const {
 }
 
 int Renderer::GetRenderHeight(const double perpHitDist) const {
-    static const double proportionalityConstant = 1.3 * multimedia->windowParams.width / ((16.0 / 9.0) * (fov / 72.0));
+    static const double proportionalityConstant = 1.15 * multimedia->windowParams.width / ((16.0 / 9.0) * (fov / 72.0));
     return static_cast<int>(proportionalityConstant / perpHitDist);
 }
 
