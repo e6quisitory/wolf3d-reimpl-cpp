@@ -58,7 +58,6 @@ void GameEngine::Init() {
 void GameEngine::Exit() {
     // Exit managers (that have memory clean-up to do)
     mapManager.Exit();
-    renderer.Exit();
     multimediaManager.Exit();
 
     delete inputsBuffer;
@@ -67,18 +66,9 @@ void GameEngine::Exit() {
 }
 
 void GameEngine::GameLoop() {
-    static bool running = true;
-
-    //if (running) {
-        playerManager.Update();
-        renderer.RenderFrame();
-    //} else
-        //SDL_Delay(20);
-
     inputsParser.ParseInputs();
-    doorManager.Update();
-
-    running = inputsBuffer->AnyActiveInputs() || worldState->map.anyDoorsAwaitingRendering;
-
     quitGameFlag = inputsBuffer->quitGameFlag;
+    playerManager.Update();
+    doorManager.Update();
+    renderer.RenderFrame();
 }

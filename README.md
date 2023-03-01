@@ -22,7 +22,6 @@ I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein
 - Selectively textured walls with lighting
 - Sprites
 - GPU accelerated texture mapping
-- Multithreaded rendering
 - Doors w/ automatic closing
 - Map loading from a `csv` file
 - Smooth movement using VSYNC
@@ -213,6 +212,9 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 ## Immediate Goals
 - Enemy AI & character animation
 - Weapons
+- Multithreaded raycasting
+  - Thread pool
+  - Mutexes/locks for shared data access b/w threads
 
 </a>
 

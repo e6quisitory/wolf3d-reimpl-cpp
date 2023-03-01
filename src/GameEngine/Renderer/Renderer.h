@@ -29,23 +29,14 @@ private:
     WorldState*  worldState;
     Multimedia*  multimedia;
 
-    std::vector<std::pair<double, double>> castingRayAngles;  // { angle, cosine(angle) }
+    std::vector<std::pair<double, double>>  castingRayAngles;  // { angle, cosine(angle) }
 
-    //std::vector<std::vector<bool>> spriteTilesHitMap;
+    std::vector<textureSliceDistPair_t>     wallsReturnData;
+    std::vector<int>                        wallRenderHeights;
 
-    bool** spriteTilesHitMap;
-
-    //std::vector<std::vector<std::atomic<bool>>> spritesHitMap;
-
-    std::vector<textureSliceDistPair_t> wallHitReturnDataVec;
-    std::vector<textureCoordinatePair_t> spriteHitReturnDataVec;
-
-    std::vector<int> wallRenderHeightVec;
-    std::vector<spriteRenderData_t> spriteRenderDataVec;
-
-    std::vector<int> spritesRenderHeightVec;
-    SDL_Texture* spritesBackBuffer;
-    SDL_Texture* spritesBackBuffer_clear;
+    std::vector<std::vector<bool>>          spriteTilesHitMap;
+    std::vector<textureCoordinatePair_t>    spritesReturnData;
+    std::vector<spriteRenderData_t>         spritesRenderData;
 
     const double fov = 72.0;
     texturePair_t gateSidewallTexture;
@@ -53,30 +44,22 @@ private:
     SDL_Rect ceilingScreenRect;
     SDL_Rect floorScreenRect;
 
-    const int cores = std::thread::hardware_concurrency();
-    std::vector<int> startingPixels;
-    std::vector<int> endingPixels;
-
 public:
     void      Init                             (WorldState* const _worldState, Multimedia* const _multimedia);
-    void      Exit()                                                                                                      const;
     void      RenderFrame();
 
 private:
-    void      DrawCeilingFloor()                                                                                          const;
-    void      PartialRenderToBuffers           (const int startRayNum, const int endRayNum);        // Single-threaded
-    void      FullRenderToBuffers();                                                                // Multithreaded
+    void      DrawCeilingFloor()                                                                                 const;
+    void      RenderToBuffers();
     void      DrawWalls();
     void      DrawSprites();
 
-
-    Ray       GetRay                           (const int rayNum)                                                         const;
-    int       GetRenderHeight                  (const double perpHitDist)                                                 const;
-    SDL_Rect  GetTextureSliceScreenRect        (const int renderHeight, const int sliceNum)                                     const;
-    SDL_Rect  GetFullTextureScreenRect         (const int renderHeight, const int textureCenterX)                               const;
+    Ray       GetRay                           (const int rayNum)                                                const;
+    int       GetRenderHeight                  (const double perpHitDist)                                        const;
+    SDL_Rect  GetTextureSliceScreenRect        (const int renderHeight, const int sliceNum)                      const;
+    SDL_Rect  GetFullTextureScreenRect         (const int renderHeight, const int textureCenterX)                const;
 
     void      CalculateCastingRayAngles();
-
-    void FillSpriteRenderHeights(const int index, const int renderHeight);
+    void      ClearSpriteTilesHitMap();
 
 };
