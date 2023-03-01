@@ -2,8 +2,7 @@
 
 #include <iostream>
 #include <cmath>
-#include <cstdlib>
-#include <ctime>
+#include <optional>
 
 #include "Conventions.h"
 #include "MiscMath/MiscMath.h"
@@ -117,6 +116,8 @@ typedef  Vec2D <int>     iPoint2;
 typedef  Vec2D <double>  Vec2;
 typedef  Vec2D <int>     iVec2;
 typedef  Vec2D <int>     Pixel;
+
+typedef std::optional<Vec2D<double>> Point2_o;
 
 /*
 =================================================

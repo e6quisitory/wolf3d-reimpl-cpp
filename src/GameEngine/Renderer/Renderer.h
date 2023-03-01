@@ -34,7 +34,7 @@ private:
     std::vector<textureSliceDistPair_t>     wallsReturnData;
     std::vector<int>                        wallRenderHeights;
 
-    std::vector<std::vector<bool>>          spriteTilesHitMap;
+    std::vector<std::vector<bool>>          spriteTilesHitMap;  // Marking hits by tile coord gives O(1) complexity
     std::vector<textureCoordinatePair_t>    spritesReturnData;
     std::vector<spriteRenderData_t>         spritesRenderData;
 

@@ -75,6 +75,7 @@ void Minimap::Update() const {
         DrawPlayerTile();
         DrawPlayerRaycasts();
         SDL_RenderPresent(minimapRenderer);
+        CheckMouseClickSpawn();
     }
 }
 
@@ -136,6 +137,22 @@ void Minimap::DrawPlayerRaycasts() const {
     }
 }
 
+void Minimap::CheckMouseClickSpawn() const {
+    SDL_Event currPendingEvent;
+    while (SDL_PollEvent(&currPendingEvent)) {
+        if (currPendingEvent.type == SDL_MOUSEBUTTONUP && currPendingEvent.button.button == SDL_BUTTON_LEFT && SDL_GetMouseFocus() == minimapWindow) {
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            auto mapCoord = WindowCoordToMapCoord(Pixel(mouseX, mouseY));
+            if (mapCoord.has_value()) {
+                auto mapTile = worldState->map.GetTile(mapCoord.value());
+                if (!mapTile->PlayerTileHit())
+                    worldState->player.location = mapCoord.value();
+            }
+        }
+    }
+}
+
 SDL_Rect Minimap::TileToRect(const iPoint2 &tileCoord) const {
     auto minimapGridRectTopLeft = MapCoordToMinimapCoord(tileCoord) + up;
     return {minimapGridRectTopLeft.x(), minimapGridRectTopLeft.y(), tileSize, tileSize};
@@ -143,6 +160,21 @@ SDL_Rect Minimap::TileToRect(const iPoint2 &tileCoord) const {
 
 Pixel Minimap::MapCoordToMinimapCoord(const Point2& mapCoord) const {
     return Pixel((origin + right*mapCoord.x()).x(), (origin + up*mapCoord.y()).y());
+}
+
+Point2_o Minimap::WindowCoordToMapCoord(const Pixel& windowCoord) const {
+    static const std::pair<int, int> xBounds = {topLeftCorner.x(), bottomRightCorner.x()};
+    static const std::pair<int, int> yBounds = {topLeftCorner.y(), bottomRightCorner.y()};
+    if ((windowCoord.x() < xBounds.first || windowCoord.x() > xBounds.second) || (windowCoord.y() < yBounds.first || windowCoord.y() > yBounds.second))
+        return std::nullopt;
+    else {
+        int minimapX = windowCoord.x() - origin.x();
+        int minimapY = bottomRightCorner.y() - (windowCoord.y() - topLeftCorner.y()) - tileSize;
+        double mapX = static_cast<double>(minimapX)/tileSize;
+        double mapY = static_cast<double>(minimapY)/tileSize;
+
+        return Point2(mapX, mapY);
+    }
 }
 
 void Minimap::CollectTileRectsFromMap(const tileType_t tileType, tileRects_t& tileRects) {

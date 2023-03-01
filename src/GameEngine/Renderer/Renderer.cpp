@@ -92,7 +92,6 @@ void Renderer::RenderToBuffers() {
                         textureSlice.texture = Tile::LightTexture(gateSidewallTexture, rayHitMarker);
 
                     wallsReturnData[rayNum] = textureSliceDistPair;
-
                     break;
 
                   // SpriteTile hit (returns textureCoordinatePair_t)
@@ -105,8 +104,8 @@ void Renderer::RenderToBuffers() {
                         spriteTileHitCoord = true;
                         auto& textureCoordinatePair = std::get<textureCoordinatePair_t>(rayTileHitResult.value());
                         spritesReturnData.emplace_back(textureCoordinatePair);
-                    }
-                    continue;
+                    } else
+                        continue;
                 }
             } else
                 continue;
@@ -152,7 +151,7 @@ void Renderer::DrawSprites() {
             if (x < 0 || x >= multimedia->windowParams.width)
                 continue;
 
-            if (wallRenderHeights[x] < spriteScreenRect.h) {
+            if (wallRenderHeights[x] <= spriteScreenRect.h) {
                 double textureWidthPercent = static_cast<double>(x - spriteScreenRect.x) / (spriteScreenRect.w);
                 int textureX = static_cast<int>(textureWidthPercent * TEXTURE_PITCH);
                 SDL_Rect textureSlice = {textureX, 0, 1, TEXTURE_PITCH};
