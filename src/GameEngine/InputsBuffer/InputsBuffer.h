@@ -12,8 +12,6 @@ enum class inputCommandType_t {
     DOORS
 };
 
-#define NUM_COMMAND_TYPES 3
-
 enum class inputCommand_t {
     NONE,
     MOVE_NORTH,

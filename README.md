@@ -199,10 +199,20 @@ Note that the below instructions have been tested on Ubuntu, and should work on 
 <a name="controls"/>
 
 ## Controls & Map Loading
-`W`, `A`, `S`, `D` to move, mouse to look around, `spacebar` for opening doors, `Esc` to exit game.
 
+### Game controls
+- `W`, `A`, `S`, `D` to move
+- Mouse to look around
+- `spacebar` for opening doors
+- `Esc` to exit game
+
+### Minimap controls
+- ~ (tilde) key to unlock/relock the mouse from the main window 
+- Left click on tiles in the minimap to spawn to them (if possible)
+- Right click anywhere on minimap to change player view direction
+
+### Map loading
 The map file is `map.csv`, located in the `assets` folder. It is ASCII encoded, not UTF-8 encoded. I find that editing the file is easiest in Excel.
-
 As for how to construct the map, i.e. what the values in the `map.csv` file mean, I have yet to type up a new guide; I will get to that soon. In the mean time, you can read [this](https://github.com/e6quisitory/wolf3d-clone/commit/3f9f9e308629098a29df2e3ec8103fddd3fc51c0#commitcomment-88618626) old guide and look at the values in the included `map.csv` and try to piece things together.
 
 </a>
@@ -225,7 +235,7 @@ As for how to construct the map, i.e. what the values in the `map.csv` file mean
 - Write a more sophisticated CMake script that:
     - In `Debug` config simply compiles into executable
     - In `Release` config makes a proper, signed, pre-compiled binary package for the platform (Windows, macOS, Linux) using CPack
-        - Downloads a copy of SDL2, puts it inside the package, and links executable to that local copy (changed `RPATH`)
+        - Downloads a copy of SDL2, puts it inside the package, and links executable to that local copy (changes `RPATH`)
         - Puts `assets` folder inside binary package as well
 - Darken distant walls (shadow/depth effect)
 - Textured ceiling & floor

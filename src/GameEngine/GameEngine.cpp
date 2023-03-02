@@ -17,7 +17,7 @@ void GameEngine::Init() {
     multimedia   = new Multimedia;
 
     // Initialize input parser, managers, and renderer
-    multimediaManager.Init(multimedia);
+    multimediaManager.Init(multimedia, inputsBuffer);
     multimediaManager.CreateWindowRenderer(960, 540);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
 
     #if __APPLE__ && __MACH__
@@ -70,5 +70,6 @@ void GameEngine::GameLoop() {
     quitGameFlag = inputsBuffer->quitGameFlag;
     playerManager.Update();
     doorManager.Update();
+    multimediaManager.Update();
     renderer.RenderFrame();
 }

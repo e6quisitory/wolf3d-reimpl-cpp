@@ -24,8 +24,6 @@ private:
     Multimedia*   multimedia;
     InputsBuffer* inputsBuffer;
 
-    bool mainWindowIsFullScreen;
-
     SDL_Window*   minimapWindow;
     SDL_Renderer* minimapRenderer;
     int  minimapWindowWidth;
@@ -55,11 +53,10 @@ private:
     void       DrawNonEmptyTiles()                                                             const;
     void       DrawPlayerTile()                                                                const;
     void       DrawPlayerRaycasts()                                                            const;
-    void       HandleInputs()                                                          const;
+    void       HandleInputs()                                                                  const;
 
     SDL_Rect   TileToRect                (const iPoint2 &tileCoord)                            const;
     Pixel      MapCoordToMinimapCoord    (const Point2& mapCoord)                              const;
     Point2_o   WindowCoordToMapCoord     (const Pixel& windowCoord)                            const;
-    void       ToggleMouseLock()                                                               const;
     void       CollectTileRectsFromMap   (const tileType_t tileType, tileRects_t& tileRects);
 };

@@ -6,8 +6,9 @@
 ================================
 */
 
-void MultimediaManager::Init(Multimedia* const _multimedia) {
+void MultimediaManager::Init(Multimedia* const _multimedia, InputsBuffer* const _inputsBuffer) {
     multimedia = _multimedia;
+    inputsBuffer = _inputsBuffer;
     SDL_Init(SDL_INIT_EVERYTHING);
 
     // Get and set DisplayParams
@@ -31,21 +32,34 @@ void MultimediaManager::Exit() const {
     SDL_Quit();
 }
 
+void MultimediaManager::Update() const {
+    // Check for tilde key press for mouse locking/unlocking to main game window
+    if (!multimedia->mainWindowIsFullScreen) {
+            auto& toggleMouseLock = inputsBuffer->toggleMouseLock;
+        if (toggleMouseLock) {
+            ToggleMouseLock();
+            toggleMouseLock = false;
+        }
+    }
+}
+
 void MultimediaManager::CreateWindowRenderer(const int customScreenWidth, const int customScreenHeight) const {
     assert(customScreenWidth % 2 == 0 && customScreenHeight % 2 == 0);
 
     CreateSdlWindowRenderer(customScreenWidth, customScreenHeight, false);
     multimedia->windowParams = {customScreenWidth, customScreenHeight};
+    multimedia->mainWindowIsFullScreen = false;
 
-    LockMouseToWindow();
+    ToggleMouseLock();
 }
 
 void MultimediaManager::CreateWindowRenderer() const {
     auto [displayWidth, displayHeight, displayRefreshRate] = multimedia->displayParams;
     multimedia->windowParams = {displayWidth, displayHeight};
+    multimedia->mainWindowIsFullScreen = true;
 
     CreateSdlWindowRenderer(displayWidth, displayHeight, true);
-    LockMouseToWindow();
+    ToggleMouseLock();
 }
 
 void MultimediaManager::LoadTextures(const textureType_t textureType, const spriteSheetParams_t spriteSheetParams) const {
@@ -79,10 +93,21 @@ void MultimediaManager::CreateSdlWindowRenderer(const int screenWidth, const int
     SDL_SetWindowFullscreen(multimedia->sdlWindow, fullScreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
-void MultimediaManager::LockMouseToWindow() const {
-    SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
-    SDL_ShowCursor(SDL_DISABLE);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+void MultimediaManager::ToggleMouseLock() const {
+    static bool toggle = true;
+    if (toggle == true) {
+        SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
+        SDL_ShowCursor(SDL_DISABLE);
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+
+        toggle = false;
+    } else {
+        SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_FALSE);
+        SDL_ShowCursor(SDL_ENABLE);
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        toggle = true;
+    }
+
 }
 
 SDL_Surface* MultimediaManager::BmpToSurface(const char* const fileName) const {

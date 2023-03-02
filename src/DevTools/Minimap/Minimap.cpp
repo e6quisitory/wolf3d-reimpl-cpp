@@ -13,9 +13,7 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, I
     tileSize     = _tileSize;
 
     // Only create minimap if main window is NOT fullscreen
-    auto mainWindowFlags = SDL_GetWindowFlags(multimedia->sdlWindow);
-    mainWindowIsFullScreen = (mainWindowFlags & SDL_WINDOW_FULLSCREEN) == SDL_WINDOW_FULLSCREEN;
-    if (mainWindowIsFullScreen) return;
+    if (multimedia->mainWindowIsFullScreen) return;
 
     // Create window and renderer
     minimapWindowWidth  = tileSize * worldState->map.width + 2 * tileSize;
@@ -45,9 +43,6 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, I
     CollectTileRectsFromMap(tileType_t::DOOR, doorTileRects);
     CollectTileRectsFromMap(tileType_t::OBJECT, objectTileRects);
     CollectTileRectsFromMap(tileType_t::ENEMY, enemyTileRects);
-
-    // Unlock mouse
-    ToggleMouseLock();
 }
 
 /*
@@ -57,7 +52,7 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, I
 */
 
 Minimap::~Minimap() {
-    if (!mainWindowIsFullScreen) {
+    if (!multimedia->mainWindowIsFullScreen) {
         SDL_DestroyRenderer(minimapRenderer);
         SDL_DestroyWindow(minimapWindow);
         delete[] wallTileRects.first;
@@ -72,7 +67,7 @@ Minimap::~Minimap() {
 */
 
 void Minimap::Update() const {
-    if (!mainWindowIsFullScreen) {
+    if (!multimedia->mainWindowIsFullScreen) {
         DrawBackground();
         DrawGridlines();
         DrawNonEmptyTiles();
@@ -162,14 +157,6 @@ void Minimap::HandleInputs() const {
             }
         }
     }
-
-    /***************************** Unlock mouse ******************************/
-
-    auto& toggleMouseLock = inputsBuffer->toggleMouseLock;
-    if (toggleMouseLock) {
-        ToggleMouseLock();
-        toggleMouseLock = false;
-    }
 }
 
 SDL_Rect Minimap::TileToRect(const iPoint2 &tileCoord) const {
@@ -193,22 +180,6 @@ Point2_o Minimap::WindowCoordToMapCoord(const Pixel& windowCoord) const {
         double mapY = static_cast<double>(minimapY)/tileSize;
 
         return Point2(mapX, mapY);
-    }
-}
-
-void Minimap::ToggleMouseLock() const {
-    static bool toggle = true;
-
-    if (toggle == true) {
-        SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_FALSE);
-        SDL_ShowCursor(SDL_ENABLE);
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        toggle = false;
-    } else {
-        SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
-        SDL_ShowCursor(SDL_DISABLE);
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-        toggle = true;
     }
 }
 

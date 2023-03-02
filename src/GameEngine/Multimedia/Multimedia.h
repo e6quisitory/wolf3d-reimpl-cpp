@@ -40,6 +40,7 @@ public:
     WindowParams  windowParams;
     SDL_Window*   sdlWindow;
     SDL_Renderer* sdlRenderer;
+    bool mainWindowIsFullScreen;
     std::map<textureType_t, std::vector<SDL_Texture*>>  textures;
 
 public:
