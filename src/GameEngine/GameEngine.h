@@ -28,6 +28,7 @@ private:
     PlayerManager      playerManager;
     MapManager         mapManager;
     DoorManager        doorManager;
+    EnemyManager       enemyManager;
     Renderer           renderer;
 
 public:

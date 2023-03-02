@@ -74,8 +74,7 @@ void MapManager::LoadMap(const std::string file) const {
                     /* Enemy Tile */
                     case textureType_t::GUARD:
                     {
-                        SDL_Texture* guardTexture = multimedia->GetTexture(textureType_t::GUARD, parsedTileInfo.textureID);
-                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, guardTexture));
+                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord));
                         break;
                     }
                 }

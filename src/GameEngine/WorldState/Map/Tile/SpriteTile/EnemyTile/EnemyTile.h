@@ -31,13 +31,14 @@ enum class enemyTextureType_t {
 class EnemyTile : public SpriteTile {
 public:
     static std::map<enemyTextureType_t, std::vector<SDL_Texture*>> textures;
+    Enemy* enemy;
 
 private:
     Point2 centerCoord;
-    SDL_Texture* texture;
 
 public:
-    EnemyTile(const iPoint2& _tileCoord, SDL_Texture* const _texture);
+    EnemyTile(const iPoint2& _tileCoord);
+    ~EnemyTile();
 
     virtual rayTileHitVariant_o  RayTileHit(RayHitMarker& hitInfo)  const override;
     virtual bool                 PlayerTileHit()                    const override;

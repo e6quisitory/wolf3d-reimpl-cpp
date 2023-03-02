@@ -25,6 +25,7 @@ class Enemy {
 public:
     Point2        location;
     Vec2          viewDir;
+    Vec2          eastDir;
     enemyState_t  state;
 
 public:
