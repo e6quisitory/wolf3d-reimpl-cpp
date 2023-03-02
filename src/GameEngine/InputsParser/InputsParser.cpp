@@ -16,6 +16,9 @@ void InputsParser::Init(InputsBuffer *const _inputsBuffer, SDL_Window* const _ma
 
 void InputsParser::ParseInputs() const {
 
+    bool mainGameWindowMouseFocus = SDL_GetMouseFocus() == mainGameWindow;
+    bool cursorVisible            = SDL_ShowCursor(SDL_QUERY) == SDL_ENABLE ? true : false;
+
     /************************* Mouse movement + clicks + toggle mouse lock *************************/
 
     auto& lookingCmd        = inputsBuffer->currentCommands[inputCommandType_t::LOOKING];
@@ -24,7 +27,7 @@ void InputsParser::ParseInputs() const {
     SDL_Event currPendingEvent;
     int currXrel;
     while (SDL_PollEvent(&currPendingEvent)){
-        if (currPendingEvent.type == SDL_MOUSEMOTION) {
+        if (currPendingEvent.type == SDL_MOUSEMOTION && mainGameWindowMouseFocus && !cursorVisible) {
             currXrel = currPendingEvent.motion.xrel;
             if (currXrel > 0)
                 lookingCmd = inputCommand_t::LOOK_RIGHT;
@@ -34,7 +37,7 @@ void InputsParser::ParseInputs() const {
             inputsBuffer->mouseAbsXrel = abs(currXrel);
         }
 
-        if (currPendingEvent.type == SDL_MOUSEBUTTONUP && SDL_GetMouseFocus() != mainGameWindow) {
+        if (currPendingEvent.type == SDL_MOUSEBUTTONUP && !mainGameWindowMouseFocus) {
             if (currPendingEvent.button.button == SDL_BUTTON_LEFT)
                 nonGameMouseClick = mouseClickType_t::LEFT;
             else if (currPendingEvent.button.button == SDL_BUTTON_RIGHT)
@@ -54,41 +57,45 @@ void InputsParser::ParseInputs() const {
 
     // Detect when mouse is not moving anymore and reset xrel and looking command (to prevent player spin)
     static int prevXrel = 0;
+    if (!cursorVisible) {
+        if (currXrel == prevXrel && GetXrel() == 0) {
+            inputsBuffer->mouseAbsXrel = 0;
+            lookingCmd = inputCommand_t::NONE;
+        }
 
-    if (currXrel == prevXrel && GetXrel() == 0) {
-        inputsBuffer->mouseAbsXrel = 0;
-        lookingCmd = inputCommand_t::NONE;
+        prevXrel = currXrel;
     }
 
-    prevXrel = currXrel;
+    if (mainGameWindowMouseFocus) {
 
-    /************************* W, A, S, D (to move player) *************************/
+        /************************* W, A, S, D (to move player) *************************/
 
-    bool north        = keyboardState[SDL_SCANCODE_W];
-    bool south        = keyboardState[SDL_SCANCODE_S];
-    bool east         = keyboardState[SDL_SCANCODE_D];
-    bool west         = keyboardState[SDL_SCANCODE_A];
-    bool northEast    = north && east;
-    bool northWest    = north && west;
-    bool southEast    = south && east;
-    bool southWest    = south && west;
+        bool north        = keyboardState[SDL_SCANCODE_W];
+        bool south        = keyboardState[SDL_SCANCODE_S];
+        bool east         = keyboardState[SDL_SCANCODE_D];
+        bool west         = keyboardState[SDL_SCANCODE_A];
+        bool northEast    = north && east;
+        bool northWest    = north && west;
+        bool southEast    = south && east;
+        bool southWest    = south && west;
 
-    auto& MovementCmd = inputsBuffer->currentCommands[inputCommandType_t::MOVEMENT];
+        auto& MovementCmd = inputsBuffer->currentCommands[inputCommandType_t::MOVEMENT];
 
-    if        (northEast)   MovementCmd  = inputCommand_t::MOVE_NORTHEAST;
-    else if   (northWest)   MovementCmd  = inputCommand_t::MOVE_NORTHWEST;
-    else if   (southEast)   MovementCmd  = inputCommand_t::MOVE_SOUTHEAST;
-    else if   (southWest)   MovementCmd  = inputCommand_t::MOVE_SOUTHWEST;
-    else if   (north)       MovementCmd  = inputCommand_t::MOVE_NORTH;
-    else if   (south)       MovementCmd  = inputCommand_t::MOVE_SOUTH;
-    else if   (west)        MovementCmd  = inputCommand_t::MOVE_WEST;
-    else if   (east)        MovementCmd  = inputCommand_t::MOVE_EAST;
-    else                    MovementCmd  = inputCommand_t::NONE;
+        if        (northEast)   MovementCmd  = inputCommand_t::MOVE_NORTHEAST;
+        else if   (northWest)   MovementCmd  = inputCommand_t::MOVE_NORTHWEST;
+        else if   (southEast)   MovementCmd  = inputCommand_t::MOVE_SOUTHEAST;
+        else if   (southWest)   MovementCmd  = inputCommand_t::MOVE_SOUTHWEST;
+        else if   (north)       MovementCmd  = inputCommand_t::MOVE_NORTH;
+        else if   (south)       MovementCmd  = inputCommand_t::MOVE_SOUTH;
+        else if   (west)        MovementCmd  = inputCommand_t::MOVE_WEST;
+        else if   (east)        MovementCmd  = inputCommand_t::MOVE_EAST;
+        else                    MovementCmd  = inputCommand_t::NONE;
 
-    /************************* Spacebar (to open doors) *************************/
+        /************************* Spacebar (to open doors) *************************/
 
-    auto& DoorsCmd = inputsBuffer->currentCommands[inputCommandType_t::DOORS];
-          DoorsCmd = keyboardState[SDL_SCANCODE_SPACE] ? inputCommand_t::OPEN_DOOR : inputCommand_t::NONE;
+        auto& DoorsCmd = inputsBuffer->currentCommands[inputCommandType_t::DOORS];
+              DoorsCmd = keyboardState[SDL_SCANCODE_SPACE] ? inputCommand_t::OPEN_DOOR : inputCommand_t::NONE;
+    }
 
     /************************* Escape (to exit game) *************************/
 

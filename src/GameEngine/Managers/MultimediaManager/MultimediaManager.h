@@ -15,8 +15,6 @@ struct spriteSheetParams_t {
     int          numTextures;
 };
 
-typedef std::tuple<int, int, int> displayParams_t;
-
 /*
 =========================================================
     MultimediaManager

@@ -1,8 +1,12 @@
 #pragma once
 
 #include "Enemy/Enemy.h"
+#include "../../Multimedia/Multimedia.h"
 
 class EnemyManager {
 public:
-    void Init();
+    Multimedia* multimedia;
+
+public:
+    void Init(Multimedia* const _multimedia);
 };

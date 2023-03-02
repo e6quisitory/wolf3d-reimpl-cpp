@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../../../WorldState/Map/Tile/SpriteTile/SpriteTile.h"
-
 /*
 =========================================================
     Relevant type definitions
@@ -25,10 +23,10 @@ enum class enemyState_t {
 
 class Enemy {
 public:
-    SpriteTile*   tile;
-    enemyState_t  state;
+    Point2        location;
     Vec2          viewDir;
+    enemyState_t  state;
 
 public:
-    Enemy();
+    Enemy(const Point2& initialLocation);
 };

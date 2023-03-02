@@ -7,11 +7,10 @@
 #include "../../WorldState/Map/Tile/SpriteTile/ObjectTile/ObjectTile.h"
 #include "../../WorldState/Map/Tile/SpriteTile/EnemyTile/EnemyTile.h"
 
-
 /*
-================================
-    Public Methods
-================================
+=========================================================
+    Public methods
+=========================================================
 */
 
 void MapManager::Init(WorldState* const _worldState, Multimedia* const _multimedia) {
@@ -36,10 +35,8 @@ void MapManager::LoadMap(const std::string file) const {
 
     // Set ObjectTile list of object textures that player cannot pass through
     const std::array<int, 21> objectNoPassthroughTextureIDs = {4, 5, 6, 8, 10, 11, 13, 14, 15, 16, 19, 20, 21, 25, 38, 39, 40, 42, 48, 49, 50};
-    std::vector<SDL_Texture*> objectNoPassthroughTextures;
-    for (const int objectTextureID : objectNoPassthroughTextureIDs)
-        objectNoPassthroughTextures.push_back(multimedia->GetTexture(textureType_t::OBJECTS, objectTextureID));
-    ObjectTile::noPassthroughList = objectNoPassthroughTextures;
+    for (const int ID : objectNoPassthroughTextureIDs)
+        ObjectTile::noPassthroughList.push_back(multimedia->GetTexture(textureType_t::OBJECTS, ID));
 
     // Allocate enough memory and fill map with tiles corresponding to mapFile data
     worldState->map.tiles.resize(mapFile.numColumns);
@@ -53,6 +50,7 @@ void MapManager::LoadMap(const std::string file) const {
             if (parsedTileInfo_o.has_value()) {
                 auto parsedTileInfo = parsedTileInfo_o.value();
                 switch (parsedTileInfo.textureType) {
+
                     /* Wall tile */
                     case textureType_t::WALLS:
                     {
@@ -65,13 +63,15 @@ void MapManager::LoadMap(const std::string file) const {
                         break;
                     }
 
-                    /* Sprite Tile */
+                    /* Object Tile */
                     case textureType_t::OBJECTS:
                     {
                         SDL_Texture* objectTexture = multimedia->GetTexture(textureType_t::OBJECTS, parsedTileInfo.textureID);
                         worldState->map.SetTile(tileCoord, new ObjectTile(tileCoord, objectTexture));
                         break;
                     }
+
+                    /* Enemy Tile */
                     case textureType_t::GUARD:
                     {
                         SDL_Texture* guardTexture = multimedia->GetTexture(textureType_t::GUARD, parsedTileInfo.textureID);

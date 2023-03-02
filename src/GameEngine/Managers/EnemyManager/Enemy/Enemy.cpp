@@ -6,4 +6,8 @@
 =========================================================
 */
 
-Enemy::Enemy() : state(enemyState_t::UNAWARE), viewDir(RandomUnitVector()) {}
+Enemy::Enemy(const Point2& initialLocation) {
+    location = initialLocation;
+    viewDir  = RandomUnitVector();
+    state    = enemyState_t::UNAWARE;
+}

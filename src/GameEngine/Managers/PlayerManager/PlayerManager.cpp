@@ -13,8 +13,8 @@ void PlayerManager::Init(InputsBuffer* const _inputsBuffer, WorldState* const _w
     worldState   = _worldState;
 
     // Set movement and swivel speeds based on display refresh rate (assumed that fps = refresh rate)
-    movementIncrement = 3.645 / _screenRefreshRate;
-    swivelIncrement   = 0.075 / _screenRefreshRate;
+    movementIncrement = 0.06075/(_screenRefreshRate/60.0);
+    swivelIncrement   = 0.00125/(_screenRefreshRate/60.0);
 }
 
 void PlayerManager::SetPlayer(const Point2& location, const Vec2& viewDir) {

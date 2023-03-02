@@ -12,8 +12,8 @@ void DoorManager::Init(WorldState* const _worldState, const int _screenRefreshRa
     worldState = _worldState;
 
     // Set door movement and timer speeds based on fps / display refresh rate
-    movementIncrement = _screenRefreshRate / 3000.0;
-    timerIncrement    = _screenRefreshRate / 6000.0;
+    movementIncrement = 0.02/(_screenRefreshRate/60.0);
+    timerIncrement    = 0.01/(_screenRefreshRate/60.0);
 
     // Set initial value for to_erase
     ClearActiveDoorForRemoval();

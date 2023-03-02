@@ -1,9 +1,9 @@
 #include "MultimediaManager.h"
 
 /*
-================================
-    Public Methods
-================================
+=========================================================
+    Public methods
+=========================================================
 */
 
 void MultimediaManager::Init(Multimedia* const _multimedia, InputsBuffer* const _inputsBuffer) {
@@ -35,7 +35,7 @@ void MultimediaManager::Exit() const {
 void MultimediaManager::Update() const {
     // Check for tilde key press for mouse locking/unlocking to main game window
     if (!multimedia->mainWindowIsFullScreen) {
-            auto& toggleMouseLock = inputsBuffer->toggleMouseLock;
+        auto& toggleMouseLock = inputsBuffer->toggleMouseLock;
         if (toggleMouseLock) {
             ToggleMouseLock();
             toggleMouseLock = false;
@@ -80,9 +80,9 @@ void MultimediaManager::LoadTextures(const textureType_t textureType, const spri
 }
 
 /*
-================================
-    Private Methods
-================================
+=========================================================
+    Private methods
+=========================================================
 */
 
 void MultimediaManager::CreateSdlWindowRenderer(const int screenWidth, const int screenHeight, const bool fullScreen) const {
@@ -99,7 +99,7 @@ void MultimediaManager::ToggleMouseLock() const {
         SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
         SDL_SetRelativeMouseMode(SDL_TRUE);
-
+        SDL_SetWindowInputFocus(multimedia->sdlWindow);
         toggle = false;
     } else {
         SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_FALSE);
@@ -107,7 +107,6 @@ void MultimediaManager::ToggleMouseLock() const {
         SDL_SetRelativeMouseMode(SDL_FALSE);
         toggle = true;
     }
-
 }
 
 SDL_Surface* MultimediaManager::BmpToSurface(const char* const fileName) const {
