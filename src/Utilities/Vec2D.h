@@ -188,8 +188,8 @@ static void AddNoiseIfAnyIntegerComponents(Vec2D<double>& v) {
 static Vec2D<double> RandomUnitVector() {
     double x      = std::rand() / static_cast<double>(RAND_MAX);
     double y      = std::rand() / static_cast<double>(RAND_MAX);
-    int    signX  = std::rand() % 2;
-    int    signY  = std::rand() % 2;
+    int    signX  = std::rand() % 2 == 0 ? 1 : -1;
+    int    signY  = std::rand() % 2 == 0 ? 1 : -1;
     return UnitVector(Vec2D<double>(signX*x, signY*y));
 }
 
