@@ -41,6 +41,7 @@ void MultimediaManager::Update() const {
             toggleMouseLock = false;
         }
     }
+
 }
 
 void MultimediaManager::CreateWindowRenderer(const int customScreenWidth, const int customScreenHeight) const {
@@ -96,10 +97,11 @@ void MultimediaManager::CreateSdlWindowRenderer(const int screenWidth, const int
 void MultimediaManager::ToggleMouseLock() const {
     static bool toggle = true;
     if (toggle == true) {
+        SDL_RaiseWindow(multimedia->sdlWindow);
+        SDL_SetWindowInputFocus(multimedia->sdlWindow);
         SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
         SDL_SetRelativeMouseMode(SDL_TRUE);
-        SDL_SetWindowInputFocus(multimedia->sdlWindow);
         toggle = false;
     } else {
         SDL_SetWindowMouseGrab(multimedia->sdlWindow, SDL_FALSE);

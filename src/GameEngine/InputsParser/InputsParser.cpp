@@ -10,7 +10,8 @@ void InputsParser::Init(InputsBuffer *const _inputsBuffer, SDL_Window* const _ma
     inputsBuffer = _inputsBuffer;
     mainGameWindow = _mainGameWindow;
 
-    _inputsBuffer->quitGameFlag = false;
+    inputsBuffer->toggleMouseLock = false;
+    inputsBuffer->quitGameFlag = false;
     keyboardState = SDL_GetKeyboardState(nullptr);
 }
 
@@ -57,14 +58,12 @@ void InputsParser::ParseInputs() const {
 
     // Detect when mouse is not moving anymore and reset xrel and looking command (to prevent player spin)
     static int prevXrel = 0;
-    if (!cursorVisible) {
-        if (currXrel == prevXrel && GetXrel() == 0) {
-            inputsBuffer->mouseAbsXrel = 0;
-            lookingCmd = inputCommand_t::NONE;
-        }
-
-        prevXrel = currXrel;
+    if (currXrel == prevXrel && GetXrel() == 0) {
+        inputsBuffer->mouseAbsXrel = 0;
+        lookingCmd = inputCommand_t::NONE;
     }
+
+    prevXrel = currXrel;
 
     if (mainGameWindowMouseFocus) {
 

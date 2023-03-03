@@ -8,8 +8,10 @@
 
 enum class textureType_t {
     WALLS,
-    GUARD,
     OBJECTS,
+    GUARD,
+    OFFICER,
+    SS,
     WEAPONS
 };
 

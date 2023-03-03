@@ -9,4 +9,7 @@ public:
 
 public:
     void Init(Multimedia* const _multimedia);
+
+private:
+    void LoadEnemyTypeTextures(const textureType_t enemyType);
 };

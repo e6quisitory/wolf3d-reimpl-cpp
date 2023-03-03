@@ -43,6 +43,10 @@ Minimap::Minimap(WorldState* const _worldState, Multimedia* const _multimedia, I
     CollectTileRectsFromMap(tileType_t::DOOR, doorTileRects);
     CollectTileRectsFromMap(tileType_t::OBJECT, objectTileRects);
     CollectTileRectsFromMap(tileType_t::ENEMY, enemyTileRects);
+
+    // Give back window focus to main game window
+    SDL_RaiseWindow(multimedia->sdlWindow);
+    SDL_SetWindowInputFocus(multimedia->sdlWindow);
 }
 
 /*

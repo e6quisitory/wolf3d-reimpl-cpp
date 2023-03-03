@@ -25,12 +25,16 @@ void GameEngine::Init() {
     auto grandParentDirPath = parentDirPath.substr(0, parentDirPath.find_last_of("/\\"));
     auto assetsDirPath      = grandParentDirPath + "/assets/";
     multimediaManager.LoadTextures(textureType_t::WALLS,   {assetsDirPath + "wall_textures.bmp", 6, 110});
-    multimediaManager.LoadTextures(textureType_t::GUARD,   {assetsDirPath + "guard.bmp", 8, 51});
     multimediaManager.LoadTextures(textureType_t::OBJECTS, {assetsDirPath + "objects.bmp", 5, 50});
+    multimediaManager.LoadTextures(textureType_t::GUARD,   {assetsDirPath + "guard.bmp", 8, 51});
+    multimediaManager.LoadTextures(textureType_t::OFFICER, {assetsDirPath + "officer.bmp", 8, 51});
+    multimediaManager.LoadTextures(textureType_t::SS,      {assetsDirPath + "SS.bmp", 8, 51});
     #else
     multimediaManager.LoadTextures(textureType_t::WALLS,   {"../assets/wall_textures.bmp", 6, 110});
-    multimediaManager.LoadTextures(textureType_t::GUARD,   {"../assets/guard.bmp", 8, 51});
     multimediaManager.LoadTextures(textureType_t::OBJECTS, {"../assets/objects.bmp", 5, 50});
+    multimediaManager.LoadTextures(textureType_t::GUARD,   {"../assets/guard.bmp", 8, 51});
+    multimediaManager.LoadTextures(textureType_t::OFFICER, {"../assets/officer.bmp", 8, 51});
+    multimediaManager.LoadTextures(textureType_t::SS,      {"../assets/SS.bmp", 8, 51});
     #endif
 
     playerManager.Init(inputsBuffer, worldState, multimedia->displayParams.refreshRate);

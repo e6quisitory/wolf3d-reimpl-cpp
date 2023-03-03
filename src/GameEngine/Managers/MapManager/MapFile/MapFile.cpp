@@ -6,7 +6,7 @@
 =========================================================
 */
 
-parsedTileInfo_t::parsedTileInfo_t(const textureType_t _textureType, const int _textureID):
+parsedTileInfo_t::parsedTileInfo_t(const textureType_t _textureType, const std::optional<int> _textureID):
     textureType(_textureType), textureID(_textureID) {}
 
 /*
@@ -84,7 +84,7 @@ void MapFile::PushTileInfo(parsedTileInfo1DArray_t& parsedTileInfo1DArray, std::
     else {
         auto parsedTextureInfo = ParseTileCode(cellString);
         if (parsedTextureInfo.has_value()) {
-            auto [textureType, textureID] = parsedTextureInfo.value();
+            auto& [textureType, textureID] = parsedTextureInfo.value();
             auto parsedTileInfo = parsedTileInfo_t(textureType, textureID);
             parsedTileInfo1DArray.emplace_back(parsedTileInfo);
         } else
@@ -95,15 +95,21 @@ void MapFile::PushTileInfo(parsedTileInfo1DArray_t& parsedTileInfo1DArray, std::
 }
 
 parsedTextureInfo_o MapFile::ParseTileCode(const std::string& textureCode) const {
+    // If enemy tile, then no texture ID code
+    if (textureCode == "GU")
+        return std::pair(textureType_t::GUARD, std::nullopt);
+    else if (textureCode == "OF")
+        return std::pair(textureType_t::OFFICER, std::nullopt);
+    else if (textureCode == "SS")
+        return std::pair(textureType_t::SS, std::nullopt);
+
+    // Wall / object tile
     std::string  textureTypeCode = textureCode.substr(0, textureCode.find("-"));
     int          textureIdCode   = std::stoi(textureCode.substr(textureCode.find("-") + 1));
-
     if (textureTypeCode == "W")
         return std::pair(textureType_t::WALLS, textureIdCode);
     else if (textureTypeCode == "O")
         return std::pair(textureType_t::OBJECTS, textureIdCode);
-    else if (textureTypeCode == "G1")
-        return std::pair(textureType_t::GUARD, textureIdCode);
     else
         return std::nullopt;  // invalid format ; default to empty tile
 }

@@ -78,25 +78,25 @@ void Renderer::RenderToBuffers() {
             rayHitMarker.GoToNextHit();
             Tile* currTile = worldState->map.GetTile(rayHitMarker.hitTile);
 
-            if (currTile->type == tileType_t::ENEMY || currTile->type == tileType_t::OBJECT) {
+            if (currTile->type == tileType_t::EMPTY)
+                continue;
+            else if (currTile->type == tileType_t::ENEMY || currTile->type == tileType_t::OBJECT) {
                 SpriteTile* spriteTileHit = static_cast<SpriteTile*>(currTile);
                 auto [spriteTileHitX, spriteTileHitY] = spriteTileHit->tileCoord.e;
                 auto spriteTileOnHitMap = spriteTilesHitMap[spriteTileHitX][spriteTileHitY];
 
                 if (spriteTileOnHitMap == false) {
                     spriteTileOnHitMap = true;
-                    auto rayTileHitResult = currTile->RayTileHit(rayHitMarker);
-                    auto& textureCoordinatePair = std::get<textureCoordinatePair_t>(rayTileHitResult.value());
+                    auto spriteRayTileHitResult = currTile->RayTileHit(rayHitMarker);
+                    auto& textureCoordinatePair = std::get<textureCoordinatePair_t>(spriteRayTileHitResult.value());
                     spritesReturnData.emplace_back(textureCoordinatePair);
                 } else
                     continue;
             } else {
-                auto rayTileHitResult = currTile->RayTileHit(rayHitMarker);
-                if (rayTileHitResult.has_value()) {
-
-                    if (std::holds_alternative<textureSliceDistPair_t>(rayTileHitResult.value())) {
-
-                        auto& textureSliceDistPair = std::get<textureSliceDistPair_t>(rayTileHitResult.value());
+                auto wallRayTileHitResult = currTile->RayTileHit(rayHitMarker);
+                if (wallRayTileHitResult.has_value()) {
+                    if (std::holds_alternative<textureSliceDistPair_t>(wallRayTileHitResult.value())) {
+                        auto& textureSliceDistPair = std::get<textureSliceDistPair_t>(wallRayTileHitResult.value());
                         auto& [textureSlice, hitDistance] = textureSliceDistPair;
 
                         // If prev tile type was a door and next is a wall, it means the next hit is a door sidewall ; thus, must swap texture

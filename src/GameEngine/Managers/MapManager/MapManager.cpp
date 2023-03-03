@@ -57,7 +57,7 @@ void MapManager::LoadMap(const std::string file) const {
                         if (parsedTileInfo.textureID == 99)
                             worldState->map.SetTile(tileCoord, new DoorTile());
                         else {
-                            auto wallTexturePair = multimedia->GetWallTexturePair(parsedTileInfo.textureID);
+                            auto wallTexturePair = multimedia->GetWallTexturePair(parsedTileInfo.textureID.value());
                             worldState->map.SetTile(tileCoord, new WallTile(wallTexturePair));
                         }
                         break;
@@ -66,15 +66,29 @@ void MapManager::LoadMap(const std::string file) const {
                     /* Object Tile */
                     case textureType_t::OBJECTS:
                     {
-                        SDL_Texture* objectTexture = multimedia->GetTexture(textureType_t::OBJECTS, parsedTileInfo.textureID);
+                        SDL_Texture* objectTexture = multimedia->GetTexture(textureType_t::OBJECTS, parsedTileInfo.textureID.value());
                         worldState->map.SetTile(tileCoord, new ObjectTile(tileCoord, objectTexture));
                         break;
                     }
 
-                    /* Enemy Tile */
+                    /* Guard Tile */
                     case textureType_t::GUARD:
                     {
-                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord));
+                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, textureType_t::GUARD));
+                        break;
+                    }
+
+                    /* Officer Tile */
+                    case textureType_t::OFFICER:
+                    {
+                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, textureType_t::OFFICER));
+                        break;
+                    }
+
+                    /* SS Tile */
+                    case textureType_t::SS:
+                    {
+                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, textureType_t::SS));
                         break;
                     }
                 }
