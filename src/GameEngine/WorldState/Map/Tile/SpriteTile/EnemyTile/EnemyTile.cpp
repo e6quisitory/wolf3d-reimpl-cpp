@@ -21,7 +21,7 @@ EnemyTile::EnemyTile(const iPoint2& _tileCoord, const textureType_t _textureType
     tileCoord = _tileCoord;
     centerCoord = tileCoord + Point2(0.5, 0.5);
 
-    enemy = new Enemy(centerCoord);
+    enemy = new Enemy(centerCoord, 60.0);
 }
 
 /*
@@ -71,7 +71,7 @@ rayTileHitVariant_o EnemyTile::RayTileHit(RayHitMarker& hitInfo) const {
     else
         texture = textures[textureType][enemyTextureType_t::STATIC][1];
 
-    return textureCoordinatePair_t(texture, centerCoord);
+    return textureCoordinatePair_t(texture, enemy->location);
 }
 
 bool EnemyTile::PlayerTileHit() const {

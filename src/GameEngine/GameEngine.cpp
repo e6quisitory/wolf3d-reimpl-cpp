@@ -48,7 +48,7 @@ void GameEngine::Init() {
 
     doorManager.Init(worldState, multimedia->displayParams.refreshRate);
     inputsParser.Init(inputsBuffer, multimedia->sdlWindow);
-    enemyManager.Init(multimedia);
+    enemyManager.Init(worldState, multimedia);
     renderer.Init(worldState, multimedia);
 
     // Set player location & view direction
@@ -75,6 +75,7 @@ void GameEngine::GameLoop() {
     quitGameFlag = inputsBuffer->quitGameFlag;
     playerManager.Update();
     doorManager.Update();
+    enemyManager.Update();
     multimediaManager.Update();
     renderer.RenderFrame();
 }

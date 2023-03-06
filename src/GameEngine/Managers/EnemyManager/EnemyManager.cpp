@@ -1,18 +1,41 @@
 #include "EnemyManager.h"
 #include "../../WorldState/Map/Tile/SpriteTile/EnemyTile/EnemyTile.h"
 
+
 /*
 =========================================================
     Public methods
 =========================================================
 */
 
-void EnemyManager::Init(Multimedia* const _multimedia) {
+void EnemyManager::Init(WorldState* const _worldState, Multimedia* const _multimedia) {
+    worldState = _worldState;
     multimedia = _multimedia;
 
+    // Load enemy textures into EnemyTile
     LoadEnemyTypeTextures(textureType_t::GUARD);
     LoadEnemyTypeTextures(textureType_t::OFFICER);
     LoadEnemyTypeTextures(textureType_t::SS);
+
+    // Pass map pointer to enemy tile
+    Enemy::map = &(worldState->map);
+
+    // Gather all enemies in map
+    for (const auto& tileColumn : worldState->map.tiles) {
+        for (const auto tile : tileColumn) {
+            if (tile->type == tileType_t::ENEMY) {
+                auto enemyTile = static_cast<EnemyTile*>(tile);
+                enemies.push_back(enemyTile->enemy);
+            }
+        }
+    }
+
+}
+
+void EnemyManager::Update() const {
+    for (const auto enemy : enemies) {
+        enemy->Walk();
+    }
 }
 
 /*

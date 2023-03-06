@@ -10,5 +10,5 @@
 
 class SpriteTile : public Tile {
 public:
-    iPoint2 tileCoord;
+    iPoint2 tileCoord;  // needed for marking tile hit in spriteTileHitMap in Renderer
 };

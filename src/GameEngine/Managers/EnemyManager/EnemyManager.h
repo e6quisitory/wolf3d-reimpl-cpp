@@ -2,13 +2,19 @@
 
 #include "Enemy/Enemy.h"
 #include "../../Multimedia/Multimedia.h"
+#include "../../WorldState/WorldState.h"
+
 
 class EnemyManager {
-public:
+private:
+    WorldState* worldState;
     Multimedia* multimedia;
 
+    std::vector<Enemy*> enemies;
+
 public:
-    void Init(Multimedia* const _multimedia);
+    void Init(WorldState* const _worldState, Multimedia* const _multimedia);
+    void Update() const;
 
 private:
     void LoadEnemyTypeTextures(const textureType_t enemyType);

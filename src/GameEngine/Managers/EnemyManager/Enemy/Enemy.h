@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../../WorldState/Map/Map.h"
+
 /*
 =========================================================
     Relevant type definitions
@@ -28,6 +30,16 @@ public:
     Vec2          eastDir;
     enemyState_t  state;
 
+    double moveIncrement;
+
+    static Map* map;
+
 public:
-    Enemy(const Point2& initialLocation);
+    Enemy(const Point2& initialLocation, const int _screenRefreshRate);
+
+    void Walk();
+    void Swivel();
+
+private:
+    bool MoveEnemyIfValid(const Point2& proposedLoc);
 };
