@@ -17,6 +17,8 @@ enum class enemyState_t {
     DYING
 };
 
+typedef textureType_t enemyType_t;
+
 /*
 =========================================================
     Enemy
@@ -25,17 +27,18 @@ enum class enemyState_t {
 
 class Enemy {
 public:
+    enemyType_t   type;
+
     Point2        location;
     Vec2          viewDir;
     Vec2          eastDir;
     enemyState_t  state;
 
-    double moveIncrement;
-
-    static Map* map;
+    static double moveIncrement;
+    static Map*   map;
 
 public:
-    Enemy(const Point2& initialLocation, const int _screenRefreshRate);
+    Enemy(const enemyType_t enemyType, const Point2& initialLocation);
 
     void Walk();
     void Swivel();

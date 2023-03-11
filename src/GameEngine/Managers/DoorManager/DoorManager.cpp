@@ -93,7 +93,7 @@ bool DoorManager::ActiveDoorAwaitingRemoval() const {
     return activeDoorToErase.first;
 }
 
-Door * DoorManager::GetActiveDoorAwaitingRemove() const {
+Door* DoorManager::GetActiveDoorAwaitingRemove() const {
     return activeDoorToErase.second;
 }
 

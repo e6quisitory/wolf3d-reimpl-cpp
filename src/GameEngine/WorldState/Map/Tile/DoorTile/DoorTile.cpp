@@ -14,7 +14,9 @@ texturePair_t DoorTile::gateTexture;
 =========================================================
 */
 
-DoorTile::DoorTile() {
+DoorTile::DoorTile(const iPoint2& _tileCoord) {
+    enemyContainer = true;
+    tileCoord = _tileCoord;
     type = tileType_t::DOOR;
     door = new Door();
 }
@@ -35,7 +37,9 @@ DoorTile::~DoorTile() {
 =========================================================
 */
 
-rayTileHitVariant_o DoorTile::RayTileHit(RayHitMarker& hitInfo) const {
+rayTileHitReturn_t DoorTile::RayTileHit(RayHitMarker& hitInfo) const {
+    textureSliceDistPair_o gateTextureSliceDistPair;
+
     // Center hit point
     RayHitMarker centeredHitInfo = hitInfo.GetNextCenterHit();
 
@@ -49,16 +53,19 @@ rayTileHitVariant_o DoorTile::RayTileHit(RayHitMarker& hitInfo) const {
             SDL_Texture* litGateTexture = LightTexture(gateTexture, centeredHitInfo);
             double gateTextureWidthPercent = door->position - centeredHitInfo.GetWidthPercent();
             textureSlice_t gateTextureSlice(litGateTexture, gateTextureWidthPercent);
-            return textureSliceDistPair_t(gateTextureSlice, centeredHitInfo.GetDistToHitPoint());
+            gateTextureSliceDistPair = textureSliceDistPair_t(gateTextureSlice, centeredHitInfo.GetDistToHitPoint());
 
         } else
             // Ray is not blocked by gate, meaning it passes through the DoorTile entirely
-            return std::nullopt;
+            gateTextureSliceDistPair =  std::nullopt;
 
     } else
         // Ray does not intersect with middle of tile ==> it hits sidewall
         // Let it pass through ; renderer will detect sidewall hit and swap texture accordingly
-        return std::nullopt;
+        gateTextureSliceDistPair = std::nullopt;
+
+
+    return std::make_pair(std::move(gateTextureSliceDistPair), GetEnemiesTextureCoordPairs(hitInfo));
 }
 
 bool DoorTile::PlayerTileHit() const {

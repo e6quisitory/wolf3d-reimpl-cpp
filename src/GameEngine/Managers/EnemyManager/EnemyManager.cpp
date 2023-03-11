@@ -1,5 +1,5 @@
 #include "EnemyManager.h"
-#include "../../WorldState/Map/Tile/SpriteTile/EnemyTile/EnemyTile.h"
+#include "../../WorldState/Map/Tile/EnemyContainerTile/EnemyContainerTile.h"
 
 
 /*
@@ -20,12 +20,16 @@ void EnemyManager::Init(WorldState* const _worldState, Multimedia* const _multim
     // Pass map pointer to enemy tile
     Enemy::map = &(worldState->map);
 
+    // Set enemies movement speed
+    Enemy::moveIncrement = 0.02/(multimedia->displayParams.refreshRate/60.0)/10;
+
     // Gather all enemies in map
     for (const auto& tileColumn : worldState->map.tiles) {
         for (const auto tile : tileColumn) {
-            if (tile->type == tileType_t::ENEMY) {
-                auto enemyTile = static_cast<EnemyTile*>(tile);
-                enemies.push_back(enemyTile->enemy);
+            if (tile->enemyContainer) {
+                auto enemyContainerTile = static_cast<EnemyContainerTile*>(tile);
+                for (const auto& enemy : enemyContainerTile->enemies)
+                    enemies.push_back(enemy);
             }
         }
     }
@@ -63,6 +67,6 @@ void EnemyManager::LoadEnemyTypeTextures(const textureType_t enemyType) {
     for (const auto& textureTypeIDList : allTextureTypeIDLists) {
         const auto& [textureType, IDsList] = textureTypeIDList;
         for (const auto ID : IDsList)
-            EnemyTile::textures[enemyType][textureType].push_back(multimedia->GetTexture(enemyType, ID));
+            EnemyContainerTile::textures[enemyType][textureType].push_back(multimedia->GetTexture(enemyType, ID));
     }
 }

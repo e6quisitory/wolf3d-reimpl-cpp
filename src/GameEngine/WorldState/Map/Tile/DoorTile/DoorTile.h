@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Tile.h"
+#include "../EnemyContainerTile/EnemyContainerTile.h"
 #include "Door/Door.h"
 
 /*
@@ -9,15 +9,15 @@
 ===========================================
 */
 
-class DoorTile : public Tile {
+class DoorTile : public EnemyContainerTile {
 public:
     Door* door;
     static texturePair_t gateTexture;
 
 public:
-    DoorTile();
+    DoorTile(const iPoint2& _tileCoord);
     ~DoorTile();
 
-    virtual rayTileHitVariant_o  RayTileHit      (RayHitMarker& hitInfo) const override;
-    virtual bool                 PlayerTileHit()                         const override;
+    virtual rayTileHitReturn_t  RayTileHit      (RayHitMarker& hitInfo)  const override;
+    virtual bool                PlayerTileHit()                          const override;
 };

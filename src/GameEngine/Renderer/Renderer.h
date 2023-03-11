@@ -2,6 +2,7 @@
 
 #include "../WorldState/WorldState.h"
 #include "../Multimedia/Multimedia.h"
+#include "../WorldState/Map/Tile/EnemyContainerTile/EnemyContainerTile.h"
 
 /*
 =========================================================
@@ -35,7 +36,7 @@ private:
     std::vector<int>                        wallRenderHeights;
 
     std::vector<std::vector<bool>>          spriteTilesHitMap;  // Marking hits by tile coord gives O(1) complexity
-    std::vector<textureCoordinatePair_t>    spritesReturnData;
+    std::vector<textureCoordPair_t>    spritesReturnData;
     std::vector<spriteRenderData_t>         spritesRenderData;
 
     const double fov = 90.0;

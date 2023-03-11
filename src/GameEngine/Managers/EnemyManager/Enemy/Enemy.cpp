@@ -1,10 +1,13 @@
 #include "Enemy.h"
+#include "../../../WorldState/Map/Tile/EnemyContainerTile/EnemyContainerTile.h"
 
 /*
 =========================================================
     Static members
 =========================================================
 */
+
+double Enemy::moveIncrement;
 
 Map* Enemy::map;
 
@@ -14,13 +17,12 @@ Map* Enemy::map;
 =========================================================
 */
 
-Enemy::Enemy(const Point2& initialLocation, const int _screenRefreshRate) {
+Enemy::Enemy(const enemyType_t enemyType, const Point2& initialLocation) {
+    type     = enemyType;
     location = initialLocation;
     viewDir  = RandomUnitVector();
     eastDir  = viewDir.Rotate(-PI/2);
     state    = enemyState_t::UNAWARE;
-
-    moveIncrement = (0.02/(_screenRefreshRate/60.0))        /10    ;
 }
 
 /*
@@ -38,9 +40,12 @@ void Enemy::Walk() {
         if (nextLocTilePt != prevLocTilePt) {
             auto prevLocTile = map->GetTile(prevLocTilePt);
             auto nextLocTile = map->GetTile(nextLocTilePt);
-            map->SetTile(nextLocTilePt, prevLocTile);
-            map->SetTile(prevLocTilePt, nextLocTile);
-            static_cast<SpriteTile*>(prevLocTile)->tileCoord = nextLocTilePt;
+            if (nextLocTile->enemyContainer) {
+                auto nextEnemyContainerTile = static_cast<EnemyContainerTile*>(nextLocTile);
+                nextEnemyContainerTile->enemies.insert(this);
+                auto prevEnemyContainerTile = static_cast<EnemyContainerTile*>(prevLocTile);
+                prevEnemyContainerTile->enemies.erase(this);
+            }
         }
     }
 }

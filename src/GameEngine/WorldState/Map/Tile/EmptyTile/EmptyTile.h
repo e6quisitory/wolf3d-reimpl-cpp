@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Tile.h"
+#include "../EnemyContainerTile/EnemyContainerTile.h"
 
 /*
 =========================================================
@@ -8,10 +8,10 @@
 =========================================================
 */
 
-class EmptyTile : public Tile {
+class EmptyTile : public EnemyContainerTile {
 public:
-    EmptyTile();
+    EmptyTile(const iPoint2 _tileCoord);
 
-    virtual rayTileHitVariant_o  RayTileHit       (RayHitMarker& hitInfo) const override;
-    virtual bool                 PlayerTileHit()                          const override;
+    virtual rayTileHitReturn_t  RayTileHit       (RayHitMarker& hitInfo) const override;
+    virtual bool                PlayerTileHit()                          const override;
 };

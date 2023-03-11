@@ -8,6 +8,7 @@
 
 WallTile::WallTile(const texturePair_t _texture) : texture(_texture) {
     type = tileType_t::WALL;
+    enemyContainer = false;
 }
 
 /*
@@ -16,11 +17,9 @@ WallTile::WallTile(const texturePair_t _texture) : texture(_texture) {
 =========================================================
 */
 
-rayTileHitVariant_o WallTile::RayTileHit(RayHitMarker& hitInfo) const {
+rayTileHitReturn_t WallTile::RayTileHit(RayHitMarker& hitInfo) const {
     SDL_Texture* litTexture = LightTexture(texture, hitInfo);
-    textureSlice_t textureSlice(litTexture, hitInfo.GetWidthPercent());
-
-    return textureSliceDistPair_t(textureSlice, hitInfo.GetDistToHitPoint());
+    return std::make_pair(textureSliceDistPair_t(textureSlice_t(litTexture, hitInfo.GetWidthPercent()), hitInfo.GetDistToHitPoint()), std::nullopt);
 }
 
 bool WallTile::PlayerTileHit() const {

@@ -23,7 +23,7 @@ textureSliceDistPair_t::textureSliceDistPair_t(const textureSlice_t _textureSlic
 textureSliceDistPair_t::textureSliceDistPair_t() {}
 
 /* SpriteTile return type definition */
-textureCoordinatePair_t::textureCoordinatePair_t(SDL_Texture* const _texture, const Point2& _coordinate) :
+textureCoordPair_t::textureCoordPair_t(SDL_Texture* const _texture, const Point2& _coordinate) :
     texture(_texture), coordinate(_coordinate) {}
 
 /*

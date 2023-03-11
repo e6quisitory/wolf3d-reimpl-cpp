@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../SpriteTile.h"
+#include "../EnemyContainerTile/EnemyContainerTile.h"
 
 /*
 =========================================================
@@ -8,7 +8,7 @@
 =========================================================
 */
 
-class ObjectTile : public SpriteTile {
+class ObjectTile : public EnemyContainerTile {
 public:
     static std::vector<SDL_Texture*> noPassthroughList;
 
@@ -20,6 +20,6 @@ private:
 public:
     ObjectTile(const iPoint2& _tileCoord, SDL_Texture* const _texture);
 
-    virtual  rayTileHitVariant_o  RayTileHit(RayHitMarker& hitInfo)  const override;
-    virtual  bool                 PlayerTileHit()                    const override;
+    virtual  rayTileHitReturn_t  RayTileHit(RayHitMarker& hitInfo)  const override;
+    virtual  bool                PlayerTileHit()                    const override;
 };

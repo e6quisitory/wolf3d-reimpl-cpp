@@ -6,8 +6,10 @@
 =========================================================
 */
 
-EmptyTile::EmptyTile() {
-    type = tileType_t::EMPTY;
+EmptyTile::EmptyTile(const iPoint2 _tileCoord) {
+    enemyContainer = true;
+    tileCoord = _tileCoord;
+    type      = tileType_t::EMPTY;
 }
 
 /*
@@ -16,8 +18,8 @@ EmptyTile::EmptyTile() {
 =========================================================
 */
 
-rayTileHitVariant_o EmptyTile::RayTileHit(RayHitMarker& hitInfo) const {
-    return std::nullopt;
+rayTileHitReturn_t EmptyTile::RayTileHit(RayHitMarker& hitInfo) const {
+    return std::make_pair(std::nullopt, GetEnemiesTextureCoordPairs(hitInfo));
 }
 
 bool EmptyTile::PlayerTileHit() const {

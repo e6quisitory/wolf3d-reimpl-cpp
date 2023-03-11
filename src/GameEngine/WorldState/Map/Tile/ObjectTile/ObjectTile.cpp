@@ -15,6 +15,7 @@ std::vector<SDL_Texture*> ObjectTile::noPassthroughList;
 */
 
 ObjectTile::ObjectTile(const iPoint2& _tileCoord, SDL_Texture* const _texture) {
+    enemyContainer = true;
     texture = _texture;
     type = tileType_t::OBJECT;
     tileCoord = _tileCoord;
@@ -28,8 +29,10 @@ ObjectTile::ObjectTile(const iPoint2& _tileCoord, SDL_Texture* const _texture) {
 =========================================================
 */
 
-rayTileHitVariant_o ObjectTile::RayTileHit(RayHitMarker& hitInfo) const {
-    return textureCoordinatePair_t(texture, centerCoord);
+rayTileHitReturn_t ObjectTile::RayTileHit(RayHitMarker& hitInfo) const {
+    auto spritesVec = GetEnemiesTextureCoordPairs(hitInfo);
+    spritesVec.emplace_back(textureCoordPair_t(texture, centerCoord));
+    return std::make_pair(std::nullopt, std::move(spritesVec));
 }
 
 bool ObjectTile::PlayerTileHit() const {

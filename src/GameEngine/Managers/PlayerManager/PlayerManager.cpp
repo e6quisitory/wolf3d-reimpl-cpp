@@ -142,7 +142,6 @@ void PlayerManager::OpenDoor() const {
             switch (currentTile->type) {
                 case tileType_t::EMPTY:
                 case tileType_t::OBJECT:
-                case tileType_t::ENEMY:
                     continue;
                 case tileType_t::DOOR:
                 {

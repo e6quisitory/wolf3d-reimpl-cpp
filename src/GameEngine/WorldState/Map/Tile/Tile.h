@@ -12,11 +12,10 @@ enum class tileType_t {
     EMPTY,
     WALL,
     DOOR,
-    OBJECT,
-    ENEMY
+    OBJECT
 };
 
-/* WallTile return type related definitions */
+/* Walls return type related definitions */
 struct textureSlice_t {
     textureSlice_t(SDL_Texture* const t, const int sliceNum);
     textureSlice_t(SDL_Texture* const t, const double widthPercent);
@@ -34,16 +33,21 @@ struct textureSliceDistPair_t {
     double         hitDistance;
 };
 
-/* SpriteTile return type definition */
-struct textureCoordinatePair_t {
-    textureCoordinatePair_t(SDL_Texture* const _texture, const Point2& _coordinate);
+typedef std::optional<textureSliceDistPair_t> textureSliceDistPair_o;
+
+/* Sprite return type related definitions */
+struct textureCoordPair_t {
+    textureCoordPair_t(SDL_Texture* const _texture, const Point2& _coordinate);
 
     SDL_Texture* texture;
     Point2       coordinate;
 };
 
+typedef std::vector<textureCoordPair_t>       textureCoordPairVec_t;
+typedef std::optional<textureCoordPairVec_t>  textureCoordPairVec_o;
+
 /* RayTileHit virtual function return type definition */
-typedef std::optional<std::variant<textureSliceDistPair_t, textureCoordinatePair_t>> rayTileHitVariant_o;
+typedef std::pair<textureSliceDistPair_o, textureCoordPairVec_o> rayTileHitReturn_t;
 
 /*
 =========================================================
@@ -54,10 +58,11 @@ typedef std::optional<std::variant<textureSliceDistPair_t, textureCoordinatePair
 class Tile {
 public:
     tileType_t type;
+    bool       enemyContainer;
 
 public:
     static   SDL_Texture*          LightTexture      (const texturePair_t texturePair, RayHitMarker& hitInfo);
     virtual                        ~Tile();
-    virtual  rayTileHitVariant_o   RayTileHit        (RayHitMarker& hitInfo)                                   const = 0;
+    virtual  rayTileHitReturn_t    RayTileHit        (RayHitMarker& hitInfo)                                   const = 0;
     virtual  bool                  PlayerTileHit()                                                             const = 0;
 };

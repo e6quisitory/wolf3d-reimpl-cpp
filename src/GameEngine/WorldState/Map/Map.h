@@ -2,7 +2,6 @@
 
 #include "Tile/Tile.h"
 #include "Tile/DoorTile/Door/Door.h"
-#include "Tile/SpriteTile/SpriteTile.h"
 
 /*
 =========================================================

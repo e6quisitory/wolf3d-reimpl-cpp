@@ -4,8 +4,7 @@
 #include "../../WorldState/Map/Tile/EmptyTile/EmptyTile.h"
 #include "../../WorldState/Map/Tile/WallTile/WallTile.h"
 #include "../../WorldState/Map/Tile/DoorTile/DoorTile.h"
-#include "../../WorldState/Map/Tile/SpriteTile/ObjectTile/ObjectTile.h"
-#include "../../WorldState/Map/Tile/SpriteTile/EnemyTile/EnemyTile.h"
+#include "../../WorldState/Map/Tile/ObjectTile/ObjectTile.h"
 
 /*
 =========================================================
@@ -55,7 +54,7 @@ void MapManager::LoadMap(const std::string file) const {
                     case textureType_t::WALLS:
                     {
                         if (parsedTileInfo.textureID == 99)
-                            worldState->map.SetTile(tileCoord, new DoorTile());
+                            worldState->map.SetTile(tileCoord, new DoorTile(tileCoord));
                         else {
                             auto wallTexturePair = multimedia->GetWallTexturePair(parsedTileInfo.textureID.value());
                             worldState->map.SetTile(tileCoord, new WallTile(wallTexturePair));
@@ -74,27 +73,33 @@ void MapManager::LoadMap(const std::string file) const {
                     /* Guard Tile */
                     case textureType_t::GUARD:
                     {
-                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, textureType_t::GUARD));
+                        auto guardTile = new EmptyTile(tileCoord);
+                        guardTile->enemies.insert(new Enemy(textureType_t::GUARD, tileCoord+Point2(0.5, 0.5)));
+                        worldState->map.SetTile(tileCoord, guardTile);
                         break;
                     }
 
                     /* Officer Tile */
                     case textureType_t::OFFICER:
                     {
-                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, textureType_t::OFFICER));
+                        auto officerTile = new EmptyTile(tileCoord);
+                        officerTile->enemies.insert(new Enemy(textureType_t::OFFICER, tileCoord + Point2(0.5, 0.5)));
+                        worldState->map.SetTile(tileCoord, officerTile);
                         break;
                     }
 
                     /* SS Tile */
                     case textureType_t::SS:
                     {
-                        worldState->map.SetTile(tileCoord, new EnemyTile(tileCoord, textureType_t::SS));
+                        auto SSTile = new EmptyTile(tileCoord);
+                        SSTile->enemies.insert(new Enemy(textureType_t::SS, tileCoord + Point2(0.5, 0.5)));
+                        worldState->map.SetTile(tileCoord, SSTile);
                         break;
                     }
                 }
             } else {
                 /* Empty tile */
-                worldState->map.SetTile(tileCoord, new EmptyTile());
+                worldState->map.SetTile(tileCoord, new EmptyTile(tileCoord));
             }
         }
     }

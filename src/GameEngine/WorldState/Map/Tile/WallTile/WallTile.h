@@ -15,6 +15,6 @@ private:
 public:
     WallTile(const texturePair_t _texture);
 
-    virtual rayTileHitVariant_o  RayTileHit        (RayHitMarker& hitInfo)  const override;
+    virtual rayTileHitReturn_t   RayTileHit        (RayHitMarker& hitInfo)  const override;
     virtual bool                 PlayerTileHit()                            const override;
 };
