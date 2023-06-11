@@ -2,3 +2,4 @@
 build
 build-debug
 .idea
+src/cmake-build-debug

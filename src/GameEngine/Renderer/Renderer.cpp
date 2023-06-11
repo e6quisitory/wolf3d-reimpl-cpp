@@ -87,9 +87,10 @@ void Renderer::RenderToBuffers() {
 
                 if (spriteTileOnHitMap == false) {
                     spriteTileOnHitMap = true;
-                    auto spriteRayTileHitResult = currTile->RayTileHit(rayHitMarker);
+                    auto spriteRayTileHitResult = spriteTileHit->RayTileHit(rayHitMarker);
                     auto& textureCoordinatePair = std::get<textureCoordinatePair_t>(spriteRayTileHitResult.value());
                     spritesReturnData.emplace_back(textureCoordinatePair);
+                    continue;
                 } else
                     continue;
             } else {
@@ -148,8 +149,10 @@ void Renderer::DrawSprites() {
     for (const auto& sprite : spritesRenderData) {
         SDL_Rect spriteScreenRect = GetFullTextureScreenRect(sprite.renderHeight, sprite.screenX);
         for (int x = spriteScreenRect.x; x < spriteScreenRect.x + spriteScreenRect.w; ++x) {
-            if (x < 0 || x >= multimedia->windowParams.width)
+            if (x < 0)
                 continue;
+            else if (x >= multimedia->windowParams.width)
+                break;
 
             if (wallRenderHeights[x] <= spriteScreenRect.h) {
                 double textureWidthPercent = static_cast<double>(x - spriteScreenRect.x) / (spriteScreenRect.w);

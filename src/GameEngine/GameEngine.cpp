@@ -18,7 +18,7 @@ void GameEngine::Init() {
 
     // Initialize input parser, managers, and renderer
     multimediaManager.Init(multimedia, inputsBuffer);
-    multimediaManager.CreateWindowRenderer(960, 540);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
+    multimediaManager.CreateWindowRenderer(960, 480);  // custom window dimensions also supported e.g. CreateWindowRenderer(1280, 720)
 
     #if __APPLE__ && __MACH__
     auto parentDirPath      = executablePath.substr(0, executablePath.find_last_of("/\\"));
