@@ -3,16 +3,15 @@
 <img src="https://user-images.githubusercontent.com/25702188/218297410-8b732b32-b8dc-4e6c-910e-b3732e5346de.png" width=300/>
 
 1. [Introduction & Demo](#introduction)
-2. [Pre-compiled Binaries](#binaries)
-3. [Build Instructions](#build)
+2. [Build Instructions](#build)
     - [Windows](#windows-build)
     - [macOS](#macos)
     - [Linux (Debian-based)](#linux)
-4. [Controls & Map Loading](#controls)
-5. [Immediate Goals](#igoals)
-6. [Later Goals](#lgoals)
-7. [Credits](#credits)
-8. [Resources Used](#resources)
+3. [Controls & Map Loading](#controls)
+4. [Immediate Goals](#igoals)
+5. [Later Goals](#lgoals)
+6. [Credits](#credits)
+7. [Resources Used](#resources)
 
 <a name="introduction"/>
 
@@ -45,36 +44,9 @@ The comments in the commits are full of detailed explanations on the implementat
 
 </a>
 
-<a name="binaries"/>
-
-## Pre-compiled Binaries
-I've made pre-compiled binaries for Windows and macOS. Head on over to the [Releases](https://github.com/e6quisitory/wolf3d-clone/releases) section to obtain them, and see the below instructions on how to run them.
-
-Linux users will have to resort to building the project themselves, instructions [here](#linux). Someday I'll get around to making a Linux binary as well, but for now, I've had enough of build systems and want to get back to coding.
-
-### Windows
-Unzip the archive, go into the `bin` folder, then double-click on `wolf3d-clone.exe`.
-
-If you're running Windows 11, there is a chance SmartScreen might flag the executable as being potentially malicious. This is due to the code not being signed (I still gotta figure that out). So for now, either turn off SmartScreen temporarily or allow the executable to bypass it (if the option is present).
-
-### macOS (x86 & ARM)
-Unzip the archive. Inside you'll find a `run.command` script. Double click it to launch the game. It is expected that macOS will initially not allow you to run the script; there'll be a pop up saying:
-```
-"run.command” cannot be opened because it is from an unidentified developer
-```
-This is due to the code not being signed (I have yet to figure that out). So, for now, close that pop up, then go to:
-```
-System Settings -> Privacy & Security
-```
-There, at the bottom you'll see something along the lines of **_"run.command" was blocked..."_** and next to it a button that says `Open Anyway`. Hit that, after which it'll likely prompt you for your password/fingerprint, after which there'll be another dialog, hit enter on that as well, and finally the game should launch.
-
-</a>
-
 <a name="build"/>
 
 ## Build Instructions
-If you'd like to compile/build the project yourself, below are instructions on how to do so for each major platform.
-
 </a>
 
 <a name="windows-build"/>
@@ -146,7 +118,7 @@ The following instructions assume you're running on an x86-64 Windows machine.
     mkdir build
     cd build
     cmake -G "Ninja" ../src
-    ninja -j $(sysctl -n hw.physicalcpu)
+    ninja
     ```
 4. Now a clickable `.app` executable should be present in this build directory. You can run it from the terminal with the command below, and you can also navigate to it and simply double-click it as well to launch.
 
