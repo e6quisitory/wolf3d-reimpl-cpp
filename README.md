@@ -81,7 +81,7 @@ The following instructions assume you're running on an x86-64 Windows machine.
     ```
     mkdir build
     cd build
-    cmake -G "Ninja" ../src
+    cmake -G "Ninja" ..
     ninja
     ```
 6. Finally, run the executable like so:
@@ -117,7 +117,7 @@ The following instructions assume you're running on an x86-64 Windows machine.
     ```
     mkdir build
     cd build
-    cmake -G "Ninja" ../src
+    cmake -G "Ninja" ..
     ninja
     ```
 4. Now a clickable `.app` executable should be present in this build directory. You can run it from the terminal with the command below, and you can also navigate to it and simply double-click it as well to launch.
@@ -158,7 +158,7 @@ Note that the below instructions have been tested on Ubuntu, and should work on 
     ```
     mkdir build
     cd build
-    cmake -G "Ninja" ../src
+    cmake -G "Ninja" ..
     ninja
     ```
 5. Now run the compiled executable like so:
