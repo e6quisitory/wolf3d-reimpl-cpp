@@ -9,18 +9,18 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "Ap
 endif()
 
 # Find SDL2
-find_package(SDL2 REQUIRED COMPONENTS SDL2)
+find_package (SDL2 REQUIRED COMPONENTS SDL2)
 
 # Add .cpp files into executable
 file (GLOB_RECURSE SRC_FILES
-		"${CMAKE_SOURCE_DIR}/main.cpp"
-		"${CMAKE_SOURCE_DIR}/GameEngine/*.cpp"
-		"${CMAKE_SOURCE_DIR}/DevTools/*.cpp"
-		"${CMAKE_SOURCE_DIR}/Utilities/*.cpp"
+		"${CMAKE_SOURCE_DIR}/src/main.cpp"
+		"${CMAKE_SOURCE_DIR}/src/GameEngine/*.cpp"
+		"${CMAKE_SOURCE_DIR}/src/DevTools/*.cpp"
+		"${CMAKE_SOURCE_DIR}/src/Utilities/*.cpp"
 		)
 
 if (APPLE)
-	file (GLOB_RECURSE ASSETS "../assets/*.csv" "../assets/*.bmp")
+	file (GLOB_RECURSE ASSETS "assets/*.csv" "assets/*.bmp")
 	add_executable (wolf3d-clone MACOSX_BUNDLE ${SRC_FILES} ${ASSETS})
 	set_source_files_properties(${ASSETS} PROPERTIES
 		MACOSX_PACKAGE_LOCATION assets
@@ -30,8 +30,8 @@ else()
 endif()
 
 # Create pre-compiled header
-file (GLOB_RECURSE UTIL_HEADERS "${CMAKE_SOURCE_DIR}/Utilities/*.h")
-target_precompile_headers (wolf3d-clone PRIVATE "Utilities/COMMON_HEADERS.h" ${UTIL_HEADERS})
+file (GLOB_RECURSE UTIL_HEADERS "${CMAKE_SOURCE_DIR}/src/Utilities/*.h")
+target_precompile_headers (wolf3d-clone PRIVATE "src/Utilities/COMMON_HEADERS.h" ${UTIL_HEADERS})
 
 # Link SDL2
-target_link_libraries(wolf3d-clone PRIVATE SDL2::SDL2)
+target_link_libraries (wolf3d-clone PRIVATE SDL2::SDL2)
