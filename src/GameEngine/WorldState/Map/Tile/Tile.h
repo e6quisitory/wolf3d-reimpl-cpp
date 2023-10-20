@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../Multimedia/Multimedia.h"
+#include <variant>
 
 /*
 =========================================================
