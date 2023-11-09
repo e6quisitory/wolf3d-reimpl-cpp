@@ -1,4 +1,9 @@
-# Wolfenstein 3D Clone
+### Deprecation Notice
+This repo contains my first-implementation in C++ of the Wolfenstein 3D re-implementation project that I have now moved over to being implemented in Rust [here](https://github.com/e6quisitory/wolf3d-clone-rs). I will no longer work on this C++ version of the project; the project continues to get worked on and will get finished in Rust. I leave all the text below from the original README (with some slight modifications) for this project repo for those curious/interested.
+
+---
+
+# Wolfenstein 3D Re-implementation in C++
 
 <img src="https://user-images.githubusercontent.com/25702188/218297410-8b732b32-b8dc-4e6c-910e-b3732e5346de.png" width=300/>
 
@@ -16,7 +21,9 @@
 <a name="introduction"/>
 
 ## Introduction
-I'm attempting to make a clone of the classic 1992 id Software game, Wolfenstein 3D. Cloning most of the functionality in the game from scratch is the goal, including rendering the game world, enemies, weapons, sound system, etc. So far, I've implemented the following functionality:
+
+
+I'm attempting to re-implement, from scratch, the classic 1992 id Software game, _Wolfenstein 3D_. Re-implementing most of the functionality in the game is the goal, including rendering the game world, enemies, weapons, sound system, etc. So far, I've implemented the following functionality:
 - Raycasting
 - Selectively textured walls with lighting
 - Sprites
